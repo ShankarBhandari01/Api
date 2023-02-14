@@ -3,21 +3,21 @@ const BuyStock = require("../model/BuyStock");
 exports.AddStock = (req, res) => {
     stock.create(req.body).then(() => {
         res.status(200).json({ status: true, message: "Stock Added!!" })
-    }).catch((e) => {
+    }).catch(() => {
         res.status(201).json({ status: true, message: "Operation failed" })
     });
 }
 exports.getAllStock = (req, res) => {
     stock.find().then((data) => {
         res.status(200).json({ status: true, data: data })
-    }).catch((e) => {
+    }).catch(() => {
         res.status(201).json({ status: true, message: "Operation failed" })
     });
 }
 exports.viewOne = (req, res) => {
     stock.findOne({ _id: req.params.id }).then((stock) => {
         res.status(200).json({ status: true, stock })
-    }).catch((e) => {
+    }).catch(() => {
         res.status(201).json({ status: true, message: "Operation failed" })
     })
 }
@@ -44,7 +44,7 @@ exports.BuyStock = (req, res) => {
     }).save().then(() => {
         res.status(200).json({ status: true, message: "operation successfull !!" })
     }).catch((e) => {
-        res.status(201).json({ status: true, message: e })
+        res.status(201).json({ status: true, message: e.message })
     })
 
 }
@@ -54,7 +54,7 @@ exports.GetStock = (req, res) => {
     BuyStock.find({ userID: userID, type: 'Buy' }).then((data) => {
         res.status(200).json({ status: true, data })
     }).catch((e) => {
-        res.status(201).json({ status: true, message: e })
+        res.status(201).json({ status: true, message: e.message })
     })
 }
 
@@ -63,7 +63,7 @@ exports.GetSingleBuyStock = (req, res) => {
         res.status(200).json({ status: true, data })
 
     }).catch(() => {
-        res.status(201).json({ status: true, message: e })
+        res.status(201).json({ status: true, message: e.message })
     })
 }
 
@@ -89,7 +89,7 @@ exports.SellStock = (req, res) => {
     }).save().then(() => {
         res.status(200).json({ status: true, message: "operation successfull !!" })
     }).catch((e) => {
-        res.status(201).json({ status: true, message: e })
+        res.status(201).json({ status: true, message: e.message })
     })
 
 }
@@ -99,7 +99,7 @@ exports.GetSellStock = (req, res) => {
     BuyStock.find({ userID: userID, type: 'Sell' }).then((data) => {
         res.status(200).json({ status: true, data })
     }).catch((e) => {
-        res.status(201).json({ status: true, message: e })
+        res.status(201).json({ status: true, message: e.message })
     })
 }
 

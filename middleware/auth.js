@@ -13,11 +13,11 @@ module.exports.verifyUser = function (req, res, next) {
                 next();
             })
             .catch(function (err) {
-                res.status(400).json({ message: err })
+                res.status(400).json({ message: err.message })
             })
     }
     catch (err) {
-        res.status(500).json({ message: err })
+        res.status(400).json({ message: err.message })
     }
 
 }
