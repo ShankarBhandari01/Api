@@ -1,8 +1,24 @@
 const User = require('../model/UserModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-exports.Signup = async (req, res) => {
+const { UserRepository } = require('../repo/userRepo').default;
+const { UserService } = require('../services/userService');
+
+const userRepository = new UserRepository(User);
+const userService = new UserService(userRepository);
+
+exports.Signup = async (req, res, next) => {
     console.log("Sign up " + JSON.stringify(req.body));
+    try {
+        const response = await userService.doSignUp(req.body);
+        res.statusCode = response.statusCode;
+        return res.json({ message: response.message, data: response.data });
+    } catch (err) {
+        next(err);
+    }
+
+
+
     req.body.password = await bcrypt.hash(req.body.password, 10);
     User.create(req.body).then(() => {
         res.status(200).json({ status: true, message: "User Registered!!" })
@@ -22,7 +38,7 @@ exports.login = (req, res) => {
                     return res.status(201).json({ success: false, message: "Username or password incorrect!!" })
                 }
                 const token = jwt.sign({ userId: user._Id }, 'secretkey');
-                res.status(200).json({ status: true, token, user  })
+                res.status(200).json({ status: true, token, user })
             })
             // if (user.password === req.body.password) {
 
