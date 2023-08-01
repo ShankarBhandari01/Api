@@ -1,4 +1,4 @@
-const { customResourceResponse } = require('../utlities/constants');
+import { customResourceResponse } from '../utlities/constants';
 
 class UserService {
     constructor(userRepo) {
@@ -6,7 +6,7 @@ class UserService {
     }
 
 
-    async doSignUp(userModel) {
+    doSignUp = async(userModel) => {
         const response = {};
         const user = await this.userRepo.addUser(userModel);
 
@@ -22,6 +22,6 @@ class UserService {
     }
 }
 
-module.exports = {
+export default {
     UserService,
 };
