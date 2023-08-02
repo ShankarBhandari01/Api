@@ -1,20 +1,33 @@
 //checking if the logged in user is authenticated or not 
 const jwt = require('jsonwebtoken');
 const User = require('../model/UserModel');
+const customResourceResponse = require('../utlities/constants');
 
 //main guards
-module.exports.verifyUser = function (req, res, next) {
+module.exports.verifyUser = (req, res, next) => {
     try {
         const token = req.headers.authorization.split(" ")[1]
-        const verifiedData = jwt.verify(token, 'secretkey');
-        User.findOne({ _id: verifiedData.userId })
-            .then(function (userInfo) {
-                req.userData=userInfo
+        jwt.verify(token, 'secretkey', (err, decoded) => {
+            if (err) {
+                const response = {};
+                response = customResourceResponse.invalidTokenAccess
+                res.statusCode = response.statusCode;
+                res.json(response);
+            } else {
+                req.userData = decoded
                 next();
-            })
-            .catch(function (err) {
-                res.status(400).json({ message: err.message })
-            })
+            }
+        });
+
+
+        // User.findOne({ _id: verifiedData.userId })
+        //     .then((userInfo) => {
+        //         req.userData = userInfo
+        //         next();
+        //     })
+        //     .catch((err) => {
+        //         res.status(400).json({ message: err.message })
+        //     })
     }
     catch (err) {
         res.status(400).json({ message: err.message })

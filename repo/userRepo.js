@@ -5,7 +5,11 @@ class UserRepository {
     addUser = (user) => {
         return this.userModel.create(user);
     }
+
+    getUserByUsername =(username)=>{
+        return this.userModel.findOne({ username: username})
+    }
 }
-export default {
+module.exports= {
     UserRepository,
 };

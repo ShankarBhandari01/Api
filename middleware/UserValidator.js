@@ -1,4 +1,5 @@
-const { check, validationResult } = require('express-validator')
+const { check, validationResult } = require('express-validator');
+const customResourceResponse = require('../utlities/constants');
 
 exports.uservalidator = [
     check('name')
@@ -25,8 +26,14 @@ exports.uservalidator = [
         .withMessage('password can not be empty!'),
     (req, res, next) => {
         const errors = validationResult(req);
-        if (!errors.isEmpty())
-            return res.status(422).json(errors.array());
+        if (!errors.isEmpty()) {
+            const response = {};
+            response.status = customResourceResponse.reqValidationError.statusCode;
+            response.message = customResourceResponse.reqValidationError.message;
+            response.data = errors.array()
+            res.statusCode = response.status;
+            return res.json(response);
+        }
         next();
     }
 ]
