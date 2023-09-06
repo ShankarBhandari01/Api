@@ -7,7 +7,7 @@ const { StockService } = require("../services/stockService");
 const stockRepository = new StockRepository(stock);
 const stockService = new StockService(stockRepository);
 
-
+//update for servers and repository patterns 
 exports.AddStock = async (req, res, next) => {
     try {
         const response = await stockService.AddStock(req.body);
