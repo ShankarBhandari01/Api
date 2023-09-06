@@ -1,11 +1,27 @@
 const stock = require("../model/Stocks"); // import of stock model 
 const BuyStock = require("../model/BuyStock");
-exports.AddStock = (req, res) => {
-    stock.create(req.body).then(() => {
-        res.status(200).json({ status: true, message: "Stock Added!!" })
-    }).catch(() => {
-        res.status(201).json({ status: true, message: "Operation failed" })
-    });
+
+const { StockRepository } = require("../repo/stockRepo");
+const { StockService } = require("../services/stockService");
+
+const stockRepository = new StockRepository(stock);
+const stockService = new StockService(stockRepository);
+
+
+exports.AddStock = async (req, res, next) => {
+    try {
+        const response = await stockService.AddStock(req.body);
+        res.statusCode = response.statusCode;
+        return res.json(response);
+    } catch (err) {
+        next(err);
+    }
+
+    // stock.create(req.body).then(() => {
+    //     res.status(200).json({ status: true, message: "Stock Added!!" })
+    // }).catch(() => {
+    //     res.status(201).json({ status: true, message: "Operation failed" })
+    // });
 }
 exports.getAllStock = (req, res) => {
     stock.find().then((data) => {
@@ -106,11 +122,11 @@ exports.GetSellStock = (req, res) => {
 exports.totalUnit = (req, res) => {
     id = req.userData._id.toString()
     BuyStock.aggregate([
-        { $match: { $and:[{type:"Buy"},{userID:id}] } },
+        { $match: { $and: [{ type: "Buy" }, { userID: id }] } },
         { $group: { _id: "$userID", totalUnit: { $sum: "$Unit" } } },
     ]).then((data) => {
         res.status(200).json({ status: true, data })
-    }).catch((e)=>{
+    }).catch((e) => {
         console.log(e)
     })
 }
@@ -119,18 +135,18 @@ exports.totalUnit = (req, res) => {
 exports.totalInvest = (req, res) => {
     id = req.userData._id.toString()
     BuyStock.aggregate([
-        { $match: { $and:[{type:"Buy"},{userID:id}] } },
+        { $match: { $and: [{ type: "Buy" }, { userID: id }] } },
         { $group: { _id: "$userID", totalUnit: { $sum: "$total" } } },
     ]).then((data) => {
         res.status(200).json({ status: true, data })
     })
-   
+
 }
 exports.totalSold = (req, res) => {
     id = req.userData._id.toString()
     BuyStock.aggregate([
-        { $match: { $and:[{type:"Sell"},{userID:id}] } },
-        { $group: { _id: "$userID", totalUnit: { $sum: "$total"} } },
+        { $match: { $and: [{ type: "Sell" }, { userID: id }] } },
+        { $group: { _id: "$userID", totalUnit: { $sum: "$total" } } },
     ]).then((data) => {
         res.status(200).json({ status: true, data })
     })
@@ -138,17 +154,17 @@ exports.totalSold = (req, res) => {
 exports.currentAmount = (req, res) => {
     id = req.userData._id.toString()
     BuyStock.aggregate([
-        { $match: { $and:[{type:"Buy"},{userID:id}] } },
+        { $match: { $and: [{ type: "Buy" }, { userID: id }] } },
         { $group: { _id: "$userID", totalUnit: { $sum: "$amount" } } },
     ]).then((data) => {
-        
+
         res.status(200).json({ status: true, data })
     })
 }
 exports.OverAllprofit = (req, res) => {
     id = req.userData._id.toString()
     BuyStock.aggregate([
-        { $match: { $and:[{type:"Buy"},{userID:id}] } },
+        { $match: { $and: [{ type: "Buy" }, { userID: id }] } },
         { $group: { _id: "$userID", totalUnit: { $avg: "$total" } } },
     ]).then((data) => {
         res.status(200).json({ status: true, data })

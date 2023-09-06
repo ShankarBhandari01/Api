@@ -3,6 +3,7 @@ const { UserRepository } = require('../repo/userRepo');
 const { UserService } = require('../services/userService');
 
 const UserModel = require('../model/UserModel');
+
 const userRepository = new UserRepository(UserModel);
 const userService = new UserService(userRepository);
 

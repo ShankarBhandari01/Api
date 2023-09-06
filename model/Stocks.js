@@ -1,5 +1,4 @@
-const mongoose = require('mongoose')
-const { Schema, model } = mongoose;
+const { Schema, model } = require('mongoose')
 //creating the Stock scheme 
 const stockScheme = new Schema({
     stockName: {
@@ -20,5 +19,4 @@ const stockScheme = new Schema({
     }
 });
 // the model of the Stock scheme 
-const Stock = model('Stock', stockScheme);
-module.exports = Stock;
+module.exports =  model('Stock', stockScheme);
