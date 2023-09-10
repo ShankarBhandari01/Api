@@ -2,7 +2,7 @@
 
 class StreamingService{
     getVideoPath =() =>{
-        return  "./asserts/videos/video.mp4";
+        return  "./asserts/videos/SampleVideo_360x240_30mb.mp4";
     }
 }
 module.exports={
