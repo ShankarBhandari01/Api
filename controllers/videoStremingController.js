@@ -6,41 +6,41 @@ const fs = require('fs');
 const statAsync = util.promisify(fs.stat);
 const createReadStreamAsync = util.promisify(fs.createReadStream);
 
+const videoPath = streamingService.getVideoPath(); 
+
 exports.StartStreaming = async (req, res, next) => {
     try {
-        const range = req.headers.range;
-        const videoPath = streamingService.getVideoPath();
+        const videoSize = fs.statSync(videoPath);
+        const range = req.headers.range || 'bytes=0-';
 
-        // Use util.promisify to make fs.stat and fs.createReadStream asynchronous
-        const videoSize = await statAsync(videoPath);
+        const positions = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(positions[0], 10);
+        const end = positions[1] ? parseInt(positions[1], 10) : videoSize.size - 1;
+        const chunksize = (end - start) + 1;
 
-        if (!range) {
-            const headers = {
-                'Content-Length': videoSize.size,
-                'Content-Type': 'video/mp4',
-            };
-             fs.createReadStream(videoPath).pipe(res);
-            res.writeHead(200, headers);
-        } else {
-            const chunkSize = 1 * 1e6;
-            const start = Number((range || '').replace(/\D/g, ''));
-            const end = Math.min(start + chunkSize, videoSize.size - 1);
-            const contentLength = end - start + 1;
+        const headers = {
+            'Content-Range': `bytes ${start}-${end}/${videoSize.size}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Type': 'video/mp4',
+        };
 
-            const headers = {
-                'Content-Range': `bytes ${start}-${end}/${videoSize.size}`,
-                'Accept-Ranges': 'bytes',
-                'Content-Length': contentLength,
-                'Content-Type': 'video/mp4',
-            };
+        res.writeHead(206, headers);
 
-            res.writeHead(206, headers);
-            const mystream =  fs.createReadStream(videoPath, { start, end });
-            mystream.pipe(res);
-        }
+        // Create a readable stream and use pipe to efficiently stream chunks
+        const videoStream = fs.createReadStream(videoPath, { start, end });
+
+        videoStream.on('open', function () {
+            videoStream.pipe(res);
+        });
+
+        videoStream.on('error', function (err) {
+            console.error('Error reading video stream:', err);
+            res.statusCode = 500; // Internal Server Error
+            res.end();
+        });
     } catch (error) {
-        console.log(error);
         next(error);
     }
-
 };
+
