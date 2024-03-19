@@ -40,7 +40,7 @@ class UserService {
                     response = customResourceResponse.invalidCreadintial;
                     return response;
                 }
-                lodash.omit(user.password); //remove password l̥
+                lodash.omit(user.password); //remove password
                 const token = assignToken(user);
                 response = customResourceResponse.success;
                 response.token = token;
@@ -55,7 +55,7 @@ class UserService {
         const options = {
             expiresIn: '1d', // Token will expire in 1 day
             algorithm: 'HS256',
-            issuer: '',
+            issuer: 'ShankarBhandari',
             subject: '',
             audience: ''
         };
