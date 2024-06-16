@@ -1,0 +1,12 @@
+2024-06-16 22:35:50 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: Assignment to constant variable.
+2024-06-16 22:37:02 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: Assignment to constant variable.
+2024-06-16 22:39:07 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: Assignment to constant variable.
+2024-06-16 22:59:32 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: Cannot read properties of undefined (reading 'message')
+2024-06-16 23:00:45 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: Cannot read properties of undefined (reading 'message')
+2024-06-16 23:16:32 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: User does not exist. Please SignUp first.
+2024-06-16 23:21:43 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: User does not exist. Please SignUp first.
+2024-06-16 23:22:49 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: User does not exist. Please SignUp first.
+2024-06-16 23:24:33 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: User does not exist. Please SignUp first.
+2024-06-16 23:25:01 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: User does not exist. Please SignUp first.
+2024-06-16 23:25:48 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: User does not exist. Please SignUp first.
+2024-06-16 23:27:36 error: error ,Error during processing request: http://localhost:3000/api/v1/login details message: User does not exist. Please SignUp first.

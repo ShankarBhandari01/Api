@@ -1,5 +1,5 @@
 const { check, validationResult } = require('express-validator');
-const customResourceResponse = require('../utlities/constants');
+const customResourceResponse = require('../utils/constants');
 
 exports.uservalidator = [
     check('name')
