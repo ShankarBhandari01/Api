@@ -79,3 +79,4 @@
 2024-06-16 23:26:53 info: stopping the server
 2024-06-16 23:27:32 info: the server started listining on port port 3000
 2024-06-16 23:27:36 info: a request has been made with the following uuid [ffa27098-85ce-477e-bdd0-d92a822a71e8] /api/v1/login PostmanRuntime/7.37.0 {"email":null,"password":"12345"}
+2024-06-16 23:38:30 info: the server started listining on port port 3000
