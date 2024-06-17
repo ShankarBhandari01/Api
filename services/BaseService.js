@@ -1,13 +1,10 @@
-const _ = require("lodash");
-const RequestHandler = require("../utils/RequestHandler");
-const Logger = require("../utils/logger");
 const jwt = require("jsonwebtoken");
 const config = require("../config/appconfig");
-const logger = new Logger();
-const errHandler = new RequestHandler(logger);
-class BaseService {
+const BaseRepo = require("../repo/BaseRepo");
 
-   async assignToken(user) {
+const baseRepo = new BaseRepo();
+class BaseService {
+  assignToken(user) {
     let tokens = {};
     try {
       // Set the options for token generation
@@ -33,6 +30,23 @@ class BaseService {
       return Promise.reject(err);
     }
     return tokens;
+  }
+
+  async doRecording(log) {
+    try {
+      const result = await baseRepo.insertUserlog(log);
+      return result._id;
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  async updateLogStatus(msg, logId) {
+    try {
+      const result = await baseRepo.updateLogMsg(msg, logId);
+    } catch (err) {
+      return Promise.reject(err);
+    }
   }
 }
 module.exports = BaseService;

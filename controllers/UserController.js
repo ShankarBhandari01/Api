@@ -1,19 +1,19 @@
-const { UserRepository } = require("../repo/userRepo");
+const { UserRepository } = require("../repo/UserRepository");
 const { UserService } = require("../services/userService");
-const UserModel = require("../model/UserModel");
-
 const RequestHandler = require("../utils/RequestHandler");
 const Logger = require("../utils/logger");
+const UserModel = require("../model/UserModel");
+
 const userRepository = new UserRepository(UserModel);
 const userService = new UserService(userRepository);
 
 const logger = new Logger();
 const requestHandler = new RequestHandler(logger);
 
-exports.Signup = async (req, res) => {
+exports.signup = async (req, res) => {
   try {
     const response = await userService.doSignUp(req.body);
-    return requestHandler.sendSuccess(res, "User Data Created ")(response);
+    return requestHandler.sendSuccess(res, "User Created ")(response);
   } catch (err) {
     return requestHandler.sendError(req, res, err);
   }
