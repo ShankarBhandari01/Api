@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const user = require('../api/user');
-const Stock = require('../api/stockroute');
+const user = require('./UserRoute');
+const Stock = require('./Stockroute');
 const streamingRoute = require('../api/videoStramingRout');
 
 //binding of route 

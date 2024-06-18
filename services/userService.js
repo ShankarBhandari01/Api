@@ -10,27 +10,40 @@ class UserService extends BaseService {
   }
 
   doSignUp = async (userModel) => {
-    const response = {};
-    //ToDO need to do data validation here
+    try {
+      // check if email address is already used
+      var email =  await this.getUser(userModel)
+      if(email){
+        throw new Error("Email address already used. ")
+      }
+      // Hash the password using bcrypt
+      const hashedPassword = await bcrypt.hash(userModel.password, 10);
+      userModel.password = hashedPassword;
 
-    userModel.password = await bcrypt.hash(userModel.password, 10);
-    const addUserResponse = await this.userRepo.addUser(userModel);
+      // Attempt to add user using userRepo
+      const addUserResponse = await this.userRepo.addUser(userModel);
 
-    if (!addUserResponse) {
-      response.message = customResourceResponse.serverError.message;
-      response.statusCode = customResourceResponse.serverError.statusCode;
+      // Handle addUserResponse based on result
+      if (!addUserResponse) {
+        throw new Error("Failed to add user");
+      }
+
+      const sanitizedResponse = lodash.omit(addUserResponse.toObject(), [
+        "password",
+        "createdDate",
+      ]);
+      // Prepare success response
+      const response = { data: sanitizedResponse };
       return response;
+    } catch (err) {
+      // Handle errors
+      throw { message: err.message };
     }
-    response.message = customResourceResponse.reqCreated.message;
-    response.statusCode = customResourceResponse.reqCreated.statusCode;
-    response.data = addUserResponse;
-    return response;
   };
 
   doLogin = async (request) => {
-    let response = {};
     try {
-      const user = await this.userRepo.getUserByUsername(request.username);
+      var user = await this.getUser(request);
       if (user === null) {
         throw new Error("UserNotFound");
       } else {
@@ -46,25 +59,15 @@ class UserService extends BaseService {
 
         lodash.omit(user.password); //remove password
         const token = super.assignToken(user);
-        response = customResourceResponse.success;
-        response.token = token;
-        response.user = user;
-        return response;
+        return { session: token, user: user };
       }
     } catch (err) {
-      if (err.message === "UserNotFound") {
-        response = customResourceResponse.noUserFound;
-      } else if (err.message === "InvalidCredentials") {
-        response = customResourceResponse.invalidCreadintial;
-      } else {
-        // Handle unexpected errors
-        response = { ...customResourceResponse.error, message: err.message };
-      }
-      throw response; // Propagate the error to the controller
+      throw { message: err.message }; // Propagate the error to the controller
     }
   };
+// get user details 
+  getUser = async (request) => await this.userRepo.getUserByUsername(request.email);
 }
-
 module.exports = {
   UserService,
 };
