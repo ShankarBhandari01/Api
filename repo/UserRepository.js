@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const logger = require("../utils/logger"); // Import a logger module
+const logger = require("../utils/logger"); 
 const DatabaseError = require("../utils/errors");
 
 class UserRepository {
