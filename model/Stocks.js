@@ -1,6 +1,10 @@
 const { Schema, model } = require('mongoose')
 //creating the Stock scheme 
 const stockScheme = new Schema({
+    image:{
+        type:String,
+        required:false
+    },
     stockName: {
         type: String,
         required: true
@@ -11,6 +15,10 @@ const stockScheme = new Schema({
     },
     amount:{
         type:Number,
+        required:true
+    },
+    description:{
+        type:String,
         required:true
     },
     createdDate: {

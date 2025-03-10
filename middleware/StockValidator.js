@@ -16,6 +16,11 @@ exports.stockvalidator = [
         .not()
         .isEmpty()
         .withMessage('quantity can not be empty!'),
+    check('description')
+        .trim()
+        .not()
+        .isEmpty()
+        .withMessage('description can not be empty!'),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty())

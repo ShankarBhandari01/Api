@@ -1,26 +1,31 @@
-
-
 /**
      * Constructor for StockService
      * @param {StockRepository} stockRepo - An instance of the StockRepository class.
      */
+
+const reesponse =  require("../utils/constants");
 
 class StockService {
     constructor(stockRepo) {
         this.stockRepo = stockRepo;
     }
 
-    addStock = async (stockModel) => {
+    addStock = async (stockModel,files) => {
         const response = {};
+
+        if (files) {
+            stockModel.image = files.image[0].path; // Store profile picture file path
+        }
         const insertedStock = await this.stockRepo.addStock(stockModel);
+
         if (!insertedStock) {
-            response.message = customResourceResponse.serverError.message;
-            response.statusCode = customResourceResponse.serverError.statusCode;
+            response.message = reesponse.customResourceResponse.serverError.message;
+            response.statusCode = reesponse.customResourceResponse.serverError.statusCode;
             return response;
         }
 
-        response.message = customResourceResponse.reqCreated.message;
-        response.statusCode = customResourceResponse.reqCreated.statusCode;
+        response.message = reesponse.customResourceResponse.success.message;
+        response.statusCode = reesponse.customResourceResponse.success.statusCode;
         response.data = insertedStock;
         return response;
     }

@@ -1,3 +1,4 @@
+
 class StockRepository {
     constructor(stockModel) {
         this.stockModel = stockModel;
