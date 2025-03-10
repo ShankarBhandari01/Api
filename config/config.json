@@ -9,7 +9,7 @@
     "dialect": "mongodb"
   },
   "test": {
-    "url": "mongodb+srv://shankarbhandari:bhandari12345shankar@cluster0.rofic.mongodb.net/Mydatabase?retryWrites=true&w=majority",
+    "url": "mongodb+srv://shankarbhandari:bhandari12345shankar@cluster0.rofic.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
     "username": "shankarbhandari",
     "password": "bhandari12345shankar",
     "database": "Mydatabase",
