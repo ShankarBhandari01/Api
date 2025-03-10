@@ -25,7 +25,7 @@ const loginSchema = Joi.object({
       'string.empty': 'Password cannot be empty',
       'any.required': 'Password is required',
     }),
-  });
+  }).unknown(true);
 
 
   // Define Joi schemas for each field
@@ -47,5 +47,5 @@ const userSchema = Joi.object({
       'any.required': 'Password is required',
       'string.empty': 'Password cannot be empty',
     }),
-  });
+  }).unknown(true);
   module.exports = {customResourceResponse,loginSchema,userSchema}

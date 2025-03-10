@@ -8,7 +8,7 @@ const Logger = require("../utils/logger.js");
 const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
 const app = express();
 const logger = new Logger();
-app.set("config", config); // the system configrationsx
+app.set("config", config); // the system configrations
 
 app.set("db", require("../database/db.js"));
 app.set("port", process.env.DEV_APP_PORT);
@@ -17,11 +17,11 @@ app.use(compression());
 app.use(require("method-override")());
 
 app.use(cors());
-app.use(express.urlencoded({ extended: false }));
+// Middleware to parse urlencoded form data
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Middleware to log API requests and responses
 app.use(loggingMiddleware);
-
 
 process.on("SIGINT", () => {
   logger.log("stopping the server", "info");
@@ -46,6 +46,7 @@ app.use((req, res, next) => {
     message,
     "error"
   );
+
   const err = new Error("Not Found");
   err.status = 404;
   res.message=message
@@ -55,6 +56,7 @@ app.use((req, res, next) => {
   });
   next(err); // this will stackstre the error
 });
+
 
 
 module.exports = app;

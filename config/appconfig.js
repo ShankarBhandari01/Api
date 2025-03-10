@@ -1,6 +1,5 @@
-
-
 require('dotenv').config();
+const path = require('path');
 
 // config.js
 module.exports = {
@@ -33,5 +32,10 @@ module.exports = {
 		api_user: process.env.USERNAME,
 		from_email: process.env.FROM_EMAIL || 'iamshankarbhandari@gmail.com',
 	},
+	file:{
+		uploadDir:  path.join(__dirname, '../asserts/images'),
+		ALLOWED_FILE_TYPES: ['image/jpeg', 'image/png', 'image/gif'],
+	}
 
 };
+

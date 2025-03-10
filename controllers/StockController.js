@@ -10,18 +10,15 @@ const stockService = new StockService(stockRepository);
 //update for servers and repository patterns 
 exports.AddStock = async (req, res, next) => {
     try {
-        const response = await stockService.AddStock(req.body);
+        const stockData = req.body; // The stock data
+        const file = req.file; // The uploaded files
+
+        const response = await stockService.addStock(stockData,file);
         res.statusCode = response.statusCode;
         return res.json(response);
     } catch (err) {
         next(err);
     }
-
-    // stock.create(req.body).then(() => {
-    //     res.status(200).json({ status: true, message: "Stock Added!!" })
-    // }).catch(() => {
-    //     res.status(201).json({ status: true, message: "Operation failed" })
-    // });
 }
 exports.getAllStock = (req, res) => {
     stock.find().then((data) => {

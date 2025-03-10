@@ -6,18 +6,15 @@ const userlogSchema = new Schema({
   },
   platform: {
     type: String,
-    required: true,
   },
   userAgent: {
     type: String,
   },
   ipAddress: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
-    required: true,
   },
   method: {
     type: String,
