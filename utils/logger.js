@@ -50,6 +50,7 @@ class Logger {
 		});
 
 		errorLogger = createLogger({
+			level: env === 'development' ? 'info' : 'debug',
 			// change level if in dev environment versus production
 			format: format.combine(
 				format.timestamp({
@@ -79,6 +80,7 @@ class Logger {
 
 		warnLogger = createLogger({
 			// change level if in dev environment versus production
+			level: env === 'development' ? 'info' : 'debug',
 			format: format.combine(
 				format.timestamp({
 					format: 'YYYY-MM-DD HH:mm:ss',
@@ -107,6 +109,7 @@ class Logger {
 
 		allLogger = createLogger({
 			// change level if in dev environment versus production
+			level: env === 'development' ? 'info' : 'debug',
 			format: format.combine(
 				format.timestamp({
 					format: 'YYYY-MM-DD HH:mm:ss',
