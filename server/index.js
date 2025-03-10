@@ -17,9 +17,9 @@ app.use(compression());
 app.use(require("method-override")());
 
 app.use(cors());
+app.use(express.json());
 // Middleware to parse urlencoded form data
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 // Middleware to log API requests and responses
 app.use(loggingMiddleware);
 
