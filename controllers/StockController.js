@@ -11,7 +11,7 @@ const stockService = new StockService(stockRepository);
 exports.AddStock = async (req, res, next) => {
     try {
         const stockData = req.body; // The stock data
-        const file = req.file; // The uploaded files
+        const file = req.files; // The uploaded files
 
         const response = await stockService.addStock(stockData,file);
         res.statusCode = response.statusCode;
