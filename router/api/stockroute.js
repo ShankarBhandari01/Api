@@ -22,7 +22,7 @@ const fileupload =  require('../../middleware/fileUpload');;
 
 //add stock route
 router.post("/addStock",fileupload ,stockvalidator, AddStock);
-router.get("/AllStock", auth.isAuthunticated, getAllStock);
+router.get("/getallstock", auth.isAuthunticated, getAllStock);
 router.get("/Stock/:id", auth.isAuthunticated, viewOne);
 router.post("/BuyStock", auth.isAuthunticated, BuyStock);
 router.get("/GetStock", auth.isAuthunticated, GetStock);

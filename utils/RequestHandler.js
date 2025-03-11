@@ -4,13 +4,13 @@ class RequestHandler {
   constructor(logger) {
     this.logger = logger;
   }
-
+// remember to pass res in the parameter 
   throwIf(fn, status, errorType, errorMessage) {
     res.message = errorMessage.message;
     return (result) =>
       fn(result) ? this.throwError(status, errorType, errorMessage)() : result;
   }
-
+// remember to pass res in the parameter 
   validateJoi(err, status, errorType, errorMessage) {
     res.message = errorMessage.message;
     if (err) {
@@ -21,8 +21,10 @@ class RequestHandler {
       : "";
   }
 
-  throwError(status, errorType, errorMessage) {
-    res.message = errorMessage.message;
+  throwError(res=null, status, errorType, errorMessage) {
+    if(res){
+      res.message = errorMessage;
+    }
     return (e) => {
       if (!e) e = new Error(errorMessage || "Default Error");
       e.status = status;
@@ -34,13 +36,11 @@ class RequestHandler {
   catchError(res, error) {
     res.message = error.message;
     if (!error) error = new Error("Default error");
-    res
-      .status(error.status || 500)
-      .json({
-        type: "error",
-        message: error.message || "Unhandled error",
-        error,
-      });
+    res.status(error.status || 500).json({
+      type: "error",
+      message: error.message || "Unhandled error",
+      error,
+    });
   }
 
   sendSuccess(res, message, status) {
@@ -56,7 +56,8 @@ class RequestHandler {
       res.status(status).json({
         type: "success",
         message: message || "Success result",
-        data,...globalData,
+        data,
+        ...globalData,
       });
     };
   }

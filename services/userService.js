@@ -12,9 +12,9 @@ class UserService extends BaseService {
   doSignUp = async (userModel) => {
     try {
       // check if email address is already used
-      var email =  await this.getUser(userModel)
-      if(email){
-        throw new Error("Email address already used. ")
+      var email = await this.getUser(userModel);
+      if (email) {
+        throw new Error("Email address already used. ");
       }
       // Hash the password using bcrypt
       const hashedPassword = await bcrypt.hash(userModel.password, 10);
@@ -65,8 +65,9 @@ class UserService extends BaseService {
       throw { message: err.message }; // Propagate the error to the controller
     }
   };
-// get user details 
-  getUser = async (request) => await this.userRepo.getUserByUsername(request.email);
+  // get user details
+  getUser = async (request) =>
+    await this.userRepo.getUserByUsername(request.email);
 }
 module.exports = {
   UserService,

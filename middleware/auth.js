@@ -18,24 +18,24 @@ function getTokenFromHeader(req) {
 function verifyToken(req, res, next) {
 	try {
 		if (_.isUndefined(req.headers.authorization)) {
-			requestHandler.throwError(401, 'Unauthorized', 'Not Authorized to access this resource!')();
+			requestHandler.throwError(res,401, 'Unauthorized', 'Not Authorized to access this resource!')();
 		}
 		const Bearer = req.headers.authorization.split(' ')[0];
 
 		if (!Bearer || Bearer !== 'Bearer') {
-			requestHandler.throwError(401, 'Unauthorized', 'Not Authorized to access this resource!')();
+			requestHandler.throwError(res,401, 'Unauthorized', 'Not Authorized to access this resource!')();
 		}
 
 		const token = req.headers.authorization.split(' ')[1];
 
 		if (!token) {
-			requestHandler.throwError(401, 'Unauthorized', 'Not Authorized to access this resource!')();
+			requestHandler.throwError(res,401, 'Unauthorized', 'Not Authorized to access this resource!')();
 		}
 
 		// verifies secret and checks exp
 		jwt.verify(token, config.auth.jwt_secret, (err, decoded) => {
 			if (err) {
-				requestHandler.throwError(401, 'Unauthorized', 'please provide a vaid token ,your token might be expired')();
+				requestHandler.throwError(res,401, 'Unauthorized', 'please provide a vaid token ,your token might be expired')();
 			}
 			req.decoded = decoded;
 			next();

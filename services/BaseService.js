@@ -11,7 +11,7 @@ class BaseService {
       const options = {
         expiresIn: config.auth.jwt_expiresin, // Token will expire in 1 day
         algorithm: "HS256",
-        issuer: "Myapp",
+        issuer: "restaurant-pos-api",
         subject: "",
         audience: "",
       };
