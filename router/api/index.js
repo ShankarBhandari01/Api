@@ -9,7 +9,7 @@ router.use(user);
 router.use(streamingRoute);
 
 //test url
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
   res.send("Hello, world!");
 });
 
