@@ -9,15 +9,19 @@ const Logger = require("../utils/logger.js");
 const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
 const app = express();
 const logger = new Logger();
+
 app.set("config", config); // the system configrations
 
 // user session
 app.use(
   session({
-    secret: process.env.JWT_SECRET,
+    secret: config.auth.jwt_secret,
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+    cookie: { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production', // Only set secure cookies in production (requires HTTPS)
+      maxAge: 1000 * 60 * 60 * 24 }, // 1 day
   })
 );
 
