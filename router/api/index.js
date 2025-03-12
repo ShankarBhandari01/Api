@@ -8,9 +8,4 @@ router.use(Stock);
 router.use(user);
 router.use(streamingRoute);
 
-//test url
-router.get("/", (req, res) => {
-  res.send("Hello, world!");
-});
-
 module.exports = router;

@@ -52,6 +52,11 @@ app.use((req, res, next) => {
   next();
 });
 
+//test url
+router.get("/", (req, res) => {
+  res.send("Hello, world!");
+});
+
 app.use(require("../router/index.js"));
 
 app.use((req, res, next) => {
