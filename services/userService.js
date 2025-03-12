@@ -2,7 +2,7 @@ const customResourceResponse = require("../utils/constants");
 const bcrypt = require("bcrypt");
 const lodash = require("lodash");
 const BaseService = require("./BaseService");
-const imageModel = require("../model/image");
+const imageModel = require("../model/Image");
 
 class UserService extends BaseService {
   constructor(userRepo) {
@@ -20,7 +20,7 @@ class UserService extends BaseService {
       // Hash the password using bcrypt
       const hashedPassword = await bcrypt.hash(userModel.password, 10);
       userModel.password = hashedPassword;
-      
+
       const newImage = new imageModel(); 
       if (image && image.length > 0) { 
         const imageData = image[0]; 
