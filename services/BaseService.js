@@ -4,7 +4,7 @@ const BaseRepo = require("../repo/BaseRepo");
 
 const baseRepo = new BaseRepo();
 class BaseService {
-  assignToken(user) {
+  assignToken(user, session) {
     let tokens = {};
     try {
       // Set the options for token generation
@@ -26,6 +26,14 @@ class BaseService {
 
       tokens.token = token;
       tokens.refreshToken = refreshToken;
+      // Store user data in the session
+      session.user = {
+        id: user._id,
+        username: user.email,
+        role: user.role,
+        name: user.name,
+        profile: user.profileBase64,
+      };
     } catch (err) {
       return Promise.reject(err);
     }

@@ -33,7 +33,7 @@ module.exports = {
 		from_email: process.env.FROM_EMAIL || 'iamshankarbhandari@gmail.com',
 	},
 	file:{
-		uploadDir:  path.join(__dirname, '../asserts/images'),
+		uploadDir:  path.join(__dirname, '../public/images'),
 		ALLOWED_FILE_TYPES: ['image/jpeg', 'image/png', 'image/gif'],
 	}
 

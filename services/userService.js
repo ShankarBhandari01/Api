@@ -2,6 +2,7 @@ const customResourceResponse = require("../utils/constants");
 const bcrypt = require("bcrypt");
 const lodash = require("lodash");
 const BaseService = require("./BaseService");
+const imageModel = require("../model/image");
 
 class UserService extends BaseService {
   constructor(userRepo) {
@@ -9,7 +10,7 @@ class UserService extends BaseService {
     this.userRepo = userRepo;
   }
 
-  doSignUp = async (userModel) => {
+  doSignUp = async (userModel, image) => {
     try {
       // check if email address is already used
       var email = await this.getUser(userModel);
@@ -19,10 +20,19 @@ class UserService extends BaseService {
       // Hash the password using bcrypt
       const hashedPassword = await bcrypt.hash(userModel.password, 10);
       userModel.password = hashedPassword;
-
+      
+      const newImage = new imageModel(); 
+      if (image && image.length > 0) { 
+        const imageData = image[0]; 
+        
+        // Assign properties correctly
+        newImage.url = imageData.url
+        newImage.filename = imageData.originalname;
+        newImage.contentType = imageData.mimetype;
+        newImage.imageData = imageData.buffer; 
+      }
       // Attempt to add user using userRepo
-      const addUserResponse = await this.userRepo.addUser(userModel);
-
+      const addUserResponse = await this.userRepo.addUser(userModel, newImage);
       // Handle addUserResponse based on result
       if (!addUserResponse) {
         throw new Error("Failed to add user");
@@ -41,7 +51,7 @@ class UserService extends BaseService {
     }
   };
 
-  doLogin = async (request) => {
+  doLogin = async (request, session) => {
     try {
       var user = await this.getUser(request);
       if (user === null) {
@@ -56,10 +66,9 @@ class UserService extends BaseService {
           // Password does not match
           throw new Error("InvalidCredentials");
         }
-
         lodash.omit(user.password); //remove password
-        const token = super.assignToken(user);
-        return { session: token, user: user };
+        const token = super.assignToken(user, session);
+        return { session: token, user: session.user };
       }
     } catch (err) {
       throw { message: err.message }; // Propagate the error to the controller

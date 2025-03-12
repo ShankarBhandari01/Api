@@ -28,7 +28,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=production nodemon bin/www.js",
-    "start:dev": "NODE_ENV=development nodemon nodemon bin/www.js",
+    "start:dev": "NODE_ENV=test nodemon nodemon bin/www.js",
     "start:test": "NODE_ENV=test nodemon nodemon bin/www.js"
   },
   "author": "Shankar Bhandari",

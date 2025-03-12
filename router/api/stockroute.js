@@ -18,10 +18,10 @@ const {
 const { stockvalidator } = require("../../middleware/StockValidator"); //middleware for stock validator
 const auth = require("../../middleware/auth"); //middleware for varifying user
 // middleware for image upload
-const fileupload =  require('../../middleware/fileUpload');;
+const fileupload =  require('../../middleware/fileUploadMiddleware');;
 
 //add stock route
-router.post("/addStock",fileupload ,stockvalidator, AddStock);
+router.post("/addStock",fileupload.uploadImage ,stockvalidator, AddStock);
 router.get("/getallstock", auth.isAuthunticated, getAllStock);
 router.get("/Stock/:id", auth.isAuthunticated, viewOne);
 router.post("/BuyStock", auth.isAuthunticated, BuyStock);
