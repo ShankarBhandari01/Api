@@ -6,7 +6,7 @@ mongoose.set("strictQuery", false);
 mongoose.connect(config.url,{
     user: config.username,
     pass: config.password,
-    dbName: config.database,
+    dbName: config.database
 }).then(() => {
     console.log('database connected!');
 }).catch((e) => {

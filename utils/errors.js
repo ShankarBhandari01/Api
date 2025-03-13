@@ -6,4 +6,13 @@ class DatabaseError extends Error {
     this.status = 500;
   }
 }
-module.exports = DatabaseError;
+
+class UpdateError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "updateError";
+    this.status = 500;
+  }
+}
+
+module.exports = { DatabaseError, UpdateError };

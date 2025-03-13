@@ -9,9 +9,9 @@
     "dialect": "mongodb"
   },
   "test": {
-    "url": "mongodb://0.0.0.0:27017/Mydatabase",
-    "username": "postgres",
-    "password": "password",
+    "url": "mongodb+srv://shankarbhandari:bhandari12345shankar@cluster0.rofic.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    "username": "shankarbhandari",
+    "password": "bhandari12345shankar",
     "database": "Mydatabase",
     "host": "0.0.0.0",
     "port": 27017,

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {
-  AddStock,
+  saveStock,
   getAllStock,
   viewOne,
   BuyStock,
@@ -18,11 +18,11 @@ const {
 const { stockvalidator } = require("../../middleware/StockValidator"); //middleware for stock validator
 const auth = require("../../middleware/auth"); //middleware for varifying user
 // middleware for image upload
-const fileupload =  require('../../middleware/fileUpload');;
+const fileupload =  require('../../middleware/fileUploadMiddleware');;
 
 //add stock route
-router.post("/addStock",fileupload ,stockvalidator, AddStock);
-router.get("/AllStock", auth.isAuthunticated, getAllStock);
+router.post("/addStock",fileupload.uploadStock ,stockvalidator, saveStock);
+router.get("/getallstock", auth.isAuthunticated, getAllStock);
 router.get("/Stock/:id", auth.isAuthunticated, viewOne);
 router.post("/BuyStock", auth.isAuthunticated, BuyStock);
 router.get("/GetStock", auth.isAuthunticated, GetStock);

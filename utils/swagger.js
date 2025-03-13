@@ -38,7 +38,7 @@ getFullPathes(filesName);
 const options = {
   swaggerDefinition: {
     info: {
-      title: "My app",
+      title: "restaurant-pos-api",
       version: "1.0.0",
       description: "REST API with Swagger doc",
       contact: {
