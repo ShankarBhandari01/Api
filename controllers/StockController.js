@@ -12,11 +12,20 @@ const stockService = new StockService(stockRepository);
 
 const logger = new Logger();
 const requestHandler = new RequestHandler(logger);
+
 //add menus items
 exports.saveStock = async (req, res, next) => {
   try {
-    const StockDto = new StockDTO(req.body,req.files);
+    if (req.query.lang) {
+      req.session.lang = req.query.lang;
+    }
+    // language set
+    const lang = req.session.lang || "en"; // Default to English
+    //create Dto
+    const StockDto = new StockDTO(req.body, req.files, lang);
+    // call service layer
     const response = await stockService.addStock(StockDto);
+    // return response
     res.statusCode = response.statusCode;
     return res.json(response);
   } catch (err) {
@@ -27,7 +36,24 @@ exports.saveStock = async (req, res, next) => {
 // get all the menus items
 exports.getAllStock = async (req, res, next) => {
   try {
-    const response = await stockService.getAllStock();
+    // Set the language from query or default to 'en'
+    const lang = req.query.lang || req.session.lang || "en";
+    req.session.lang = lang;
+
+    // Get pagination parameters from query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Validate the limit to avoid too many results
+    if (limit >= 100) {
+      const message = "Limit must be less than 100";
+      throw { message: message };
+    }
+
+    // Fetch the stock data with pagination from the service layer
+    const response = await stockService.getAllStock(page,limit);
+
+    // Set the response status and send the response
     res.statusCode = response.statusCode;
     return res.json(response);
   } catch (err) {

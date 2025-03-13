@@ -1,5 +1,5 @@
 const BaseRepo = require("./BaseRepo");
-const {UpdateError} = require("../utils/errors");
+const { UpdateError } = require("../utils/errors");
 class StockRepository extends BaseRepo {
   constructor(stockModel) {
     super();
@@ -10,18 +10,26 @@ class StockRepository extends BaseRepo {
     return this.stockModel.create(stock);
   };
 
-  getAllStock = async () => {
-    return await this.stockModel.find();
+  getAllStock = async (skip, limit) => {
+    try {
+      return await this.stockModel
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .sort({ _id: 1 });
+    } catch (err) {
+      throw new Error(`Error fetching stock items ${err.message}`);
+    }
   };
 
   updateStock = async (stockId, updateData) => {
     try {
       const updatedStock = await this.stockModel.findByIdAndUpdate(
-        stockId, 
-        updateData, 
+        stockId,
+        updateData,
         { new: true, runValidators: true }
       );
-  
+
       if (!updatedStock) {
         throw new Error("Stock not found");
       }
@@ -30,7 +38,14 @@ class StockRepository extends BaseRepo {
       throw new UpdateError(`Error updating stock: ${error.message}`);
     }
   };
-  
+  getStockCount = async () => {
+    try {
+      const count = await this.stockModel.countDocuments();
+      return count;
+    } catch (err) {
+      throw new Error("Error counting stock items: " + err.message);
+    }
+  };
 }
 module.exports = {
   StockRepository,

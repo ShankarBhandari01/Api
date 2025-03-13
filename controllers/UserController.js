@@ -12,18 +12,30 @@ const requestHandler = new RequestHandler(logger);
 
 exports.signup = async (req, res) => {
   try {
-   const bodyData = req.body // user data
-   const image = req.files.image // user picture data 
+    // Set session language only if provided
+    if (req.query.lang) {
+      req.session.lang = req.query.lang;
+    }
+    const lang = req.session.lang || "en"; // Default to English
 
-   const response = await userService.doSignUp(bodyData,image);
-   return requestHandler.sendSuccess(res, "User Created ")(response);
+    const bodyData = req.body; // user data
+    const image = req.files?.image || null; // Handle missing files safely
+
+    const response = await userService.doSignUp(bodyData, image);
+    return requestHandler.sendSuccess(res, "User Created ")(response);
   } catch (err) {
     return requestHandler.sendError(req, res, err);
   }
 };
 exports.login = async (req, res) => {
   try {
-    const response = await userService.doLogin(req.body,req.session);
+    // Set session language only if provided
+    if (req.query.lang) {
+      req.session.lang = req.query.lang;
+    }
+    const lang = req.session.lang || "en"; // Default to English
+
+    const response = await userService.doLogin(req.body, req.session);
     return requestHandler.sendSuccess(res, "User login ")(response);
   } catch (err) {
     return requestHandler.sendError(req, res, err);

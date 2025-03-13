@@ -28,7 +28,7 @@ class BaseService {
       // selecting user data to be stored in token
       const sessionuser = session.user;
       // remove profile picture for session
-      const sanitizedSession = lodash.omit(sessionuser, ["profile"]);
+      const sanitizedSession = lodash.omit(sessionuser.toObject(), ["profile"]);
       // create token with session data
       const token = jwt.sign(
         { sanitizedSession },
