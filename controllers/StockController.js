@@ -1,5 +1,8 @@
 const stock = require("../model/Stocks"); // import of stock model
 const BuyStock = require("../model/BuyStock");
+const StockDTO = require("../dtos/StockDTO");
+const RequestHandler = require("../utils/RequestHandler");
+const Logger = require("../utils/logger");
 
 const { StockRepository } = require("../repo/stockRepo");
 const { StockService } = require("../services/stockService");
@@ -7,17 +10,17 @@ const { StockService } = require("../services/stockService");
 const stockRepository = new StockRepository(stock);
 const stockService = new StockService(stockRepository);
 
+const logger = new Logger();
+const requestHandler = new RequestHandler(logger);
 //add menus items
-exports.AddStock = async (req, res, next) => {
+exports.saveStock = async (req, res, next) => {
   try {
-    const stockData = req.body; // The stock data
-    const file = req.files; // The uploaded files
-
-    const response = await stockService.addStock(stockData, file);
+    const StockDto = new StockDTO(req.body,req.files);
+    const response = await stockService.addStock(StockDto);
     res.statusCode = response.statusCode;
     return res.json(response);
   } catch (err) {
-    next(err);
+    return requestHandler.sendError(req, res, err);
   }
 };
 
@@ -28,7 +31,7 @@ exports.getAllStock = async (req, res, next) => {
     res.statusCode = response.statusCode;
     return res.json(response);
   } catch (err) {
-    next(err);
+    return requestHandler.sendError(req, res, err);
   }
 };
 

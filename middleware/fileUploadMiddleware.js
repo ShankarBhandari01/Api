@@ -19,11 +19,11 @@ const uploadImage = new FileUpload({
 }).middleware();
 
 // Document upload (10MB limit)
-const uploadDocument = new FileUpload({
+const uploadStock = new FileUpload({
     storageType: 'disk', // Store on disk instead of memory
     fileFilter,
     sizeLimit: 10 * 1024 * 1024, // 10MB
     fields: [{ name: 'image', maxCount: 1 }]
 }).middleware();
 
-module.exports = { uploadImage, uploadDocument };
+module.exports = { uploadImage, uploadStock };

@@ -4,31 +4,53 @@
  */
 
 const reesponse = require("../utils/constants");
-
+const stock = require("../model/Stocks"); // import of stock model
 class StockService {
   constructor(stockRepo) {
     this.stockRepo = stockRepo;
   }
 
-  addStock = async (stockModel, files) => {
-    const response = {};
+  addStock = async (StockDto) => {
+    try {
+      const response = {};
+      //initalise the class
+      let insertedStock;
+      const stockModel = new stock(StockDto);
 
-    if (files) {
-      stockModel.image = files.image[0].path; // Store profile picture file path
-    }
-    const insertedStock = await this.stockRepo.addStock(stockModel);
+      // Handle image upload
+      if (StockDto.image && StockDto.image.image?.[0]?.path) {
+        stockModel.image = StockDto.image.image[0].path;
+      }
+      // check the mode of the transcation
+      if (StockDto.mode == "new") {
+        insertedStock = await this.stockRepo.addStock(stockModel);
+      } else {
+        // Update the updated timestamp
+        stockModel.updated_ts = Date.now();
+        stockModel.remarks = "edited";
+        // Remove _id to prevent immutable field error
+        const { _id, createdDate, ...updateData } = stockModel.toObject();
 
-    if (!insertedStock) {
-      response.message = reesponse.customResourceResponse.serverError.message;
-      response.statusCode =
-        reesponse.customResourceResponse.serverError.statusCode;
+        insertedStock = await this.stockRepo.updateStock(
+          StockDto.id,
+          updateData
+        );
+      }
+      
+      if (!insertedStock) {
+        response.message = reesponse.customResourceResponse.serverError.message;
+        response.statusCode =
+          reesponse.customResourceResponse.serverError.statusCode;
+        return response;
+      }
+
+      response.message = reesponse.customResourceResponse.success.message;
+      response.statusCode = reesponse.customResourceResponse.success.statusCode;
+      response.data = insertedStock;
       return response;
+    } catch (err) {
+      throw { message: err.message };
     }
-
-    response.message = reesponse.customResourceResponse.success.message;
-    response.statusCode = reesponse.customResourceResponse.success.statusCode;
-    response.data = insertedStock;
-    return response;
   };
 
   getAllStock = async () => {

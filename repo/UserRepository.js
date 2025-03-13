@@ -1,10 +1,12 @@
 const mongoose = require("mongoose");
 const Logger = require("../utils/logger");
-const DatabaseError = require("../utils/errors");
+const {DatabaseError} = require("../utils/errors");
 const logger = new Logger();
+const BaseRepo = require('./BaseRepo');
 
-class UserRepository {
+class UserRepository extends BaseRepo {
   constructor(userModel) {
+    super();
     this.userModel = userModel;
   }
   addUser = async (user, image) => {

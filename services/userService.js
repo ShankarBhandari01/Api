@@ -1,4 +1,3 @@
-const customResourceResponse = require("../utils/constants");
 const bcrypt = require("bcrypt");
 const lodash = require("lodash");
 const BaseService = require("./BaseService");

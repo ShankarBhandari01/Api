@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/appconfig");
 const BaseRepo = require("../repo/BaseRepo");
+const lodash = require("lodash");
 
 const baseRepo = new BaseRepo();
 class BaseService {
@@ -15,17 +16,7 @@ class BaseService {
         subject: "",
         audience: "",
       };
-      const token = jwt.sign({ user }, config.auth.jwt_secret, options);
-      const refreshToken = jwt.sign(
-        { user },
-        config.auth.refresh_token_secret,
-        {
-          expiresIn: config.auth.refresh_token_expiresin,
-        }
-      );
 
-      tokens.token = token;
-      tokens.refreshToken = refreshToken;
       // Store user data in the session
       session.user = {
         id: user._id,
@@ -34,6 +25,27 @@ class BaseService {
         name: user.name,
         profile: user.profileBase64,
       };
+      // selecting user data to be stored in token
+      const sessionuser = session.user;
+      // remove profile picture for session
+      const sanitizedSession = lodash.omit(sessionuser, ["profile"]);
+      // create token with session data
+      const token = jwt.sign(
+        { sanitizedSession },
+        config.auth.jwt_secret,
+        options
+      );
+      // refresh token ß
+      const refreshToken = jwt.sign(
+        { sanitizedSession },
+        config.auth.refresh_token_secret,
+        {
+          expiresIn: config.auth.refresh_token_expiresin,
+        }
+      );
+
+      tokens.token = token;
+      tokens.refreshToken = refreshToken;
     } catch (err) {
       return Promise.reject(err);
     }
