@@ -1,4 +1,4 @@
-const stock = require("../model/Stocks"); // import of stock model
+const { Stock } = require("../model/Stocks"); // import of stock model
 const BuyStock = require("../model/BuyStock");
 const StockDTO = require("../dtos/StockDTO");
 const RequestHandler = require("../utils/RequestHandler");
@@ -7,7 +7,7 @@ const Logger = require("../utils/logger");
 const { StockRepository } = require("../repo/stockRepo");
 const { StockService } = require("../services/stockService");
 
-const stockRepository = new StockRepository(stock);
+const stockRepository = new StockRepository(Stock);
 const stockService = new StockService(stockRepository);
 
 const logger = new Logger();
@@ -39,7 +39,10 @@ exports.getAllStock = async (req, res, next) => {
     // Set the language from query or default to 'en'
     const lang = req.query.lang || req.session.lang || "en";
     req.session.lang = lang;
+    const search = req.query.search || "";
+    const type = req.query.type || "";
 
+    let response;
     // Get pagination parameters from query
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -49,10 +52,7 @@ exports.getAllStock = async (req, res, next) => {
       const message = "Limit must be less than 100";
       throw { message: message };
     }
-
-    // Fetch the stock data with pagination from the service layer
-    const response = await stockService.getAllStock(page,limit);
-
+    response = await stockService.getAllStock(page, limit, search, type,lang);
     // Set the response status and send the response
     res.statusCode = response.statusCode;
     return res.json(response);

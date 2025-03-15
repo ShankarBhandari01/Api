@@ -1,5 +1,6 @@
 const BaseRepo = require("./BaseRepo");
 const { UpdateError } = require("../utils/errors");
+const { Category } = require("../model/Stocks");
 class StockRepository extends BaseRepo {
   constructor(stockModel) {
     super();
@@ -44,6 +45,65 @@ class StockRepository extends BaseRepo {
       return count;
     } catch (err) {
       throw new Error("Error counting stock items: " + err.message);
+    }
+  };
+
+  getStockBySearch = async (search, type, skip, limit, lang) => {
+    let results;
+    const searchPath =
+      lang === "fi"
+        ? ["stockName.fi", "description.fi"]
+        : ["stockName.en", "description.en"]; // Default to 'en' if not 'fi'
+
+    if (type == "item") {
+      results = await this.stockModel.aggregate([
+        {
+          $search: {
+            index: "default", // the name of your search index
+            text: {
+              query: search,
+              path: searchPath, // fields to search
+              fuzzy: { maxEdits: 1 },
+            },
+          },
+        },
+        {
+          $skip: skip, // Skip documents based on the page number
+        },
+        {
+          $limit: limit, // Limit the number of results (page size)
+        },
+      ]);
+    } else if (type == "category") {
+      // Search in the categories collection
+      results = await Category.aggregate([
+        {
+          $search: {
+            index: "default", // your category index
+            text: {
+              query: search,
+              path: ["name.en"], // assuming you are searching by category name
+              fuzzy: { maxEdits: 1 },
+            },
+          },
+        },
+        {
+          $skip: skip, // Skip documents based on the page number
+        },
+        {
+          $limit: limit, // Limit the number of results (page size)
+        },
+      ]);
+    }
+    return results; // Return the results
+  };
+
+  getCategory = async () => {
+    try {
+      const category = await Category.find().toArray();
+      return category;
+    } catch (error) {
+      throw new Error("getting category: " + error.message);
     }
   };
 }

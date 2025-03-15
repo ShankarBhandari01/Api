@@ -2,6 +2,11 @@ const { Schema, model } = require("mongoose");
 //creating the Stock scheme
 const stockSchema = new Schema(
   {
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: "Category", // Reference to the Category schema
+      required: true,
+    },
     image: {
       type: String,
       required: false,
@@ -33,5 +38,29 @@ const stockSchema = new Schema(
   { timestamps: { createdAt: "createdDate", updatedAt: "updated_ts" } }
 );
 
-// the model of the Stock scheme
-module.exports = model("Stock", stockSchema);
+// Food Category Schema
+const categorySchema = new Schema({
+  name: {
+    en: { type: String, required: true, unique: true, trim: true },
+    fi: { type: String, required: false, unique: true, trim: true },
+  },
+  description: {
+    en: { type: String, required: true, unique: true, trim: true },
+    fi: { type: String, required: false, unique: true, trim: true },
+  },
+  created_at: {
+    type: Date,
+    default: Date.now,
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// Food Category Model
+const Category = model("Category", categorySchema);
+const Stock = model("Stock", stockSchema);
+
+// Export models for use
+module.exports = { Category, Stock };

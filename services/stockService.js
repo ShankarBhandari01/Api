@@ -4,7 +4,7 @@
  */
 
 const resources = require("../utils/constants");
-const stock = require("../model/Stocks"); // import of stock model
+const { Stock } = require("../model/Stocks");
 class StockService {
   constructor(stockRepo) {
     this.stockRepo = stockRepo;
@@ -15,7 +15,7 @@ class StockService {
       const response = {};
       //initalise
       let insertedStock;
-      const stockModel = new stock(StockDto);
+      const stockModel = new Stock(StockDto);
 
       // Handle image upload
       if (StockDto.image && StockDto.image.image?.[0]?.path) {
@@ -53,20 +53,31 @@ class StockService {
     }
   };
 
-  getAllStock = async (page = 1, limit = 10) => {
+  getAllStock = async (page = 1, limit = 10, search = "", type = "", lang) => {
     const response = {};
-
     try {
       // Get the total count of stock items for pagination info
       const totalCount = await this.stockRepo.getStockCount();
       // Calculate the skip value for pagination
-      var skip = (page - 1) * limit;
+      var skip = this.getSkipNumber(page, limit);
       // set skip to 0 if less than 20
       if (totalCount < 20) {
         skip = 0;
       }
-      // Fetch stock items from the repository with pagination
-      const stock = await this.stockRepo.getAllStock(skip, limit);
+
+      let stock;
+      if (search && type == "item") {
+        stock = await this.stockRepo.getStockBySearch(
+          search,
+          type,
+          skip,
+          limit,
+          lang
+        );
+      } else {
+        // Fetch stock items from the repository with pagination
+        stock = await this.stockRepo.getAllStock(skip, limit);
+      }
 
       // If no stock is found, return a "not found" response
       if (!stock || stock.length === 0) {
@@ -74,6 +85,7 @@ class StockService {
           resources.customResourceResponse.recordNotFound.message;
         response.statusCode =
           resources.customResourceResponse.recordNotFound.statusCode;
+        response.data = stock;
         return response;
       }
 
@@ -92,6 +104,24 @@ class StockService {
     } catch (err) {
       throw { message: err.message };
     }
+  };
+
+  getCategory = () => {
+    try {
+      const response = {};
+      const responseResults = this.stockRepo.getCategory();
+
+      response.message = resources.customResourceResponse.success.message;
+      response.statusCode = resources.customResourceResponse.success.statusCode;
+      response.data = responseResults;
+      return response;
+    } catch (err) {
+      throw { message: err.message };
+    }
+  };
+
+  getSkipNumber = (page, limit) => {
+    return (page - 1) * limit;
   };
 }
 
