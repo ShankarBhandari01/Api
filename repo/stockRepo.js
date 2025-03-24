@@ -115,6 +115,22 @@ class StockRepository extends BaseRepo {
       throw new Error("getting category: " + error.message);
     }
   };
+  updateCategory = async (categoryID, updateData) => {
+    try {
+      const updatedCategory = await Category.findByIdAndUpdate(
+        categoryID,
+        updateData,
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedCategory) {
+        throw new Error("Category not found");
+      }
+      return updatedCategory;
+    } catch (error) {
+      throw new UpdateError(`Error updating category: ${error.message}`);
+    }
+  };
 }
 module.exports = {
   StockRepository,

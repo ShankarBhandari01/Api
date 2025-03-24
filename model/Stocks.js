@@ -56,6 +56,10 @@ const categorySchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  remarks: {
+    en: { type: String, default: "new listed" },
+    fi: { type: String, default: "uusi listattu" },
+  }
 });
 
 // Food Category Model

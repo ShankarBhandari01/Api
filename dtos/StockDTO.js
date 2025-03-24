@@ -1,5 +1,3 @@
-// dtos/StockDTO.js
-const { Expose } = require("class-transformer");
 
 class StockDTO {
   constructor(stock, stockImage) {

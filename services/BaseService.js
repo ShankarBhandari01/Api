@@ -5,7 +5,7 @@ const lodash = require("lodash");
 
 const baseRepo = new BaseRepo();
 class BaseService {
-  assignToken(user, session) {
+  async assignToken(user, session) {
     let tokens = {};
     try {
       // Set the options for token generation
@@ -13,8 +13,8 @@ class BaseService {
         expiresIn: config.auth.jwt_expiresin, // Token will expire in 1 day
         algorithm: "HS256",
         issuer: "restaurant-pos-api",
-        subject: "",
-        audience: "",
+        subject: "login",
+        audience: "user",
       };
 
       // Store user data in the session
@@ -28,7 +28,7 @@ class BaseService {
       // selecting user data to be stored in token
       const sessionuser = session.user;
       // remove profile picture for session
-      const sanitizedSession = lodash.omit(sessionuser.toObject(), ["profile"]);
+      const sanitizedSession = lodash.omit(sessionuser, ["profile"]);
       // create token with session data
       const token = jwt.sign(
         { sanitizedSession },
@@ -46,6 +46,8 @@ class BaseService {
 
       tokens.token = token;
       tokens.refreshToken = refreshToken;
+      // save token in database
+      await baseRepo.saveTokens(tokens, session.user);
     } catch (err) {
       return Promise.reject(err);
     }
@@ -64,6 +66,15 @@ class BaseService {
   async updateLogStatus(msg, logId) {
     try {
       const result = await baseRepo.updateLogMsg(msg, logId);
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  async getCurrentUserToken(inputToken) {
+    try {
+      const token = await baseRepo.getCurrentUserToken(inputToken);
+      return token;
     } catch (err) {
       return Promise.reject(err);
     }

@@ -4,7 +4,7 @@
  */
 
 const resources = require("../utils/constants");
-const { Stock } = require("../model/Stocks");
+const { Stock, Category } = require("../model/Stocks");
 class StockService {
   constructor(stockRepo) {
     this.stockRepo = stockRepo;
@@ -106,13 +106,32 @@ class StockService {
     }
   };
 
-  addCategory = async (category,lang) => {
+  addCategory = async (category, lang) => {
     try {
+      let insertedCategory;
       const response = {};
-      const returnCategory = await this.stockRepo.addCategory(category);
+      // parsing dto to category class
+      const categoryModel = new Category(category);
+      // Add the category to the repository
+      if (category.mode == "new") {
+        insertedCategory = await this.stockRepo.addCategory(categoryModel);
+      }else {
+        // Update the updated timestamp
+        categoryModel.updated_at = Date.now();
+        categoryModel.remarks = { en: "edit", fi: "muokata" };
+
+        // Remove _id to prevent immutable field error
+        const { _id, created_at, ...updateData } = categoryModel.toObject();
+
+        insertedCategory = await this.stockRepo.updateCategory(
+          category.id,
+          updateData
+        );
+      }
+      
       response.message = resources.customResourceResponse.success.message;
-      response.statusCode= resources.customResourceResponse.success.statusCode
-      response.data = returnCategory;
+      response.statusCode = resources.customResourceResponse.success.statusCode;
+      response.data = insertedCategory;
       return response;
     } catch (err) {
       throw { message: err.message };

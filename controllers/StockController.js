@@ -1,6 +1,7 @@
 const { Stock } = require("../model/Stocks"); // import of stock model
 const BuyStock = require("../model/BuyStock");
 const StockDTO = require("../dtos/StockDTO");
+const CategoryDTO= require("../dtos/CategoryDTO");
 const RequestHandler = require("../utils/RequestHandler");
 const Logger = require("../utils/logger");
 
@@ -41,7 +42,9 @@ exports.addCategory = async (req, res, next) => {
     // language set
     const lang = req.session.lang || "en"; // Default to English
 
-    const response = await stockService.addCategory(req.body, lang);
+    // creating dto
+    const categoryDto = new CategoryDTO(req.body);
+    const response = await stockService.addCategory(categoryDto, lang);
 
     res.statusCode = response.statusCode;
     return res.json(response);
