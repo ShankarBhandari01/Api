@@ -13,6 +13,7 @@ class StockDTO {
     this.createdDate = stock.createdDate;
     this.updatedDate = stock.updated_ts || stock.createdDate;
     this.mode = stock.mode || "new";
+    this.categoryID=stock.categoryID
   }
 
   // stringified JSON fields

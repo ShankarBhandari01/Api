@@ -106,10 +106,23 @@ class StockService {
     }
   };
 
-  getCategory = () => {
+  addCategory = async (category,lang) => {
     try {
       const response = {};
-      const responseResults = this.stockRepo.getCategory();
+      const returnCategory = await this.stockRepo.addCategory(category);
+      response.message = resources.customResourceResponse.success.message;
+      response.statusCode= resources.customResourceResponse.success.statusCode
+      response.data = returnCategory;
+      return response;
+    } catch (err) {
+      throw { message: err.message };
+    }
+  };
+
+  getAllCategory = async () => {
+    try {
+      const response = {};
+      const responseResults = await this.stockRepo.getAllCategory();
 
       response.message = resources.customResourceResponse.success.message;
       response.statusCode = resources.customResourceResponse.success.statusCode;

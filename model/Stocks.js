@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 //creating the Stock scheme
 const stockSchema = new Schema(
   {
-    category: {
+    categoryID: {
       type: Schema.Types.ObjectId,
       ref: "Category", // Reference to the Category schema
       required: true,
@@ -41,12 +41,12 @@ const stockSchema = new Schema(
 // Food Category Schema
 const categorySchema = new Schema({
   name: {
-    en: { type: String, required: true, unique: true, trim: true },
-    fi: { type: String, required: false, unique: true, trim: true },
+    en: { type: String, required: true, unique: false, trim: true },
+    fi: { type: String, required: false, unique: false, trim: true },
   },
   description: {
-    en: { type: String, required: true, unique: true, trim: true },
-    fi: { type: String, required: false, unique: true, trim: true },
+    en: { type: String, required: true, unique: false, trim: true },
+    fi: { type: String, required: false, unique: false, trim: true },
   },
   created_at: {
     type: Date,

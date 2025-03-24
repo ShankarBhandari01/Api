@@ -98,9 +98,18 @@ class StockRepository extends BaseRepo {
     return results; // Return the results
   };
 
-  getCategory = async () => {
+  addCategory = async (category) => {
     try {
-      const category = await Category.find().toArray();
+      const saveCategory = await Category.create(category);
+      return saveCategory;
+    } catch (error) {
+      throw new Error("error adding category: " + error.message);
+    }
+  };
+
+  getAllCategory = async () => {
+    try {
+      const category = await Category.find();
       return category;
     } catch (error) {
       throw new Error("getting category: " + error.message);

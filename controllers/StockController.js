@@ -33,6 +33,38 @@ exports.saveStock = async (req, res, next) => {
   }
 };
 
+exports.addCategory = async (req, res, next) => {
+  try {
+    if (req.query.lang) {
+      req.session.lang = req.query.lang;
+    }
+    // language set
+    const lang = req.session.lang || "en"; // Default to English
+
+    const response = await stockService.addCategory(req.body, lang);
+
+    res.statusCode = response.statusCode;
+    return res.json(response);
+  } catch (err) {
+    return requestHandler.sendError(req, res, err);
+  }
+};
+
+exports.getAllCategory = async (req, res, next) => {
+  try {
+    if (req.query.lang) {
+      req.session.lang = req.query.lang;
+    }
+    // language set
+    const lang = req.session.lang || "en"; // Default to English
+
+    const response = await stockService.getAllCategory();
+    res.statusCode = response.statusCode;
+    return res.json(response);
+  } catch (err) {
+    return requestHandler.sendError(req, res, err);
+  } // end try catch
+};
 // get all the menus items
 exports.getAllStock = async (req, res, next) => {
   try {
@@ -52,7 +84,7 @@ exports.getAllStock = async (req, res, next) => {
       const message = "Limit must be less than 100";
       throw { message: message };
     }
-    response = await stockService.getAllStock(page, limit, search, type,lang);
+    response = await stockService.getAllStock(page, limit, search, type, lang);
     // Set the response status and send the response
     res.statusCode = response.statusCode;
     return res.json(response);
