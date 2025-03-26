@@ -10,10 +10,10 @@ class StockDTO {
         this.createdDate = stock.createdDate;
         this.updatedDate = stock.updated_ts || stock.createdDate;
         this.mode = stock.mode || "new";
-        this.categoryID = stock.categoryID,
-            this.isDayOfWeek = stock.isDayOfWeek,
-            this.dayOfWeek = stock.dayOfWeek,
-            this.nameOfWeek = this.parseLangField(stock.nameOfWeek)
+        this.categoryID = stock.categoryID;
+        this.isDayOfWeek = stock.isDayOfWeek;
+        this.dayOfWeek = stock.dayOfWeek;
+        this.nameOfWeek = this.parseLangField(stock.nameOfWeek)
     }
 
     // stringified JSON fields

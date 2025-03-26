@@ -18,16 +18,20 @@ class StockRepository extends BaseRepo {
                 .find()
                 .skip(skip)
                 .limit(limit)
-                .sort({_id: 1});
+                .sort({_id: 1}).lean();
         } catch (err) {
             throw new Error(`Error fetching stock items ${err.message}`);
         }
     };
     getCategoryWiseStock = async (categoryID) => {
         try {
-            return await this.stockModel.find({categoryID: categoryID});
+            return await this.stockModel
+                .find({categoryID: categoryID})
+                .sort({_id: 1})
+                .populate("categoryID")
+                .exec();
         } catch (error) {
-            console.error("Error fetching category-wise stock:", error);
+            console.error("Error fetching categoryWise stock:", error);
             throw new Error(`Error retrieving stock: ${error.message}`);
         }
     }

@@ -4,8 +4,8 @@ const RequestHandler = require("../utils/RequestHandler");
 const Logger = require("../utils/logger");
 
 class BaseRepo {
-  saveTokens = async (createdtoken, user) => {
-    const { token, refreshToken } = createdtoken;
+  saveTokens = async (createdToken, user) => {
+    const { token, refreshToken } = createdToken;
     await accessToken.findOneAndUpdate(
       { userId: user.id },
       {
@@ -17,8 +17,8 @@ class BaseRepo {
     );
   };
 
-  insertUserlog = async (log) => {
-    return await userlog.create(log);
+  insertUserLog = async (log) => {
+    return userlog.create(log);
   };
 
   updateLogMsg = async (msg, id) => {
@@ -33,11 +33,11 @@ class BaseRepo {
     };
 
     // Update the document
-    return await userlog.updateOne(filter, update);
+    return userlog.updateOne(filter, update);
   };
   // reterive user token
   getCurrentUserToken = async (token) => {
-    return await accessToken.findOne({ token: token });
+    return accessToken.findOne({token: token});
   };
 }
 module.exports = BaseRepo;
