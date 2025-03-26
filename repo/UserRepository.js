@@ -1,14 +1,15 @@
 const mongoose = require("mongoose");
 const Logger = require("../utils/logger");
-const {DatabaseError} = require("../utils/errors");
+const { DatabaseError } = require("../utils/errors");
 const logger = new Logger();
-const BaseRepo = require('./BaseRepo');
+const BaseRepo = require("./BaseRepo");
 
 class UserRepository extends BaseRepo {
   constructor(userModel) {
     super();
     this.userModel = userModel;
   }
+
   addUser = async (user, image) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -40,7 +41,7 @@ class UserRepository extends BaseRepo {
           "Error adding user to the database : " + error.message
         );
       } finally {
-        session.endSession();
+        await session.endSession();
       }
     }
   };
@@ -61,23 +62,25 @@ class UserRepository extends BaseRepo {
         .findOne({ email: email })
         .populate("profilePic");
 
+      if (user == null) {
+        return null; // Return null if user is not found
+      }
+
       if (user.profilePic) {
         // Convert Binary to Base64
-        const base64Image = `data:${
+        user.profileBase64 = `data:${
           user.profilePic.contentType
         };base64,${user.profilePic.imageData.toString("base64")}`;
-        //set the base64 image to the user
-        user.profileBase64 = base64Image;
       }
-       //return the user object 
+      //return the user object
       return user;
-
     } catch (error) {
-      logger.log(`Error retrieving user by email: ${err.message}`, 'error');
+      logger.log(`Error retrieving user by email: ${error.message}`, "error");
       throw new DatabaseError("Error retrieving user from the database");
     }
   };
 }
+
 module.exports = {
   UserRepository,
 };

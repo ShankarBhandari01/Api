@@ -20,15 +20,15 @@ class UserService extends BaseService {
       const hashedPassword = await bcrypt.hash(userModel.password, 10);
       userModel.password = hashedPassword;
 
-      const newImage = new imageModel(); 
-      if (image && image.length > 0) { 
-        const imageData = image[0]; 
-        
+      const newImage = new imageModel();
+      if (image && image.length > 0) {
+        const imageData = image[0];
+
         // Assign properties correctly
-        newImage.url = imageData.url
+        newImage.url = imageData.url;
         newImage.filename = imageData.originalname;
         newImage.contentType = imageData.mimetype;
-        newImage.imageData = imageData.buffer; 
+        newImage.imageData = imageData.buffer;
       }
       // Attempt to add user using userRepo
       const addUserResponse = await this.userRepo.addUser(userModel, newImage);
@@ -66,7 +66,9 @@ class UserService extends BaseService {
           throw new Error("InvalidCredentials");
         }
         lodash.omit(user.password); //remove password
-        const token = super.assignToken(user, session);
+        //save token in database
+        const token = await super.assignToken(user, session);
+        // return session with token
         return { session: token, user: session.user };
       }
     } catch (err) {

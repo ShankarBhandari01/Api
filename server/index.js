@@ -5,7 +5,7 @@ const compression = require("compression");
 const uuid = require("uuid");
 const config = require("../config/appconfig.js");
 const Logger = require("../utils/logger.js");
-
+const path = require("path");
 const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
 const app = express();
 const logger = new Logger();
@@ -38,6 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware to log API requests and responses
 app.use(loggingMiddleware);
 
+
 process.on("SIGINT", () => {
   logger.log("stopping the server", "info");
   process.exit();
@@ -56,6 +57,9 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.send("Hello, world!");
 });
+
+//access the upload endpoint for images
+app.use('/public', express.static(path.join(__dirname, "../public/images")));
 
 app.use(require("../router/index.js"));
 

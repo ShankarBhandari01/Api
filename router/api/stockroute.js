@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const {
   saveStock,
+  addCategory,
   getAllStock,
+  getAllCategory,
   viewOne,
   BuyStock,
   GetStock,
@@ -22,7 +24,9 @@ const fileupload =  require('../../middleware/fileUploadMiddleware');;
 
 //add stock route
 router.post("/addStock",fileupload.uploadStock ,stockvalidator, saveStock);
-router.get("/getallstock", auth.isAuthunticated, getAllStock);
+router.get("/getallstock", getAllStock);
+router.post("/addCategory",auth.isAuthunticated,addCategory)
+router.get("/getAllCategory", getAllCategory);
 router.get("/Stock/:id", auth.isAuthunticated, viewOne);
 router.post("/BuyStock", auth.isAuthunticated, BuyStock);
 router.get("/GetStock", auth.isAuthunticated, GetStock);
