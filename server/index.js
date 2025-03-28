@@ -18,10 +18,11 @@ app.use(
     secret: config.auth.jwt_secret,
     resave: false,
     saveUninitialized: false,
-    cookie: { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production', // Only set secure cookies in production (requires HTTPS)
-      maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Only set secure cookies in production (requires HTTPS)
+      maxAge: 1000 * 60 * 60 * 24,
+    }, // 1 day
   })
 );
 
@@ -31,13 +32,17 @@ app.set("port", process.env.DEV_APP_PORT);
 app.use(compression());
 app.use(require("method-override")());
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 app.use(express.json());
 // Middleware to parse urlencoded form data
 app.use(express.urlencoded({ extended: true }));
 // Middleware to log API requests and responses
 app.use(loggingMiddleware);
-
 
 process.on("SIGINT", () => {
   logger.log("stopping the server", "info");
@@ -59,7 +64,7 @@ app.get("/", (req, res) => {
 });
 
 //access the upload endpoint for images
-app.use('/public', express.static(path.join(__dirname, "../public/images")));
+app.use("/public", express.static(path.join(__dirname, "../public/images")));
 
 app.use(require("../router/index.js"));
 
