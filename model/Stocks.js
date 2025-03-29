@@ -25,7 +25,7 @@ const stockSchema = new Schema(
     },
     quantity: {
       type: Number,
-      required: true,
+      required: false,
       default: 0,
       min: 0,
     },
@@ -41,7 +41,7 @@ const stockSchema = new Schema(
     dayOfWeek: { type: Number, default: 0 },
     nameOfWeek: {
       en: { type: String, required: true },
-      fi: { type: String, required: false },
+      fi: { type: String, required: true },
     },
     isSpicy: { type: Number, require: false },
     isVagen: { type: Number, require: false },
@@ -54,11 +54,11 @@ const stockSchema = new Schema(
 const categorySchema = new Schema({
   name: {
     en: { type: String, required: true, unique: true, trim: true },
-    fi: { type: String, required: false, unique: true, trim: true },
+    fi: { type: String, required: true, unique: true, trim: true },
   },
   description: {
     en: { type: String, required: true, unique: false, trim: true },
-    fi: { type: String, required: false, unique: false, trim: true },
+    fi: { type: String, required: true, unique: false, trim: true },
   },
   created_at: {
     type: Date,
