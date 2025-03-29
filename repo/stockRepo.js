@@ -78,7 +78,6 @@ class StockRepository extends BaseRepo {
         },
       ]);
 
-      console.log("Aggregation Result:", result); // Log the final result to check
       return result;
     } catch (error) {
       console.error("Error fetching category-wise stock:", error);
@@ -104,8 +103,8 @@ class StockRepository extends BaseRepo {
       {
         $project: {
           _id: 0,
-          groupsData: {
-            nameOfWeek: {
+          categoryName: {
+            category: {
               en: "$nameOfWeekEn",
               fi: "$nameOfWeekFi",
             },

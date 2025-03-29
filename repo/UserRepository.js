@@ -60,7 +60,7 @@ class UserRepository extends BaseRepo {
     try {
       const user = await this.userModel
         .findOne({ email: email })
-        .populate("profilePic");
+        .populate("profilePic").lean();
 
       if (user == null) {
         return null; // Return null if user is not found
