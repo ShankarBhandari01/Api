@@ -11,11 +11,6 @@ exports.stockvalidator = [
         .not()
         .isEmpty()
         .withMessage('amount can not be empty!'),
-    check('quantity')
-        .trim()
-        .not()
-        .isEmpty()
-        .withMessage('quantity can not be empty!'),
     check('description')
         .trim()
         .not()

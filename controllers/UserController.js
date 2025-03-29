@@ -44,7 +44,8 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
-    const response = await userService.logout(req.session.user.id);
+    const response = await userService.logout(req.decoded.sanitizedSession.id);
+   
     if (response) {
       req.session.destroy((err) => {
         if (err) {
