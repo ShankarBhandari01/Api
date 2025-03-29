@@ -56,7 +56,7 @@ class UserService extends BaseService {
       if (user === null) {
         throw new Error("UserNotFound");
       } else {
-        if (user.role === "user") {
+        if (user.role === "user" || user.role === undefined) {
           throw new Error("Permission Denied");
         }
         const isPasswordMatch = await bcrypt.compare(
