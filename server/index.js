@@ -32,11 +32,15 @@ app.set("port", process.env.DEV_APP_PORT);
 app.use(compression());
 app.use(require("method-override")());
 
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+if (process.env.NODE_ENV === "test") {
+  app.use(
+    cors({
+      origin: "*",
+    })
+  );
+} else {
+  app.use(cors());
+}
 
 app.use(express.json());
 // Middleware to parse urlencoded form data
