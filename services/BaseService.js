@@ -80,6 +80,13 @@ class BaseService {
       return Promise.reject(err);
     }
   }
+  async logout(userId) {
+    try {
+      return await baseRepo.logout(userId);
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
 
   prepareResponse(data, type = "") {
     const response = {};

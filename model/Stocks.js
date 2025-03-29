@@ -53,8 +53,8 @@ const stockSchema = new Schema(
 // Food Category Schema
 const categorySchema = new Schema({
   name: {
-    en: { type: String, required: true, unique: false, trim: true },
-    fi: { type: String, required: false, unique: false, trim: true },
+    en: { type: String, required: true, unique: true, trim: true },
+    fi: { type: String, required: false, unique: true, trim: true },
   },
   description: {
     en: { type: String, required: true, unique: false, trim: true },

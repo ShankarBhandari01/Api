@@ -41,3 +41,29 @@ exports.login = async (req, res) => {
     return requestHandler.sendError(req, res, err);
   }
 };
+
+exports.logout = async (req, res) => {
+  try {
+    const response = await userService.logout(req.session.user.id);
+    if (response) {
+      req.session.destroy((err) => {
+        if (err) {
+          return requestHandler.sendError(req, res, err);
+        }
+        res.clearCookie("connect.sid");
+        return requestHandler.sendSuccess(
+          res,
+          "User logged out successfully"
+        )(response);
+      });
+    } else {
+      return requestHandler.sendError(
+        req,
+        res,
+        new Error("Logout service failed")
+      );
+    }
+  } catch (err) {
+    return requestHandler.sendError(req, res, err);
+  }
+};

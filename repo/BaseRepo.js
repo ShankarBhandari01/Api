@@ -37,7 +37,15 @@ class BaseRepo {
   };
   // reterive user token
   getCurrentUserToken = async (token) => {
-    return accessToken.findOne({token: token});
+    return accessToken.findOne({ token: token }).lean();
+  };
+
+  logout = async (userId) => {
+    try {
+      return accessToken.findOneAndDelete({ userId }).select(false);
+    } catch (error) {
+      Promise.reject(error);
+    }
   };
 }
 module.exports = BaseRepo;

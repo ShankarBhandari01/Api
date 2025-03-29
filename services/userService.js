@@ -49,7 +49,7 @@ class UserService extends BaseService {
       throw { message: err.message };
     }
   };
-
+  // admin login only for now
   doLogin = async (request, session) => {
     try {
       var user = await this.getUser(request);
@@ -81,7 +81,16 @@ class UserService extends BaseService {
   // get user details
   getUser = async (request) =>
     await this.userRepo.getUserByUsername(request.email);
+
+  logout = async (userId) => {
+    try {
+      return await super.logout(userId);
+    } catch (err) {
+      throw { message: err.message };
+    }
+  };
 }
+
 module.exports = {
   UserService,
 };
