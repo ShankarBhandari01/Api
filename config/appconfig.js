@@ -35,6 +35,6 @@ module.exports = {
   },
   file: {
     uploadDir: path.join(__dirname, "../public/images"),
-    ALLOWED_FILE_TYPES: process.env.ALLOWED_FILE_TYPES || ["image/jpeg", "image/png", "image/gif"],
+    ALLOWED_FILE_TYPES: process.env.ALLOWED_FILE_TYPES || ["image/jpeg", "image/png", "image/gif","image/svg"],
   },
 };
