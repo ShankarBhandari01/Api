@@ -15,7 +15,7 @@ class StockRepository extends BaseRepo {
   getAllStock = async (skip, limit) => {
     try {
       return await this.stockModel
-        .find()
+        .find({ isDeleted: false, isActive: true })
         .skip(skip)
         .limit(limit)
         .sort({ _id: 1 })
@@ -27,7 +27,7 @@ class StockRepository extends BaseRepo {
   getCategoryWiseStock = async (categoryID) => {
     try {
       return await this.stockModel
-        .find({ categoryID: categoryID })
+        .find({ categoryID: categoryID, isDeleted: false, isActive: true })
         .sort({ _id: 1 })
         .populate("categoryID")
         .exec();
@@ -42,7 +42,9 @@ class StockRepository extends BaseRepo {
       const result = await this.stockModel.aggregate([
         {
           $match: {
-            categoryID: { $ne: null, $ne: "" }, // Exclude null and empty categoryID
+            isDeleted: false,
+            isActive: true,
+            categoryID: { $ne: null, $ne: "" },
           },
         },
         {
@@ -88,6 +90,7 @@ class StockRepository extends BaseRepo {
     const result = await this.stockModel.aggregate([
       {
         $match: {
+          $and: [{ isDeleted: false }, { isActive: true }],
           "nameOfWeek.en": { $ne: null, $ne: "" },
         },
       },
@@ -141,9 +144,14 @@ class StockRepository extends BaseRepo {
       if (searchFilters) {
         return await this.stockModel.countDocuments({
           categoryID: searchFilters.categoryId,
+          isDeleted: false,
+          isActive: true,
         });
       }
-      return await this.stockModel.countDocuments();
+      return await this.stockModel.countDocuments({
+        isDeleted: false,
+        isActive: true,
+      });
     } catch (err) {
       throw new Error("Error counting stock items: " + err.message);
     }
@@ -159,6 +167,10 @@ class StockRepository extends BaseRepo {
     if (type === "item") {
       results = await this.stockModel.aggregate([
         {
+          $match: {
+            isDeleted: false,
+            isActive: true,
+          },
           $search: {
             index: "name", // the name of your search index
             text: {
@@ -179,6 +191,10 @@ class StockRepository extends BaseRepo {
       // Search in the categories collection
       results = await Category.aggregate([
         {
+          $match: {
+            isDeleted: false,
+            isActive: true,
+          },
           $search: {
             index: "name", // your category index
             text: {
@@ -209,7 +225,7 @@ class StockRepository extends BaseRepo {
 
   getAllCategory = async () => {
     try {
-      return await Category.find();
+      return await Category.find({ isDeleted: false, isActive: true });
     } catch (error) {
       throw new Error("getting category: " + error.message);
     }

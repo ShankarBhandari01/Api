@@ -26,16 +26,23 @@ class StockService extends BaseService {
       // check the mode of the transcation
       if (StockDto.mode === "new") {
         insertedStock = await this.stockRepo.addStock(stockModel);
-      } else {
+      } else if (StockDto.mode === "edit" || StockDto.mode === "delete") {
         stockModel.updated_ts = Date.now();
-        stockModel.remarks = { en: "edit", fi: "muokata" };
-
+        if (StockDto.mode === "edit") {
+          stockModel.remarks = { en: "edit", fi: "muokata" };
+        } else {
+          stockModel.remarks = { en: "delete", fi: "poista" };
+          stockModel.isDeleted = true;
+          stockModel.isActive = false;
+        }
         const { _id, createdDate, ...updateData } = stockModel.toObject();
 
         insertedStock = await this.stockRepo.updateStock(
           StockDto.id,
           updateData
         );
+      } else {
+        throw new Error("Invalid mode");
       }
       return super.prepareResponse(insertedStock);
     } catch (err) {
@@ -93,7 +100,7 @@ class StockService extends BaseService {
           response.rsType = "Allstock";
         }
       }
-      response = super.prepareResponse(stock,response.rsType);
+      response = super.prepareResponse(stock, response.rsType);
       if (stock.length !== 0) {
         response.pagination = {
           currentPage: searchFilters.page,
@@ -116,19 +123,26 @@ class StockService extends BaseService {
       // Add the category to the repository
       if (category.mode === "new") {
         insertedCategory = await this.stockRepo.addCategory(categoryModel);
-      } else {
-        // Update the updated timestamp
-        categoryModel.updated_at = Date.now();
-        categoryModel.remarks = { en: "edit", fi: "muokata" };
-
+      } else if (category.mode === "edit" || category.mode === "delete") {
+        if (category.mode === "edit") {
+          categoryModel.updated_at = Date.now();
+          categoryModel.remarks = { en: "edit", fi: "muokata" };
+        } else if (category.mode === "delete") {
+          categoryModel.updated_at = Date.now();
+          categoryModel.remarks = { en: "delete", fi: "poista" };
+          categoryModel.isDeleted = true;
+          categoryModel.isActive = false;
+        }
         // Remove _id to prevent immutable field error
         const { _id, created_at, ...updateData } = categoryModel.toObject();
-
         insertedCategory = await this.stockRepo.updateCategory(
           category.id,
           updateData
         );
+      } else {
+        throw new Error("Invalid mode");
       }
+
       return super.prepareResponse(insertedCategory);
     } catch (err) {
       throw { message: err.message };
