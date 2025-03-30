@@ -43,9 +43,9 @@ const stockSchema = new Schema(
       en: { type: String, required: true },
       fi: { type: String, required: true },
     },
-    isSpicy: { type: Number, require: false },
-    isVagen: { type: Number, require: false },
-    isVegetarian: { type: Number, require: false },
+    isSpicy: { type: Boolean, require: false },
+    isVagen: { type: Boolean, require: false },
+    isVegetarian: { type: Boolean, require: false },
   },
   { timestamps: { createdAt: "createdDate", updatedAt: "updated_ts" } }
 );

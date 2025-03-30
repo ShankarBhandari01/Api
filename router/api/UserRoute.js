@@ -8,8 +8,9 @@ const {
 const auth = require("../../middleware/auth"); //middleware for varifying user
 // middleware for image upload
 const fileupload = require("../../middleware/fileUploadMiddleware");
-
+// language middleware
 const {languageMiddleware} = require("../../middleware/languageMiddleware");
+
 //User Signup route
 router.post(
   "/signup",
@@ -19,7 +20,12 @@ router.post(
   controller.signup
 );
 //user Login route
-router.post("/login", languageMiddleware, validateLogin, controller.login);
+router.post(
+  "/login", 
+  languageMiddleware,
+   validateLogin,
+   controller.login
+  );
 // logout route
 router.post(
   "/logout",
