@@ -20,23 +20,25 @@ const {
 const { stockvalidator } = require("../../middleware/StockValidator"); //middleware for stock validator
 const auth = require("../../middleware/auth"); //middleware for varifying user
 // middleware for image upload
-const fileupload =  require('../../middleware/fileUploadMiddleware');;
+const fileupload = require("../../middleware/fileUploadMiddleware");
+const {languageMiddleware} = require("../../middleware/languageMiddleware");
 
 //add stock route
-router.post("/addStock",fileupload.uploadStock ,stockvalidator, saveStock);
-router.get("/getallstock", getAllStock);
-router.post("/addCategory",auth.isAuthunticated,addCategory)
-router.get("/getAllCategory", getAllCategory);
-router.get("/Stock/:id", auth.isAuthunticated, viewOne);
-router.post("/BuyStock", auth.isAuthunticated, BuyStock);
-router.get("/GetStock", auth.isAuthunticated, GetStock);
-router.get("/GetSingleBuyStock/:id", auth.isAuthunticated, GetSingleBuyStock);
-router.post("/SellStock", auth.isAuthunticated, SellStock);
-router.get("/GetSellStock", auth.isAuthunticated, GetSellStock);
-router.get("/totalUnit", auth.isAuthunticated, totalUnit);
-router.get("/totalInvest", auth.isAuthunticated, totalInvest);
-router.get("/totalSold", auth.isAuthunticated, totalSold);
-router.get("/currentAmount", auth.isAuthunticated, currentAmount);
-router.get("/OverAllprofit", auth.isAuthunticated, OverAllprofit);
+router.post(
+  "/addStock",
+  languageMiddleware,
+  fileupload.uploadStock,
+  stockvalidator,
+  saveStock
+);
+router.get("/getallstock", languageMiddleware, getAllStock);
+router.post(
+  "/addCategory",
+  languageMiddleware,
+  auth.isAuthunticated,
+  addCategory
+);
+router.get("/getAllCategory", languageMiddleware, getAllCategory);
+router.get("/Stock/:id", languageMiddleware, auth.isAuthunticated, viewOne);
 
 module.exports = router;

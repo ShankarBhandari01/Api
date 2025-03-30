@@ -12,12 +12,7 @@ const companyService = new CompanyService(companyRepo);
 
 exports.getCompanyInfo = async (req, res, next) => {
     try {
-        if (req.query.lang) {
-            req.session.lang = req.query.lang;
-        }
-        // language set
         const lang = req.session.lang || "en"; // Default to English
-
         const response = await companyService.getCompanyInfo(lang);
 
         return requestHandler.sendSuccess(res, "company info")(response);
@@ -27,12 +22,7 @@ exports.getCompanyInfo = async (req, res, next) => {
 }
 exports.addCompanyInfo = async (req, res, next) => {
     try {
-        if (req.query.lang) {
-            req.session.lang = req.query.lang;
-        }
-        // language set
         const lang = req.session.lang || "en"; // Default to English
-
         const response = await companyService.addCompanyInfo(req.body, lang);
         return requestHandler.sendSuccess(res, "company info")(response);
 

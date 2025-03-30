@@ -8,10 +8,23 @@ const {
 const auth = require("../../middleware/auth"); //middleware for varifying user
 // middleware for image upload
 const fileupload = require("../../middleware/fileUploadMiddleware");
+
+const {languageMiddleware} = require("../../middleware/languageMiddleware");
 //User Signup route
-router.post("/signup", fileupload.uploadImage, validateUser, controller.signup);
+router.post(
+  "/signup",
+  languageMiddleware,
+  fileupload.uploadImage,
+  validateUser,
+  controller.signup
+);
 //user Login route
-router.post("/login", validateLogin, controller.login);
+router.post("/login", languageMiddleware, validateLogin, controller.login);
 // logout route
-router.post("/logout", auth.isAuthunticated, controller.logout);
+router.post(
+  "/logout",
+  languageMiddleware,
+  auth.isAuthunticated,
+  controller.logout
+);
 module.exports = router;

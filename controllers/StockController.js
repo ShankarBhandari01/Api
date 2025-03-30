@@ -17,10 +17,6 @@ const requestHandler = new RequestHandler(logger);
 //add menus items
 exports.saveStock = async (req, res, next) => {
   try {
-    if (req.query.lang) {
-      req.session.lang = req.query.lang;
-    }
-    // language set
     const lang = req.session.lang || "en"; // Default to English
     //create Dto
     const StockDto = new StockDTO(req.body, req.files, lang);
@@ -36,10 +32,6 @@ exports.saveStock = async (req, res, next) => {
 
 exports.addCategory = async (req, res, next) => {
   try {
-    if (req.query.lang) {
-      req.session.lang = req.query.lang;
-    }
-    // language set
     const lang = req.session.lang || "en"; // Default to English
 
     // creating dto
@@ -55,10 +47,6 @@ exports.addCategory = async (req, res, next) => {
 
 exports.getAllCategory = async (req, res, next) => {
   try {
-    if (req.query.lang) {
-      req.session.lang = req.query.lang;
-    }
-    // language set
     const lang = req.session.lang || "en"; // Default to English
 
     const response = await stockService.getAllCategory();
@@ -72,9 +60,8 @@ exports.getAllCategory = async (req, res, next) => {
 exports.getAllStock = async (req, res, next) => {
   try {
     // Set the language from query or default to 'en'
-    const lang = req.query.lang || req.session.lang || "en";
-    req.session.lang = lang;
-
+    const lang = req.session.lang || "en"; // Default to English
+    
     const searchText = req.query.search || "";
     const type = req.query.searchType || "";
     const filterType = req.query.filterType || "";

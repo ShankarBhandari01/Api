@@ -29,10 +29,6 @@ exports.signup = async (req, res) => {
 };
 exports.login = async (req, res) => {
   try {
-    // Set session language only if provided
-    if (req.query.lang) {
-      req.session.lang = req.query.lang;
-    }
     const lang = req.session.lang || "en"; // Default to English
 
     const response = await userService.doLogin(req.body, req.session);

@@ -49,7 +49,7 @@ class StockRepository extends BaseRepo {
         },
         {
           $lookup: {
-            from: "categories", // Ensure this is the correct collection name for categories
+            from: "categories", 
             localField: "categoryID", // Field in stockModel (references category)
             foreignField: "_id", // Field in categories collection
             as: "categoryDetails",
