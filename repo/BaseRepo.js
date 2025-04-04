@@ -2,9 +2,9 @@ const accessToken = require("../model/Token");
 const userlog = require("../model/UserloginLog");
 const RequestHandler = require("../utils/RequestHandler");
 const Logger = require("../utils/logger");
-
+const logger = new Logger();
 class BaseRepo {
-  saveTokens = async (createdToken, user) => {
+  async saveTokens(createdToken, user) {
     const { token, refreshToken } = createdToken;
     await accessToken.findOneAndUpdate(
       { userId: user.id },
@@ -15,13 +15,18 @@ class BaseRepo {
       },
       { upsert: true, new: true }
     );
-  };
+  }
 
-  insertUserLog = async (log) => {
-    return userlog.create(log);
-  };
+  async insertUserLog(log) {
+    try {
+      return userlog.create(log);
+    } catch (error) {
+      logger.error(`Error while inserting user log ${error}`);
+      Promise.reject(error);
+    }
+  }
 
-  updateLogMsg = async (msg, id) => {
+  async updateLogMsg(msg, id) {
     // Define the filter query to find the document to update
     const filter = { _id: id };
 
@@ -34,17 +39,26 @@ class BaseRepo {
 
     // Update the document
     return userlog.updateOne(filter, update);
-  };
+  }
   // reterive user token
-  getCurrentUserToken = async (token) => {
+  async getCurrentUserToken(token) {
     return accessToken.findOne({ token: token }).lean();
-  };
+  }
 
-  logout = async (userId) => {
+  async logout(userId) {
     try {
       return accessToken.findOneAndDelete({ userId }).select(false);
     } catch (error) {
       Promise.reject(error);
+    }
+  }
+
+  uploadImage = async (image, session) => {
+    try {
+      return await image.save({ session });
+    } catch (err) {
+      logger.log(`Error uploading image: ${err.message}`, "error");
+      throw new DatabaseError("Error uploading image: " + err.message);
     }
   };
 }

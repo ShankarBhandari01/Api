@@ -18,7 +18,7 @@ class UserRepository extends BaseRepo {
     while (attempts < 3) {
       try {
         // Upload the image first
-        const uploadedImage = await this.uploadImage(image, session);
+        const uploadedImage =this.uploadImage(image, session);
         // Reference the uploaded image's ID in the user model
         user.profilePic = uploadedImage.id;
         // Insert user data with the image reference
@@ -45,17 +45,6 @@ class UserRepository extends BaseRepo {
       }
     }
   };
-
-  uploadImage = async (image, session) => {
-    try {
-      // Pass the session to ensure the image save is part of the same transaction
-      return await image.save({ session });
-    } catch (err) {
-      logger.log(`Error uploading image: ${err.message}`, "error");
-      throw new DatabaseError("Error uploading image: " + err.message);
-    }
-  };
-
   getUserByUsername = async (email) => {
     try {
       const user = await this.userModel

@@ -4,9 +4,11 @@ const BaseRepo = require("../repo/BaseRepo");
 const lodash = require("lodash");
 const resources = require("../utils/constants");
 
-const baseRepo = new BaseRepo();
+class BaseService extends BaseRepo {
+  constructor() {
+    super();
+  }
 
-class BaseService {
   async assignToken(user, session) {
     let tokens = {};
     try {
@@ -49,7 +51,7 @@ class BaseService {
       tokens.token = token;
       tokens.refreshToken = refreshToken;
       // save token in database
-      await baseRepo.saveTokens(tokens, session.user);
+      await super.saveTokens(tokens, session.user);
     } catch (err) {
       return Promise.reject(err);
     }
@@ -58,7 +60,7 @@ class BaseService {
 
   async doRecording(log) {
     try {
-      const result = await baseRepo.insertUserLog(log);
+      const result = await super.insertUserLog(log);
       return result._id;
     } catch (err) {
       return Promise.reject(err);
@@ -67,7 +69,7 @@ class BaseService {
 
   async updateLogStatus(msg, logId) {
     try {
-      const result = await baseRepo.updateLogMsg(msg, logId);
+      const result = await super.updateLogMsg(msg, logId);
     } catch (err) {
       return Promise.reject(err);
     }
@@ -75,14 +77,14 @@ class BaseService {
 
   async getCurrentUserToken(inputToken) {
     try {
-      return await baseRepo.getCurrentUserToken(inputToken);
+      return await super.getCurrentUserToken(inputToken);
     } catch (err) {
       return Promise.reject(err);
     }
   }
   async logout(userId) {
     try {
-      return await baseRepo.logout(userId);
+      return await super.logout(userId);
     } catch (err) {
       return Promise.reject(err);
     }
