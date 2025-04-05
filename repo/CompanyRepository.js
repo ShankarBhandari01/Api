@@ -1,7 +1,9 @@
 const BaseRepo = require("./BaseRepo");
 const mongoose = require("mongoose");
 const Logger = require("../utils/logger");
+const { DatabaseError } = require("../utils/errors");
 const logger = new Logger();
+
 class CompanyRepository extends BaseRepo {
   constructor(companyModel) {
     super();

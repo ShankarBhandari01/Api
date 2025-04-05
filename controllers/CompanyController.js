@@ -3,8 +3,8 @@ const RequestHandler = require("../utils/RequestHandler");
 const CompanyRepository = require("../repo/CompanyRepository");
 const { Company } = require("../model/Company");
 const { CompanyService } = require("../services/CompanyService");
-const { mapToCompanyDTO } = require('../helper/CompanyDTOHelper');  // Import the helper function
-
+const { mapToCompanyDTO } = require("../helper/CompanyDTOHelper"); // Import the helper function
+const {Table} = require("../model/Reservation");
 
 const logger = new Logger();
 const requestHandler = new RequestHandler(logger);
@@ -30,5 +30,30 @@ exports.addCompanyInfo = async (req, res, next) => {
     return requestHandler.sendSuccess(res, "company info")(response);
   } catch (err) {
     requestHandler.sendError(req, res, err);
+  }
+};
+exports.addTable = async (req, res) => {
+  const { table_number, seats, available_times } = req.body;
+
+  try {
+    const newTable = new Table({
+      table_number,
+      seats,
+      available_times,
+    });
+
+    await newTable.save();
+
+    res.status(201).json({
+      status: "success",
+      message: "Table added successfully.",
+      table_id: newTable._id,
+    });
+  } catch (error) {
+    console.error("Error adding table:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Error adding the table. Please try again.",
+    });
   }
 };

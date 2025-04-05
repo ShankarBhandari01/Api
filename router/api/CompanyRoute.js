@@ -18,4 +18,6 @@ router.post(
   addCompanyInfo
 );
 
+// add tables 
+router.post("/addTable",)
 module.exports = router;
