@@ -7,6 +7,7 @@ const fileupload = require("../../middleware/fileUploadMiddleware");
 const {
   getCompanyInfo,
   addCompanyInfo,
+    addTable,
 } = require("../../controllers/CompanyController");
 
 router.get("/getCompanyInfo", languageMiddleware, getCompanyInfo);
@@ -19,5 +20,5 @@ router.post(
 );
 
 // add tables 
-router.post("/addTable",)
+router.post("/addTable",languageMiddleware, auth.isAuthunticated, addTable)
 module.exports = router;

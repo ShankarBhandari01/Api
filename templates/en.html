@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Reservation at 14 Peaks</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .details {
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #555;
+    }
+    .details li {
+      margin-bottom: 8px;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+    .footer a {
+      color: #2980b9;
+      text-decoration: none;
+    }
+    .footer-table {
+      width: 100%;
+      max-width: 100%;
+    }
+    .footer-table td {
+      vertical-align: top;
+      padding-top: 15px;
+    }
+    .footer-table img {
+      max-width: 120px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Your Reservation at 14 Peaks</h1>
+
+    <div class="details">
+      <h3>Reservation Details:</h3>
+      <ul>
+        <li><strong>Reservation Date:</strong> {{reservation_date}}</li>
+        <li><strong>Reservation Time:</strong> {{reservation_time}}</li>
+        <li><strong>Number of People:</strong> {{number_of_guests}}</li>
+      </ul>
+    </div>
+
+    <p>Dear {{customer_name}},</p>
+
+    <p>Thank you for choosing Ravintola 14 Peaks!</p>
+
+    <p>We are pleased to confirm your reservation for {{number_of_guests}} people on {{reservation_date}} at {{reservation_time}}.</p>
+
+    <p>We look forward to welcoming you to our restaurant and offering you an unforgettable culinary experience.</p>
+
+    <p>If you have any special requests or need to make changes to your reservation, feel free to contact us by replying to this email or calling us at <strong>[Restaurant Phone Number]</strong>.</p>
+
+    <p>We kindly ask you to arrive a few minutes early to ensure a smooth and pleasant dining experience.</p>
+
+    <p>Looking forward to hosting you!</p>
+
+    <div class="footer">
+      <table class="footer-table">
+        <tr>
+          <td style="width: 70%;">
+            <p>Best regards,</p>
+            <p><strong>Ravintola 14 Peaks</strong></p>
+            <p>Kolmas Linja 8 B, 00530 Helsinki</p>
+            <p><strong>[Restaurant Phone Number]</strong></p>
+            <p><a href="https://ravintola14peaks.fi">ravintola14peaks.fi</a></p>
+          </td>
+          <td style="text-align: right;">
+            <img src="https://i.postimg.cc/fbDrMwGc/14-Peaks-Logo-plain-1.png" alt="Logo">
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

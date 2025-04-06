@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/appconfig");
-const BaseRepo = require("../repo/BaseRepo");
+const BaseRepo = require("../repositories/BaseRepository");
 const lodash = require("lodash");
 const resources = require("../utils/constants");
 
@@ -79,14 +79,14 @@ class BaseService extends BaseRepo {
     try {
       return await super.getCurrentUserToken(inputToken);
     } catch (err) {
-      return Promise.reject(err);
+      return await Promise.reject(err);
     }
   }
   async logout(userId) {
     try {
       return await super.logout(userId);
     } catch (err) {
-      return Promise.reject(err);
+      return await Promise.reject(err);
     }
   }
 

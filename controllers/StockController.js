@@ -5,7 +5,7 @@ const CategoryDTO = require("../dtos/CategoryDTO");
 const RequestHandler = require("../utils/RequestHandler");
 const Logger = require("../utils/logger");
 
-const { StockRepository } = require("../repo/stockRepo");
+const { StockRepository } = require("../repositories/stockRepo");
 const { StockService } = require("../services/stockService");
 
 const stockRepository = new StockRepository(Stock);
@@ -15,7 +15,7 @@ const logger = new Logger();
 const requestHandler = new RequestHandler(logger);
 
 //add menus items
-exports.saveStock = async (req, res, next) => {
+exports.saveStock = async (req, res) => {
   try {
     const lang = req.session.lang || "en"; // Default to English
     //create Dto
@@ -30,7 +30,7 @@ exports.saveStock = async (req, res, next) => {
   }
 };
 
-exports.addCategory = async (req, res, next) => {
+exports.addCategory = async (req, res) => {
   try {
     const lang = req.session.lang || "en"; // Default to English
 
@@ -45,7 +45,7 @@ exports.addCategory = async (req, res, next) => {
   }
 };
 
-exports.getAllCategory = async (req, res, next) => {
+exports.getAllCategory = async (req, res) => {
   try {
     const lang = req.session.lang || "en"; // Default to English
 
@@ -57,7 +57,7 @@ exports.getAllCategory = async (req, res, next) => {
   } // end try catch
 };
 // get all the menus items
-exports.getAllStock = async (req, res, next) => {
+exports.getAllStock = async (req, res) => {
   try {
     // Set the language from query or default to 'en'
     const lang = req.session.lang || "en"; // Default to English
@@ -116,11 +116,11 @@ exports.getAllStock = async (req, res, next) => {
   }
 };
 
-// Function to update image URL dynamically
+
 const updateImageUrl = (item, req) => ({
   ...item,
   image: item.image
-    ? `${req.protocol}://${req.get("host")}/public/${item.image}` // Update image field with the full URL
+    ? `${req.protocol}://${req.get("host")}/public/${item.image}`
     : null, // If no image, set to null
 });
 

@@ -1,4 +1,4 @@
-const BaseRepo = require("./BaseRepo");
+const BaseRepo = require("./BaseRepository");
 const { UpdateError } = require("../utils/errors");
 const { Category } = require("../model/Stocks");
 
@@ -39,17 +39,17 @@ class StockRepository extends BaseRepo {
 
   getGroupByCategory = async () => {
     try {
-      const result = await this.stockModel.aggregate([
+      return await this.stockModel.aggregate([
         {
           $match: {
             isDeleted: false,
             isActive: true,
-            categoryID: { $ne: null, $ne: "" },
+            categoryID: {$ne: null, $ne: ""},
           },
         },
         {
           $lookup: {
-            from: "categories", 
+            from: "categories",
             localField: "categoryID", // Field in stockModel (references category)
             foreignField: "_id", // Field in categories collection
             as: "categoryDetails",
@@ -61,9 +61,9 @@ class StockRepository extends BaseRepo {
         {
           $group: {
             _id: "$categoryDetails._id", // Group by category ID
-            categoryEn: { $first: "$categoryDetails.name.en" }, // Get English name
-            categoryFi: { $first: "$categoryDetails.name.fi" }, // Get Finnish name
-            items: { $push: "$$ROOT" }, // Push stock items under each category
+            categoryEn: {$first: "$categoryDetails.name.en"}, // Get English name
+            categoryFi: {$first: "$categoryDetails.name.fi"}, // Get Finnish name
+            items: {$push: "$$ROOT"}, // Push stock items under each category
           },
         },
         {
@@ -74,33 +74,31 @@ class StockRepository extends BaseRepo {
                 en: "$categoryEn", // English name
                 fi: "$categoryFi", // Finnish name
               },
-              items: { $ifNull: ["$items", []] }, // Ensure items is an empty array if no items exist
+              items: {$ifNull: ["$items", []]}, // Ensure items is an empty array if no items exist
             },
           },
         },
       ]);
-
-      return result;
     } catch (error) {
       console.error("Error fetching category-wise stock:", error);
       throw new Error(`Error retrieving stock: ${error.message}`);
     }
   };
   getItemDaysNameWise = async () => {
-    const result = await this.stockModel.aggregate([
+    return await this.stockModel.aggregate([
       {
         $match: {
-          $and: [{ isDeleted: false }, { isActive: true }],
-          "nameOfWeek.en": { $ne: null, $ne: "" },
+          $and: [{isDeleted: false}, {isActive: true}],
+          "nameOfWeek.en": {$ne: null, $ne: ""},
         },
       },
       {
         $group: {
           _id: "$nameOfWeek.en",
-          nameOfWeekEn: { $first: "$nameOfWeek.en" },
-          nameOfWeekFi: { $first: "$nameOfWeek.fi" },
-          dayOfWeek: { $first: "$dayOfWeek" },
-          items: { $push: "$$ROOT" },
+          nameOfWeekEn: {$first: "$nameOfWeek.en"},
+          nameOfWeekFi: {$first: "$nameOfWeek.fi"},
+          dayOfWeek: {$first: "$dayOfWeek"},
+          items: {$push: "$$ROOT"},
         },
       },
       {
@@ -116,11 +114,9 @@ class StockRepository extends BaseRepo {
         },
       },
       {
-        $sort: { dayOfWeek: 1 },
+        $sort: {dayOfWeek: 1},
       },
     ]);
-
-    return result;
   };
 
   updateStock = async (stockId, updateData) => {

@@ -3,10 +3,8 @@
  * @param {StockRepository} stockRepo - An instance of the StockRepository class.
  */
 
-const resources = require("../utils/constants");
 const { Stock, Category } = require("../model/Stocks");
 const BaseService = require("./BaseService");
-const { Types } = require("mongoose");
 
 class StockService extends BaseService {
   constructor(stockRepo) {
@@ -23,7 +21,7 @@ class StockService extends BaseService {
       if (StockDto.image && StockDto.image.image?.[0]?.filename) {
         stockModel.image = StockDto.image.image[0].filename;
       }
-      // check the mode of the transcation
+      // check the mode of the transaction
       if (StockDto.mode === "new") {
         insertedStock = await this.stockRepo.addStock(stockModel);
       } else if (StockDto.mode === "edit" || StockDto.mode === "delete") {

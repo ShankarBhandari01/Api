@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Logger = require("../utils/logger");
 const { DatabaseError } = require("../utils/errors");
 const logger = new Logger();
-const BaseRepo = require("./BaseRepo");
+const BaseRepo = require("./BaseRepository");
 
 class UserRepository extends BaseRepo {
   constructor(userModel) {

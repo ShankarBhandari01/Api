@@ -32,6 +32,7 @@ module.exports = {
     api_key: process.env.SEND_GRID_API_KEY,
     api_user: process.env.USERNAME,
     from_email: process.env.FROM_EMAIL || "iamshankarbhandari@gmail.com",
+    gmail_pass:process.env.GMAIL_PASS,
   },
   file: {
     uploadDir: path.join(__dirname, "../public/images"),
