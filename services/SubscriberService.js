@@ -1,4 +1,5 @@
 const BaseService = require("./BaseService");
+const { EmailService } = require("./EmailService");
 
 class SubscriberService extends BaseService {
   constructor(repository) {
@@ -40,7 +41,14 @@ class SubscriberService extends BaseService {
     }
   };
   sendMarketingEmail = async (message) => {
-    
+    try {
+      const subscribers = await this.repository.getSubscribers(message);
+      if (subscribers) {
+        const response = new EmailService().sendPushNotification();
+      }
+    } catch (error) {
+      throw { message: error.message };
+    }
   };
 }
 

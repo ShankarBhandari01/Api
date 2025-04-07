@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Exclusive Offer from 14 Peaks</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .details {
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #555;
+    }
+    .details li {
+      margin-bottom: 8px;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+    .footer a {
+      color: #2980b9;
+      text-decoration: none;
+    }
+    .footer-table {
+      width: 100%;
+      max-width: 100%;
+    }
+    .footer-table td {
+      vertical-align: top;
+      padding-top: 15px;
+    }
+    .footer-table img {
+      max-width: 120px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Exclusive Offer from 14 Peaks</h1>
+
+    <div class="details">
+      <h3>Dear {{subscriber_name}},</h3>
+      <p>We are excited to offer you an exclusive promotion at 14 Peaks!</p>
+      <p>{{promotion_message}}</p>
+
+      <h3>Special Offer Details:</h3>
+      <ul>
+        <li><strong>Offer:</strong> {{offer_details}}</li>
+        <li><strong>Validity:</strong> {{offer_validity}}</li>
+        <li><strong>Terms:</strong> {{offer_terms}}</li>
+      </ul>
+
+      <p>Don't miss out on this limited-time offer. Make your reservation today!</p>
+
+      <p>To make a reservation, click the link below:</p>
+      <p><a href="{{reservation_link}}">Reserve Now</a></p>
+
+      <div class="footer">
+        <table class="footer-table">
+          <tr>
+            <td style="width: 70%;">
+              <p>Best regards,</p>
+              <p><strong>Ravintola 14 Peaks</strong></p>
+              <p>Kolmas Linja 8 A, 00530 Helsinki</p>
+              <p><strong>[Restaurant Phone Number]</strong></p>
+              <p><a href="https://ravintola14peaks.fi">ravintola14peaks.fi</a></p>
+            </td>
+            <td style="text-align: right;">
+              <img src="https://i.postimg.cc/fbDrMwGc/14-Peaks-Logo-plain-1.png" alt="Logo">
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

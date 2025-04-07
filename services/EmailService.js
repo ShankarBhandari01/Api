@@ -10,6 +10,8 @@ class EmailService extends BaseService {
     this.templates = {
       en: "./templates/en.html",
       fi: "./templates/fi.html",
+      marketingEn: ".templates/marketingEn.html",
+      marketingFi: "templates/marketingFi.html",
     };
     // Transporter configuration
     this.transporter = nodemailer.createTransport({
@@ -30,7 +32,12 @@ class EmailService extends BaseService {
   }
 
   // Generic method to send email notifications
-  async sendEmailNotification({ customer_email, subject, lang = "fi", templateData }) {
+  async sendEmailNotification({
+    customer_email,
+    subject,
+    lang = "fi",
+    templateData,
+  }) {
     const template = this.loadTemplate(lang);
 
     // Prepare the email content by injecting data into the template
@@ -80,7 +87,9 @@ class EmailService extends BaseService {
 
     // Determine the subject based on language
     const subject =
-      lang === "fi" ? "Varausvahvistus: Pöytävaraus" : "Booking Confirmation: Table Reservation";
+      lang === "fi"
+        ? "Varausvahvistus: Pöytävaraus"
+        : "Booking Confirmation: Table Reservation";
 
     await this.sendEmailNotification({
       customer_email,
@@ -90,14 +99,9 @@ class EmailService extends BaseService {
     });
   }
 
-  // Send a push notification (email format for simplicity)
+  // Send a push notification
   async sendPushNotification(pushData) {
-    const {
-      lang = "fi",
-      customer_email,
-      title,
-      message,
-    } = pushData;
+    const { lang = "fi", customer_email, title, message } = pushData;
 
     const templateData = {
       title,

@@ -30,6 +30,14 @@ class SubscriberRepository extends BaseRepository {
     }
   };
 
+  getSubscribers = async() => {
+    try {
+      return await this.model.find();
+    } catch (error) {
+      throw new DatabaseError(`Error getting subscribers: ${error.message}`);
+    }
+  };
+
   sendMarketingEmail = async (message) => {};
 }
 
