@@ -1,6 +1,6 @@
 const BaseRepo = require("./BaseRepository");
 const { UpdateError } = require("../utils/errors");
-const { Category } = require("../model/Stocks");
+const { Category } = require("../models/Stocks");
 
 class StockRepository extends BaseRepo {
   constructor(stockModel) {

@@ -6,16 +6,6 @@ const {
   getAllStock,
   getAllCategory,
   viewOne,
-  BuyStock,
-  GetStock,
-  GetSingleBuyStock,
-  SellStock,
-  GetSellStock,
-  totalUnit,
-  totalInvest,
-  totalSold,
-  currentAmount,
-  OverAllprofit,
 } = require("../../controllers/StockController"); //controller for adding stock
 const { stockvalidator } = require("../../middleware/StockValidator"); //middleware for stock validator
 const auth = require("../../middleware/auth"); //middleware for varifying user

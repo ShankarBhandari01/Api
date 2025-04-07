@@ -32,7 +32,7 @@ class CompanyDTO {
     this.openingHours = openingHours;
   }
 
-  // Method to transform company data from Mongoose model to DTO
+  // Method to transform company data from Mongoose models to DTO
   static fromModel(company) {
     const openingHours = company.openingHours.map(
       (hour) => new OpeningHourDTO(hour.lang, hour.hours)

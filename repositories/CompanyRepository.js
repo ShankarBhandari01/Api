@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Logger = require("../utils/logger");
 const {DatabaseError} = require("../utils/errors");
 const logger = new Logger();
-const {Table} = require("../model/Reservation");
+const {Table} = require("../models/Reservation");
 
 class CompanyRepository extends BaseRepo {
     constructor(companyModel) {
@@ -24,12 +24,17 @@ class CompanyRepository extends BaseRepo {
             throw new DatabaseError(`Error retrieving user by email: ${err.message}`);
         }
     };
-    addCompanyInfo = async (companyInfo, image) => {
+    addCompanyInfo = async (companyInfo, image, isUploadLogo) => {
         const session = await mongoose.startSession();
         session.startTransaction();
         try {
-            const uploadedImage = await this.uploadImage(image, session);
-            companyInfo.logo = uploadedImage.id;
+            if (isUploadLogo) {
+                const uploadedImage = await this.uploadImage(image, session);
+                companyInfo.logo = uploadedImage.id;
+            } else {
+                companyInfo.logo = null
+            }
+
 
             const company = await this.company
                 .findOneAndUpdate(
@@ -46,7 +51,7 @@ class CompanyRepository extends BaseRepo {
                         session,
                     }
                 )
-                .populate("logo") // Populate the 'logo' reference
+                .populate("logo")
                 .populate("openingHours")
                 .lean();
             await session.commitTransaction();

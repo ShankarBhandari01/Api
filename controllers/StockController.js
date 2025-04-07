@@ -1,5 +1,5 @@
-const { Stock } = require("../model/Stocks"); // import of stock model
-const BuyStock = require("../model/BuyStock");
+const { Stock } = require("../models/Stocks"); // import of stock models
+const BuyStock = require("../models/BuyStock");
 const StockDTO = require("../dtos/StockDTO");
 const CategoryDTO = require("../dtos/CategoryDTO");
 const RequestHandler = require("../utils/RequestHandler");

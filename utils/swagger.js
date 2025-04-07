@@ -84,7 +84,7 @@ const options = {
   apis: pathes,
 };
 const swaggerSpec = swaggerJSDoc(options);
-require("swagger-model-validator")(swaggerSpec);
+require("swagger-models-validator")(swaggerSpec);
 
 router.get("/json", (req, res) => {
   res.setHeader("Content-Type", "application/json");

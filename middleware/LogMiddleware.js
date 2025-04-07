@@ -1,4 +1,4 @@
-const UserloginLog = require("../model/UserloginLog");
+const UserloginLog = require("../models/UserloginLog");
 const BaseService = require("../services/BaseService");
 const Logger = require("../utils/logger");
 const lodash = require("lodash");

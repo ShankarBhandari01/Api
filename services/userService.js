@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const lodash = require("lodash");
 const BaseService = require("./BaseService");
-const imageModel = require("../model/Image");
+const imageModel = require("../models/Image");
 
 class UserService extends BaseService {
   constructor(userRepo) {

@@ -1,5 +1,5 @@
 const BaseRepo = require("./BaseRepository");
-const {Table} = require("../model/Reservation");
+const {Table} = require("../models/Reservation");
 const {DatabaseError} = require("../utils/errors");
 
 class ReservationRepository extends BaseRepo {
@@ -23,7 +23,7 @@ class ReservationRepository extends BaseRepo {
             reservation.table_id = table._id;
             return await this.reservation.create(reservation);
         } catch (error) {
-            throw new DatabaseError(`Error retrieving user by email: ${error.message}`);
+            throw new DatabaseError(`Error retrieving tables: ${error.message}`);
         }
     }
 

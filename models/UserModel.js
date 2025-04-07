@@ -5,7 +5,7 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Image",
     default: null,
-  }, // Reference to Image model
+  }, // Reference to Image models
   profileBase64: {
     type: String,
     required: false,
@@ -34,5 +34,5 @@ const userSchema = new Schema({
   },
 });
 
-// the model of the user scheme
+// the models of the user scheme
 module.exports = model("User", userSchema);

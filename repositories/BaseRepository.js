@@ -1,5 +1,5 @@
-const accessToken = require("../model/Token");
-const userlog = require("../model/UserloginLog");
+const accessToken = require("../models/Token");
+const userlog = require("../models/UserloginLog");
 const Logger = require("../utils/logger");
 const {DatabaseError} = require("../utils/errors");
 const logger = new Logger();

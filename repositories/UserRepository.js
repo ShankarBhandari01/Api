@@ -19,7 +19,7 @@ class UserRepository extends BaseRepo {
       try {
         // Upload the image first
         const uploadedImage =this.uploadImage(image, session);
-        // Reference the uploaded image's ID in the user model
+        // Reference the uploaded image's ID in the user models
         user.profilePic = uploadedImage.id;
         // Insert user data with the image reference
         const newUser = await this.userModel.create([user], { session });

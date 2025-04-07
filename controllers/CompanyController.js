@@ -1,7 +1,7 @@
 const Logger = require("../utils/logger");
 const RequestHandler = require("../utils/RequestHandler");
 const CompanyRepository = require("../repositories/CompanyRepository");
-const { Company } = require("../model/Company");
+const { Company } = require("../models/Company");
 const { CompanyService } = require("../services/CompanyService");
 const { mapToCompanyDTO } = require("../helper/CompanyDTOHelper"); // Import the helper function
 

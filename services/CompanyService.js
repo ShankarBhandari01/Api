@@ -1,5 +1,5 @@
 const BaseService = require("./BaseService");
-const imageModel = require("../model/Image");
+const imageModel = require("../models/Image");
 const {response} = require("express");
 
 class CompanyService extends BaseService {
@@ -23,6 +23,8 @@ class CompanyService extends BaseService {
 
     addCompanyInfo = async (companyInfo, lang) => {
         try {
+            // handle logo upload
+            let isLogo = true
             const image = companyInfo.logo;
             const newImage = new imageModel();
             if (image && image.length > 0) {
@@ -31,19 +33,23 @@ class CompanyService extends BaseService {
                 newImage.filename = imageData.originalname;
                 newImage.contentType = imageData.mimetype;
                 newImage.imageData = imageData.buffer;
+            } else {
+                isLogo = false;
             }
-
             const company = await this.companyRepository.addCompanyInfo(
                 companyInfo,
-                newImage
+                newImage,
+                isLogo
             );
             return super.prepareResponse(company);
-        } catch (err) {
+        } catch
+            (err) {
             throw {message: err.message};
         }
-    };
+    }
+    ;
 
-    addTable = async (table,lang) => {
+    addTable = async (table, lang) => {
         try {
             const response = this.companyRepository.addTable(table);
             return super.prepareResponse(response);
@@ -53,6 +59,7 @@ class CompanyService extends BaseService {
     }
 }
 
-module.exports = {
+module
+    .exports = {
     CompanyService,
 };

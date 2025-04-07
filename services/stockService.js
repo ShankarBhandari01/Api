@@ -3,7 +3,7 @@
  * @param {StockRepository} stockRepo - An instance of the StockRepository class.
  */
 
-const { Stock, Category } = require("../model/Stocks");
+const { Stock, Category } = require("../models/Stocks");
 const BaseService = require("./BaseService");
 
 class StockService extends BaseService {

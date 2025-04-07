@@ -2,7 +2,7 @@ const { UserRepository } = require("../repositories/UserRepository");
 const { UserService } = require("../services/userService");
 const RequestHandler = require("../utils/RequestHandler");
 const Logger = require("../utils/logger");
-const UserModel = require("../model/UserModel");
+const UserModel = require("../models/UserModel");
 
 const userRepository = new UserRepository(UserModel);
 const userService = new UserService(userRepository);

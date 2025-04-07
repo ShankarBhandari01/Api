@@ -1,8 +1,7 @@
 const BaseController = require("../controllers/BaseController");
 const ReservationService = require("../services/ReservationService");
-const { Reservation, Table } = require("../model/Reservation");
+const { Reservation } = require("../models/Reservation");
 const ReservationRepository = require("../repositories/ReservationRepository");
-const service = require("./ReservationController");
 
 const reservationRepository = new ReservationRepository(Reservation);
 const Service = new ReservationService(reservationRepository);
@@ -19,6 +18,15 @@ class ReservationController extends BaseController {
       const response = await Service.addReservation(this.req.body);
       this.sendResponse(response, "success");
       await new EmailService().sendBookingConfirmation(response.data);
+    } catch (error) {
+      this.sendError(error);
+    }
+  };
+
+  getAllReservation = async () => {
+    try {
+      const response = await Service.getAllReservation();
+      this.sendResponse(response, "success");
     } catch (error) {
       this.sendError(error);
     }
