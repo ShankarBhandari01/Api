@@ -27,7 +27,7 @@ class SubscriberController extends BaseController {
 
     unsubscribe = async () => {
         try {
-            const response = await service.unsubscribe(this.req.body);
+            const response = await service.unsubscribe(this.req.body.email);
             this.sendResponse(response, "success");
         } catch (error) {
             this.sendError(error);
@@ -35,7 +35,12 @@ class SubscriberController extends BaseController {
 
     }
 
-    sendMarketingEmail = async (message) => {
+    sendMarketingEmail = async () => {
+        try{
+            const response = await service.sendMarketingEmail(this.req.body)
+        }catch (error) {
+            this.sendError(error);
+        }
 
     }
 }

@@ -40,8 +40,8 @@ const stockSchema = new Schema(
     isDayOfWeek: { type: Boolean, default: false },
     dayOfWeek: { type: Number, default: 0 },
     nameOfWeek: {
-      en: { type: String, required: true },
-      fi: { type: String, required: true },
+      en: { type: String, required: false },
+      fi: { type: String, required: false },
     },
     isSpicy: { type: Boolean, require: false, default: false },
     isVagen: { type: Boolean, require: false, default: false },

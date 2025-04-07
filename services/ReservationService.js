@@ -17,7 +17,7 @@ class ReservationService extends BaseService {
     getAllReservation = async (filters) => {
         try {
             const {
-                page = 1, limit = 10, searchText = "",
+                page = 1, limit = 10, searchText = "",isTodayReservations
             } = filters;
 
             const skip = this.getSkipNumber(page, limit);
@@ -26,7 +26,7 @@ class ReservationService extends BaseService {
             const [reservations,
                 totalCount] =
                 await Promise.all([
-                    this.reservationRepository.getAllReservations(skip, limit),
+                    this.reservationRepository.getReservations(skip, limit,isTodayReservations),
                     this.reservationRepository.getReservationCount(),
                 ]);
 
