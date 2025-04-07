@@ -17,11 +17,7 @@ function mapToCompanyDTO(req) {
     description: parseLangField(body.description),
     created_at: body.created_at || new Date(),
     updated_at: body.updated_at || new Date(),
-    openingHours: body.openingHours
-      ? typeof body.openingHours === "string"
-        ? JSON.parse(body.openingHours)
-        : body.openingHours
-      : [],
+    openingHours: parseLangField(body.openingHours)
   };
 
   return new CompanyDTO(

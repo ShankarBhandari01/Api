@@ -12,13 +12,13 @@ class StockRepository extends BaseRepo {
     return this.stockModel.create(stock);
   };
 
-  getAllStock = async (skip, limit) => {
+  getAllStock = async (skip, limit,sort) => {
     try {
       return await this.stockModel
         .find({ isDeleted: false, isActive: true })
         .skip(skip)
         .limit(limit)
-        .sort({ _id: 1 })
+        .sort(sort)
         .lean();
     } catch (err) {
       throw new Error(`Error fetching stock items ${err.message}`);

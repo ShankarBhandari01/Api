@@ -27,9 +27,36 @@ class ReservationRepository extends BaseRepo {
         }
     }
 
-    getAllReservations = async () => {
-        return await this.reservation.find().lean()
-    }
+    getReservations = async (skip = 0, limit = 10, filterToday = false) => {
+        let query = {};
+
+        if (filterToday) {
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0); // Start of today
+
+            const endOfDay = new Date();
+            endOfDay.setHours(23, 59, 59, 999); // End of today
+
+            query = {
+                reservation_date: {
+                    $gte: startOfDay,
+                    $lt: endOfDay,
+                },
+            };
+        }
+
+        return await this.reservation
+            .find(query) // Apply the filter based on the query
+            .sort({reservation_date: -1}) // Sort by reservation date
+            .skip(skip)
+            .limit(limit)
+            .lean();
+    };
+
+
+    getReservationCount = async () => {
+        return await this.reservation.countDocuments();
+    };
 
 }
 

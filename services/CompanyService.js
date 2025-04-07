@@ -36,6 +36,9 @@ class CompanyService extends BaseService {
             } else {
                 isLogo = false;
             }
+            if (companyInfo.name === "") {
+                companyInfo.name = 'The 14 peak, himalayan fusion';
+            }
             const company = await this.companyRepository.addCompanyInfo(
                 companyInfo,
                 newImage,

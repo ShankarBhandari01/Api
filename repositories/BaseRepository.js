@@ -6,20 +6,42 @@ const logger = new Logger();
 
 class BaseRepository {
     async saveTokens(createdToken, user) {
-        const {token, refreshToken} = createdToken;
-        await accessToken.findOneAndUpdate(
-            {userId: user.id},
-            {
+        const { token, refreshToken } = createdToken;
+      
+        try {
+          // First check if a token for this user already exists.
+          const existingToken = await accessToken.findOne({ userId: user.id });
+      
+          // If token exists for the user, update it. Otherwise, insert a new token for the new user.
+          if (existingToken) {
+            // Update the existing token for this user
+            await accessToken.findOneAndUpdate(
+              { userId: user.id },
+              {
                 token: token,
                 refreshToken: refreshToken,
                 refreshExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days expiry
-            },
-            {
-                upsert: true,
-                new: true
-            }
-        );
-    }
+              },
+              {
+                new: true, // Return the updated document
+              }
+            );
+          } else {
+            // Create a new document for a new user login
+            await accessToken.create({
+              userId: user.id,
+              token: token,
+              refreshToken: refreshToken,
+              refreshExpiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days expiry
+            });
+          }
+          console.log('Token successfully saved or updated for user:', user.id);
+        } catch (error) {
+          console.error('Error saving or updating token:', error);
+          throw new Error('Failed to save or update token');
+        }
+      }
+      
 
     async insertUserLog(log) {
         try {
