@@ -1,5 +1,5 @@
 const BaseController = require("./BaseController");
-const {Subscriber} = require("../models/subscriberModel");
+const {Subscriber} = require("../models/SubscriberModel");
 
 const {SubscriberRepository} = require("../repositories/SubscriberRepository");
 const {SubscriberService} = require("../services/SubscriberService");
