@@ -41,7 +41,6 @@ class SubscriberController extends BaseController {
         }catch (error) {
             this.sendError(error);
         }
-
     }
 }
 

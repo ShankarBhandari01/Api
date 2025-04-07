@@ -42,7 +42,7 @@ class SubscriberService extends BaseService {
   };
   sendMarketingEmail = async (message) => {
     try {
-      const subscribers = await this.repository.getSubscribers(message);
+      const subscribers = await this.repository.getSubscribers();
       if (subscribers) {
         const response = new EmailService().sendPushNotification();
       }
