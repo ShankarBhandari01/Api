@@ -28,7 +28,13 @@ class ReservationController extends BaseController {
       const page = parseInt(this.req.query.page) || 1;
       const limit = parseInt(this.req.query.limit) || 10;
       const searchText = this.req.query.search || "";
-      const isTodayReservations = this.req.query.isTodayReservations || false;
+      let isTodayReservations = this.req.query.isTodayReservations || false;
+
+      if (isTodayReservations === "true") {
+        isTodayReservations = true;
+      } else {
+        isTodayReservations = false;
+      }
 
       const searchFilters = {
         searchText,
