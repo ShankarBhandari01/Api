@@ -1,6 +1,6 @@
 const { v4: uuid } = require("uuid");
 const Logger = require("../utils/logger");
-
+const lodash = require("lodash");
 const logger = new Logger();
 const requestLogger = (req, res, next) => {
   // Generate a unique identifier for each request
@@ -12,7 +12,9 @@ const requestLogger = (req, res, next) => {
   // Prepare log for request details
   let bodyLog = "Body not available";
   try {
-    bodyLog = JSON.stringify(req.body);
+    // Remove password field if it exists
+    const sanitizedBody = lodash.omit(req.body, ["password"]);
+    bodyLog = JSON.stringify(sanitizedBody);
   } catch (error) {
     bodyLog = "Failed to parse body";
   }
@@ -37,7 +39,7 @@ const requestLogger = (req, res, next) => {
       [Status: ${res.statusCode}] 
       [Duration: ${duration}ms] 
     `;
-    const logLevel = res.statusCode >= 400 ? 'error' : 'info';
+    const logLevel = res.statusCode >= 400 ? "error" : "info";
     logger.log(`\n${responseLog}`, logLevel);
   });
 

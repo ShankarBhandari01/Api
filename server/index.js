@@ -40,10 +40,11 @@ app.use(corsMiddleware);
 app.use(express.json());
 // Middleware to parse urlencoded form data
 app.use(express.urlencoded({ extended: true }));
-// Middleware to log API requests and responses
-app.use(loggingMiddleware);
 //the request logging middleware
 app.use(requestLogger);
+// Middleware to log API requests and responses
+app.use(loggingMiddleware);
+
 
 //test url
 app.get("/", (req, res) => {
