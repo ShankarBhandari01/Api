@@ -7,7 +7,8 @@ const config = require("../config/appconfig.js");
 const Logger = require("../utils/logger.js");
 const path = require("path");
 const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
-const corsMiddleware = require('../middleware/CorsMiddleware.js');
+const corsMiddleware = require("../middleware/CorsMiddleware.js");
+const requestLogger = require("../middleware/RequestLogger");
 const app = express();
 const logger = new Logger();
 
@@ -41,20 +42,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Middleware to log API requests and responses
 app.use(loggingMiddleware);
-
-process.on("SIGINT", () => {
-  logger.log("stopping the server", "info");
-  process.exit();
-});
-
-app.use((req, res, next) => {
-  req.identifier = uuid();
-  const logString = `a request has been made with the following uuid [${
-    req.identifier
-  }] ${req.url} ${req.headers["user-agent"]} ${JSON.stringify(req.body)}`;
-  logger.log(logString, "info");
-  next();
-});
+//the request logging middleware
+app.use(requestLogger);
 
 //test url
 app.get("/", (req, res) => {
@@ -62,7 +51,13 @@ app.get("/", (req, res) => {
 });
 
 //access the upload endpoint for images
-app.use("/public", express.static(path.join(__dirname, "../public/images")));
+app.use(
+  "/public",
+  express.static(path.join(__dirname, "../public/images"), {
+    dotfiles: "ignore", // Don't expose files that start with '.'
+    etag: false, // Disable etags to improve performance
+  })
+);
 
 app.use(require("../router/index.js"));
 
@@ -77,7 +72,7 @@ app.use((req, res, next) => {
     type: "error",
     message: message,
   });
-  next(err); // this will stackstre the error
+  return;
 });
 
 module.exports = app;
