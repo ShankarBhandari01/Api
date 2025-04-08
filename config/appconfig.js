@@ -7,6 +7,7 @@ module.exports = {
     port: process.env.DEV_APP_PORT || 3000,
     appName: process.env.APP_NAME || "restaurant-pos-api",
     env: process.env.NODE_ENV || "development",
+    corsPolicies: process.env.CORS_WHITELIST,
   },
   db: {
     port: process.env.DB_PORT || 27017,
@@ -32,10 +33,17 @@ module.exports = {
     api_key: process.env.SEND_GRID_API_KEY,
     api_user: process.env.USERNAME,
     from_email: process.env.FROM_EMAIL || "iamshankarbhandari@gmail.com",
-    gmail_pass:process.env.GMAIL_PASS,
+    gmail_pass: process.env.GMAIL_PASS,
   },
   file: {
     uploadDir: path.join(__dirname, "../public/images"),
-    ALLOWED_FILE_TYPES: process.env.ALLOWED_FILE_TYPES || ["image/jpeg", "image/png", "image/gif","image/svg+xml"],
+    ALLOWED_FILE_TYPES: process.env.ALLOWED_FILE_TYPES
+    ? process.env.ALLOWED_FILE_TYPES.split(',')
+    : [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/svg+xml",
+      ],
   },
 };
