@@ -1,12 +1,13 @@
 const express = require("express");
 const session = require("express-session");
-const cors = require("cors");
+
 const compression = require("compression");
 const uuid = require("uuid");
 const config = require("../config/appconfig.js");
 const Logger = require("../utils/logger.js");
 const path = require("path");
 const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
+const corsMiddleware = require('../middleware/CorsMiddleware.js');
 const app = express();
 const logger = new Logger();
 
@@ -32,15 +33,8 @@ app.set("port", process.env.DEV_APP_PORT);
 app.use(compression());
 app.use(require("method-override")());
 
-if (process.env.NODE_ENV === "test") {
-  app.use(
-    cors({
-      origin: "*",
-    })
-  );
-} else {
-  app.use(cors());
-}
+// Apply CORS middleware globally
+app.use(corsMiddleware);
 
 app.use(express.json());
 // Middleware to parse urlencoded form data
