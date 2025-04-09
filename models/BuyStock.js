@@ -34,5 +34,5 @@ const buyStockScheme = new Schema({
         require: true
     }
 })
-// the model of the Stock scheme 
+// the models of the Stock scheme
 module.exports = model('BuyStock', buyStockScheme);

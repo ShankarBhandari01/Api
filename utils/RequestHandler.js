@@ -4,14 +4,14 @@ class RequestHandler {
   constructor(logger) {
     this.logger = logger;
   }
-// remember to pass res in the parameter 
-  throwIf(fn, status, errorType, errorMessage) {
+
+  throwIf(res,fn, status, errorType, errorMessage) {
     res.message = errorMessage.message;
     return (result) =>
       fn(result) ? this.throwError(status, errorType, errorMessage)() : result;
   }
-// remember to pass res in the parameter 
-  validateJoi(err, status, errorType, errorMessage) {
+
+  validateJoi(res,err, status, errorType, errorMessage) {
     res.message = errorMessage.message;
     if (err) {
       this.logger.log(`error in validating request : ${errorMessage}`, "warn");

@@ -1,11 +1,11 @@
-const {Stock} = require("../model/Stocks"); // import of stock model
-const BuyStock = require("../model/BuyStock");
+const {Stock} = require("../models/Stocks"); // import of stock models
+const BuyStock = require("../models/BuyStock");
 const StockDTO = require("../dtos/StockDTO");
 const CategoryDTO = require("../dtos/CategoryDTO");
 const RequestHandler = require("../utils/RequestHandler");
 const Logger = require("../utils/logger");
 
-const {StockRepository} = require("../repo/stockRepo");
+const {StockRepository} = require("../repositories/stockRepo");
 const {StockService} = require("../services/stockService");
 
 const stockRepository = new StockRepository(Stock);
@@ -15,12 +15,8 @@ const logger = new Logger();
 const requestHandler = new RequestHandler(logger);
 
 //add menus items
-exports.saveStock = async (req, res, next) => {
+exports.saveStock = async (req, res) => {
     try {
-        if (req.query.lang) {
-            req.session.lang = req.query.lang;
-        }
-        // language set
         const lang = req.session.lang || "en"; // Default to English
         //create Dto
         const StockDto = new StockDTO(req.body, req.files, lang);
@@ -34,12 +30,8 @@ exports.saveStock = async (req, res, next) => {
     }
 };
 
-exports.addCategory = async (req, res, next) => {
+exports.addCategory = async (req, res) => {
     try {
-        if (req.query.lang) {
-            req.session.lang = req.query.lang;
-        }
-        // language set
         const lang = req.session.lang || "en"; // Default to English
 
         // creating dto
@@ -53,12 +45,8 @@ exports.addCategory = async (req, res, next) => {
     }
 };
 
-exports.getAllCategory = async (req, res, next) => {
+exports.getAllCategory = async (req, res) => {
     try {
-        if (req.query.lang) {
-            req.session.lang = req.query.lang;
-        }
-        // language set
         const lang = req.session.lang || "en"; // Default to English
 
         const response = await stockService.getAllCategory();
@@ -69,36 +57,55 @@ exports.getAllCategory = async (req, res, next) => {
     } // end try catch
 };
 // get all the menus items
-exports.getAllStock = async (req, res, next) => {
+exports.getAllStock = async (req, res) => {
     try {
         // Set the language from query or default to 'en'
-        const lang = req.query.lang || req.session.lang || "en";
-        req.session.lang = lang;
+        const lang = req.session.lang || "en"; // Default to English
 
         const searchText = req.query.search || "";
         const type = req.query.searchType || "";
         const filterType = req.query.filterType || "";
         const categoryId = req.query.categoryId || "";
 
-
         let response;
         // Get pagination parameters from query
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
 
-        const searchFilters = {searchText, type, page, limit, filterType, categoryId, lang};
+        const searchFilters = {
+            searchText,
+            type,
+            page,
+            limit,
+            filterType,
+            categoryId,
+            lang,
+        };
         // Validate the limit to avoid too many results
         if (limit >= 100) {
             const message = "Limit must be less than 100";
             throw {message: message};
         }
         response = await stockService.getAllStock(searchFilters);
-        if (response.statusCode === 200 && response.data.length > 0) {
-            const stockInDatabase = response.data;
-            // updating of image link
-            response.data = stockInDatabase.map((item) => ({
-                ...item, image: `${req.protocol}://${req.get("host")}/public/${item.image}`
-            }));
+        // Process response data
+        if (response.statusCode === 200) {
+            if (response.rsType === "Allstock" && response.data.length > 0) {
+                response.data = response.data.map((item) => updateImageUrl(item, req));
+            } else if (
+                (response.rsType === "categoryWise" ||
+                    response.rsType === "nameOfWeekWise") &&
+                response.data.length > 0
+            ) {
+                response.data = response.data.map((category) => ({
+                    ...category,
+                    categoryName: {
+                        ...category.categoryName,
+                        items: category.categoryName.items.map((item) =>
+                            updateImageUrl(item, req)
+                        ),
+                    },
+                }));
+            }
         }
 
         // Set the response status and send the response
@@ -108,6 +115,14 @@ exports.getAllStock = async (req, res, next) => {
         return requestHandler.sendError(req, res, err);
     }
 };
+
+
+const updateImageUrl = (item, req) => ({
+    ...item,
+    image: item.image
+        ? `${req.protocol}://${req.get("host")}/public/${item.image}`
+        : null, // If no image, set to null
+});
 
 exports.viewOne = (req, res) => {
     stock
@@ -122,7 +137,11 @@ exports.viewOne = (req, res) => {
 
 exports.BuyStock = (req, res) => {
     id = req.userData._id;
-    (stockName = req.body.stockName), (amount = req.body.amount), (quantity = req.body.quantity), (unit = req.body.Unit), (total = req.body.total);
+    (stockName = req.body.stockName),
+        (amount = req.body.amount),
+        (quantity = req.body.quantity),
+        (unit = req.body.Unit),
+        (total = req.body.total);
     date = req.body.date;
     type = "Buy";
 
@@ -170,7 +189,11 @@ exports.GetSingleBuyStock = (req, res) => {
 
 exports.SellStock = (req, res) => {
     id = req.userData._id;
-    (stockName = req.body.stockName), (amount = req.body.amount), (quantity = req.body.quantity), (unit = req.body.Unit), (total = req.body.total);
+    (stockName = req.body.stockName),
+        (amount = req.body.amount),
+        (quantity = req.body.quantity),
+        (unit = req.body.Unit),
+        (total = req.body.total);
     date = req.body.date;
     type = "Sell";
 
@@ -208,12 +231,15 @@ exports.GetSellStock = (req, res) => {
 
 exports.totalUnit = (req, res) => {
     id = req.userData._id.toString();
-    BuyStock.aggregate([{$match: {$and: [{type: "Buy"}, {userID: id}]}}, {
-        $group: {
-            _id: "$userID",
-            totalUnit: {$sum: "$Unit"}
-        }
-    },])
+    BuyStock.aggregate([
+        {$match: {$and: [{type: "Buy"}, {userID: id}]}},
+        {
+            $group: {
+                _id: "$userID",
+                totalUnit: {$sum: "$Unit"},
+            },
+        },
+    ])
         .then((data) => {
             res.status(200).json({status: true, data});
         })
@@ -224,45 +250,57 @@ exports.totalUnit = (req, res) => {
 
 exports.totalInvest = (req, res) => {
     id = req.userData._id.toString();
-    BuyStock.aggregate([{$match: {$and: [{type: "Buy"}, {userID: id}]}}, {
-        $group: {
-            _id: "$userID",
-            totalUnit: {$sum: "$total"}
-        }
-    },]).then((data) => {
+    BuyStock.aggregate([
+        {$match: {$and: [{type: "Buy"}, {userID: id}]}},
+        {
+            $group: {
+                _id: "$userID",
+                totalUnit: {$sum: "$total"},
+            },
+        },
+    ]).then((data) => {
         res.status(200).json({status: true, data});
     });
 };
 exports.totalSold = (req, res) => {
     id = req.userData._id.toString();
-    BuyStock.aggregate([{$match: {$and: [{type: "Sell"}, {userID: id}]}}, {
-        $group: {
-            _id: "$userID",
-            totalUnit: {$sum: "$total"}
-        }
-    },]).then((data) => {
+    BuyStock.aggregate([
+        {$match: {$and: [{type: "Sell"}, {userID: id}]}},
+        {
+            $group: {
+                _id: "$userID",
+                totalUnit: {$sum: "$total"},
+            },
+        },
+    ]).then((data) => {
         res.status(200).json({status: true, data});
     });
 };
 exports.currentAmount = (req, res) => {
     id = req.userData._id.toString();
-    BuyStock.aggregate([{$match: {$and: [{type: "Buy"}, {userID: id}]}}, {
-        $group: {
-            _id: "$userID",
-            totalUnit: {$sum: "$amount"}
-        }
-    },]).then((data) => {
+    BuyStock.aggregate([
+        {$match: {$and: [{type: "Buy"}, {userID: id}]}},
+        {
+            $group: {
+                _id: "$userID",
+                totalUnit: {$sum: "$amount"},
+            },
+        },
+    ]).then((data) => {
         res.status(200).json({status: true, data});
     });
 };
 exports.OverAllprofit = (req, res) => {
     id = req.userData._id.toString();
-    BuyStock.aggregate([{$match: {$and: [{type: "Buy"}, {userID: id}]}}, {
-        $group: {
-            _id: "$userID",
-            totalUnit: {$avg: "$total"}
-        }
-    },]).then((data) => {
+    BuyStock.aggregate([
+        {$match: {$and: [{type: "Buy"}, {userID: id}]}},
+        {
+            $group: {
+                _id: "$userID",
+                totalUnit: {$avg: "$total"},
+            },
+        },
+    ]).then((data) => {
         res.status(200).json({status: true, data});
     });
 };

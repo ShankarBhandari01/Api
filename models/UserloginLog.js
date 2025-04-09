@@ -31,5 +31,5 @@ const userlogSchema = new Schema({
   },
 });
 
-// the model of the UserLoginLog scheme
+// the models of the UserLoginLog scheme
 module.exports = model("UserLoginLog", userlogSchema);

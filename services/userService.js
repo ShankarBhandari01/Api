@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const lodash = require("lodash");
 const BaseService = require("./BaseService");
-const imageModel = require("../model/Image");
+const imageModel = require("../models/Image");
 
 class UserService extends BaseService {
   constructor(userRepo) {
@@ -49,13 +49,16 @@ class UserService extends BaseService {
       throw { message: err.message };
     }
   };
-
+  // admin login only for now
   doLogin = async (request, session) => {
     try {
       var user = await this.getUser(request);
       if (user === null) {
         throw new Error("UserNotFound");
       } else {
+        if (user.role === "user" || user.role === undefined) {
+          throw new Error("Permission Denied");
+        }
         const isPasswordMatch = await bcrypt.compare(
           request.password,
           user.password
@@ -78,7 +81,16 @@ class UserService extends BaseService {
   // get user details
   getUser = async (request) =>
     await this.userRepo.getUserByUsername(request.email);
+
+  logout = async (userId) => {
+    try {
+      return await super.logout(userId);
+    } catch (err) {
+      throw { message: err.message };
+    }
+  };
 }
+
 module.exports = {
   UserService,
 };

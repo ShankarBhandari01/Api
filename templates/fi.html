@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Varausvahvistus Ravintola 14 Peaks</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f8f8;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .details {
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #555;
+    }
+    .details li {
+      margin-bottom: 8px;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+    .footer a {
+      color: #2980b9;
+      text-decoration: none;
+    }
+    .footer-table {
+      width: 100%;
+      max-width: 100%;
+    }
+    .footer-table td {
+      vertical-align: top;
+      padding-top: 15px;
+    }
+    .footer-table img {
+      max-width: 120px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Varausvahvistus Ravintola 14 Peaks</h1>
+
+    <div class="details">
+      <h3>Varaustiedot:</h3>
+      <ul>
+        <li><strong>Varauspäivämäärä:</strong> {{reservation_date}}</li>
+        <li><strong>Varausaika:</strong> {{reservation_time}}</li>
+        <li><strong>Vieraiden määrä:</strong> {{number_of_guests}}</li>
+      </ul>
+    </div>
+
+    <p>Hei {{customer_name}},</p>
+
+    <p>Kiitos, että valitsit Ravintola 14 Peaks!</p>
+
+    <p>Vahvistamme ilolla varauksesi {{number_of_guests}} henkilölle {{reservation_date}} klo {{reservation_time}}.</p>
+
+    <p>Odotamme innolla, että pääsemme tarjoamaan sinulle unohtumatonta ruokailukokemusta ravintolassamme.</p>
+
+    <p>Jos sinulla on erityispyyntöjä tai haluat tehdä muutoksia varaukseesi, ota rohkeasti yhteyttä vastaamalla tähän sähköpostiin tai soittamalla meille numeroon <strong>[Ravintolan puhelinnumero]</strong>.</p>
+
+    <p>Pyydämme sinua saapumaan muutama minuutti etuajassa varmistaaksesi sujuvan ja miellyttävän ruokailukokemuksen.</p>
+
+    <p>Odotamme innolla, että pääsemme palvelemaan sinua!</p>
+
+    <div class="footer">
+      <table class="footer-table">
+        <tr>
+          <td style="width: 70%;">
+            <p>Ystävällisin terveisin,</p>
+            <p><strong>Ravintola 14 Peaks</strong></p>
+            <p>Kolmas Linja 8 A, 00530 Helsinki</p>
+            <p><strong>[Ravintolan puhelinnumero]</strong></p>
+            <p><a href="https://ravintola14peaks.fi">ravintola14peaks.fi</a></p>
+          </td>
+          <td style="text-align: right;">
+            <img src="https://i.postimg.cc/fbDrMwGc/14-Peaks-Logo-plain-1.png" alt="14 Peaks Logo" />
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -3,10 +3,8 @@
  * @param {StockRepository} stockRepo - An instance of the StockRepository class.
  */
 
-const resources = require("../utils/constants");
-const {Stock, Category} = require("../model/Stocks");
+const {Stock, Category} = require("../models/Stocks");
 const BaseService = require("./BaseService");
-const {Types} = require("mongoose");
 
 class StockService extends BaseService {
     constructor(stockRepo) {
@@ -23,19 +21,26 @@ class StockService extends BaseService {
             if (StockDto.image && StockDto.image.image?.[0]?.filename) {
                 stockModel.image = StockDto.image.image[0].filename;
             }
-            // check the mode of the transcation
+            // check the mode of the transaction
             if (StockDto.mode === "new") {
                 insertedStock = await this.stockRepo.addStock(stockModel);
-            } else {
+            } else if (StockDto.mode === "edit" || StockDto.mode === "delete") {
                 stockModel.updated_ts = Date.now();
-                stockModel.remarks = {en: "edit", fi: "muokata"};
-
+                if (StockDto.mode === "edit") {
+                    stockModel.remarks = {en: "edit", fi: "muokata"};
+                } else {
+                    stockModel.remarks = {en: "delete", fi: "poista"};
+                    stockModel.isDeleted = true;
+                    stockModel.isActive = false;
+                }
                 const {_id, createdDate, ...updateData} = stockModel.toObject();
 
                 insertedStock = await this.stockRepo.updateStock(
                     StockDto.id,
                     updateData
                 );
+            } else {
+                throw new Error("Invalid mode");
             }
             return super.prepareResponse(insertedStock);
         } catch (err) {
@@ -45,58 +50,84 @@ class StockService extends BaseService {
 
     getAllStock = async (searchFilters) => {
         let response = {};
-        let totalCount;
+        let totalCount = 0;
 
         try {
-            if (searchFilters.filterType === "categoryWise" && searchFilters.categoryId) {
+            const {
+                filterType,
+                categoryId,
+                searchText,
+                type,
+                page = 1,
+                limit = 10,
+                lang,
+            } = searchFilters;
+
+            const skip = this.getSkipNumber(page, limit);
+
+            // Determine totalCount only if necessary
+            if (filterType === "categoryWise" && categoryId) {
                 totalCount = await this.stockRepo.getStockCount(searchFilters);
             } else {
                 totalCount = await this.stockRepo.getStockCount();
             }
 
-            // Calculate the skip value for pagination
-            let skip = this.getSkipNumber(searchFilters.page, searchFilters.limit);
-            // set skip to 0 if less than 20
-            if (totalCount < 20) {
-                skip = 0;
-            }
+            // Reset skip if total items are less than one page
+            const finalSkip = totalCount < 20 ? 0 : skip;
 
             let stock;
-            if (searchFilters.searchText && searchFilters.type === "item") {
+            let rsType;
+
+            // Handle search text
+            if (searchText && type === "item") {
                 stock = await this.stockRepo.getStockBySearch(
-                    searchFilters.searchText,
-                    searchFilters.type,
-                    skip,
-                    searchFilters.limit,
-                    searchFilters.lang
+                    searchText,
+                    type,
+                    finalSkip,
+                    limit,
+                    lang
                 );
+                rsType = "stock";
             } else {
-                if (searchFilters.filterType === "categoryWise") {
-                    // categoryID is provided
-                    if (!searchFilters.categoryId) {
-                        stock = await this.stockRepo.getGroupByCategory()
-                    } else {
-                        stock = await this.stockRepo.getCategoryWiseStock(searchFilters.categoryId)
-                    }
-                } else if (searchFilters.filterType === "nameOfWeekWise") {
-                    stock = await this.stockRepo.getItemDaysNameWise()
-                } else {
-                    stock = await this.stockRepo.getAllStock(skip, searchFilters.limit);
+                switch (filterType) {
+                    case "categoryWise":
+                        if (!categoryId) {
+                            stock = await this.stockRepo.getGroupByCategory();
+                        } else {
+                            stock = await this.stockRepo.getCategoryWiseStock(categoryId);
+                        }
+                        rsType = "categoryWise";
+                        break;
+
+                    case "nameOfWeekWise":
+                        stock = await this.stockRepo.getItemDaysNameWise();
+                        rsType = "nameOfWeekWise";
+                        break;
+
+                    default:
+                        stock = await this.stockRepo.getAllStock(finalSkip, limit, {_id: 1});
+                        rsType = "Allstock";
+                        break;
                 }
             }
-            response = super.prepareResponse(stock);
-            if (stock.length !== 0) {
+
+            response = super.prepareResponse(stock, rsType);
+
+            // Add pagination only if stock exists
+            if (Array.isArray(stock) && stock.length > 0) {
                 response.pagination = {
-                    currentPage: searchFilters.page,
-                    totalPages: Math.ceil(totalCount / searchFilters.limit),
-                    totalCount: totalCount,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCount / limit),
+                    totalCount,
                 };
             }
+
             return response;
         } catch (err) {
             throw {message: err.message};
         }
     };
+
 
     addCategory = async (category, lang) => {
         try {
@@ -107,19 +138,26 @@ class StockService extends BaseService {
             // Add the category to the repository
             if (category.mode === "new") {
                 insertedCategory = await this.stockRepo.addCategory(categoryModel);
-            } else {
-                // Update the updated timestamp
-                categoryModel.updated_at = Date.now();
-                categoryModel.remarks = {en: "edit", fi: "muokata"};
-
+            } else if (category.mode === "edit" || category.mode === "delete") {
+                if (category.mode === "edit") {
+                    categoryModel.updated_at = Date.now();
+                    categoryModel.remarks = {en: "edit", fi: "muokata"};
+                } else if (category.mode === "delete") {
+                    categoryModel.updated_at = Date.now();
+                    categoryModel.remarks = {en: "delete", fi: "poista"};
+                    categoryModel.isDeleted = true;
+                    categoryModel.isActive = false;
+                }
                 // Remove _id to prevent immutable field error
                 const {_id, created_at, ...updateData} = categoryModel.toObject();
-
                 insertedCategory = await this.stockRepo.updateCategory(
                     category.id,
                     updateData
                 );
+            } else {
+                throw new Error("Invalid mode");
             }
+
             return super.prepareResponse(insertedCategory);
         } catch (err) {
             throw {message: err.message};
@@ -133,10 +171,6 @@ class StockService extends BaseService {
         } catch (err) {
             throw {message: err.message};
         }
-    };
-
-    getSkipNumber = (page, limit) => {
-        return (page - 1) * limit;
     };
 }
 

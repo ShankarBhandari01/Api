@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Logger = require("../utils/logger");
 const { DatabaseError } = require("../utils/errors");
 const logger = new Logger();
-const BaseRepo = require("./BaseRepo");
+const BaseRepo = require("./BaseRepository");
 
 class UserRepository extends BaseRepo {
   constructor(userModel) {
@@ -18,8 +18,8 @@ class UserRepository extends BaseRepo {
     while (attempts < 3) {
       try {
         // Upload the image first
-        const uploadedImage = await this.uploadImage(image, session);
-        // Reference the uploaded image's ID in the user model
+        const uploadedImage =this.uploadImage(image, session);
+        // Reference the uploaded image's ID in the user models
         user.profilePic = uploadedImage.id;
         // Insert user data with the image reference
         const newUser = await this.userModel.create([user], { session });
@@ -45,22 +45,11 @@ class UserRepository extends BaseRepo {
       }
     }
   };
-
-  uploadImage = async (image, session) => {
-    try {
-      // Pass the session to ensure the image save is part of the same transaction
-      return await image.save({ session });
-    } catch (err) {
-      logger.log(`Error uploading image: ${err.message}`, "error");
-      throw new DatabaseError("Error uploading image: " + err.message);
-    }
-  };
-
   getUserByUsername = async (email) => {
     try {
       const user = await this.userModel
         .findOne({ email: email })
-        .populate("profilePic");
+        .populate("profilePic").lean();
 
       if (user == null) {
         return null; // Return null if user is not found

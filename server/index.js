@@ -1,12 +1,14 @@
 const express = require("express");
 const session = require("express-session");
-const cors = require("cors");
+
 const compression = require("compression");
 const uuid = require("uuid");
 const config = require("../config/appconfig.js");
 const Logger = require("../utils/logger.js");
 const path = require("path");
 const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
+const corsMiddleware = require("../middleware/CorsMiddleware.js");
+const requestLogger = require("../middleware/RequestLogger");
 const app = express();
 const logger = new Logger();
 
@@ -18,10 +20,11 @@ app.use(
     secret: config.auth.jwt_secret,
     resave: false,
     saveUninitialized: false,
-    cookie: { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production', // Only set secure cookies in production (requires HTTPS)
-      maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Only set secure cookies in production (requires HTTPS)
+      maxAge: 1000 * 60 * 60 * 24,
+    }, // 1 day
   })
 );
 
@@ -31,27 +34,17 @@ app.set("port", process.env.DEV_APP_PORT);
 app.use(compression());
 app.use(require("method-override")());
 
-app.use(cors());
+// Apply CORS middleware globally
+app.use(corsMiddleware);
+
 app.use(express.json());
 // Middleware to parse urlencoded form data
 app.use(express.urlencoded({ extended: true }));
+//the request logging middleware
+app.use(requestLogger);
 // Middleware to log API requests and responses
 app.use(loggingMiddleware);
 
-
-process.on("SIGINT", () => {
-  logger.log("stopping the server", "info");
-  process.exit();
-});
-
-app.use((req, res, next) => {
-  req.identifier = uuid();
-  const logString = `a request has been made with the following uuid [${
-    req.identifier
-  }] ${req.url} ${req.headers["user-agent"]} ${JSON.stringify(req.body)}`;
-  logger.log(logString, "info");
-  next();
-});
 
 //test url
 app.get("/", (req, res) => {
@@ -59,7 +52,13 @@ app.get("/", (req, res) => {
 });
 
 //access the upload endpoint for images
-app.use('/public', express.static(path.join(__dirname, "../public/images")));
+app.use(
+  "/public",
+  express.static(path.join(__dirname, "../public/images"), {
+    dotfiles: "ignore", // Don't expose files that start with '.'
+    etag: false, // Disable etags to improve performance
+  })
+);
 
 app.use(require("../router/index.js"));
 
@@ -74,7 +73,7 @@ app.use((req, res, next) => {
     type: "error",
     message: message,
   });
-  next(err); // this will stackstre the error
+  return;
 });
 
 module.exports = app;
