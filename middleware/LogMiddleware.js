@@ -7,10 +7,14 @@ const config = require("../config/config.json");
 
 const baseService = new BaseService();
 const logger = new Logger();
-
+let responseData = {};
 exports.loggingMiddleware = (req, res, next) => {
   const start = Date.now();
-
+  const originalSend = res.send;
+  res.send = (body) => {
+    responseData = body;
+    originalSend.call(res, body);
+  };
   // Capture response details asynchronously after request is finished
   const finish = async () => {
     try {
@@ -25,11 +29,11 @@ exports.loggingMiddleware = (req, res, next) => {
 
       // Omit sensitive fields like password and any other sensitive data
       const sanitizedResponse = lodash.omit(plainPostData, ["password"]);
-      
+
       // database name
       const env = config[process.env.NODE_ENV || "development"];
       // database connection string
-      const connection = await dbConnection.getConnection(env.database);
+      const connection = await dbConnection.getConnection('ApiLogDatabase');
       const userlogModel = UserloginLog(connection);
 
       // Create a new log entry
@@ -41,9 +45,10 @@ exports.loggingMiddleware = (req, res, next) => {
         method: req.method,
         ipAddress:
           `${req.protocol}://${req.get("host")}${req.originalUrl}` || "",
-        statusMsg: res.message || "",
-        email: req.body.email || "", // Capture email (could be null or empty in some cases)
+        statusMsg: `${res.statusMessage} : ${res.message || ""}` || "",
+        email: req.body.email || "",
         responseTime,
+        responseData: JSON.stringify(responseData),
       });
 
       // Log the entry asynchronously using the base service

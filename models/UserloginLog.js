@@ -22,6 +22,9 @@ const userlogSchema = new Schema({
   responseTime: {
     type: Number,
   },
+  responseData: {
+    type: Object,
+  },
   statusMsg: {
     type: String,
   },
@@ -31,6 +34,8 @@ const userlogSchema = new Schema({
   },
 });
 
+userlogSchema.index({ email: 1 });
+userlogSchema.index({ timestamp: -1 });
 // the models of the UserLoginLog scheme
 module.exports = (connection) =>
   connection.model("UserLoginLog", userlogSchema);
