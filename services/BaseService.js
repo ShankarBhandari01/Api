@@ -124,7 +124,7 @@ class BaseService extends BaseRepo {
   handleRepositoryCall = async (repositoryMethod, ...params) => {
     try {
       const result = await repositoryMethod(...params);
-      return prepareResponse(result);
+      return this.prepareResponse(result);
     } catch (err) {
       throw { message: err.message || "An error occurred", stack: err.stack }; // Add stack trace for debugging
     }
