@@ -4,4 +4,4 @@
 /log
 /public
 firebase-service-account.json
-config/config.json
+/config/config.json
