@@ -1,10 +1,12 @@
 const BaseRepository = require("./BaseRepository");
 const { DatabaseError } = require("../utils/errors");
+const Subscriber = require("../models/SubscriberModel");
 
 class SubscriberRepository extends BaseRepository {
-  constructor(model) {
-    super();
-    this.model = model;
+  constructor(connection) {
+    super(connection);
+    this.model = Subscriber(connection);
+    this.connection = connection;
   }
 
   subscribe = async (subscribers) => {
@@ -30,7 +32,7 @@ class SubscriberRepository extends BaseRepository {
     }
   };
 
-  getSubscribers = async() => {
+  getSubscribers = async () => {
     try {
       return await this.model.find();
     } catch (error) {

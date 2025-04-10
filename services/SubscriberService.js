@@ -1,10 +1,12 @@
 const BaseService = require("./BaseService");
 const { EmailService } = require("./EmailService");
+const {SubscriberRepository}= require("../repositories/SubscriberRepository");
 
 class SubscriberService extends BaseService {
-  constructor(repository) {
-    super();
-    this.repository = repository;
+  constructor(connection) {
+    super(connection);
+    this.connection = connection;
+    this.repository = new SubscriberRepository(connection);
   }
 
   subscribe = async (subscribers) => {

@@ -2,11 +2,12 @@ const bcrypt = require("bcrypt");
 const lodash = require("lodash");
 const BaseService = require("./BaseService");
 const imageModel = require("../models/Image");
+const { UserRepository } = require("../repositories/UserRepository");
 
 class UserService extends BaseService {
-  constructor(userRepo) {
-    super();
-    this.userRepo = userRepo;
+  constructor(connection) {
+    super(connection);
+    this.userRepo = new UserRepository(connection);
   }
 
   doSignUp = async (userModel, image) => {
@@ -20,18 +21,8 @@ class UserService extends BaseService {
       const hashedPassword = await bcrypt.hash(userModel.password, 10);
       userModel.password = hashedPassword;
 
-      const newImage = new imageModel();
-      if (image && image.length > 0) {
-        const imageData = image[0];
-
-        // Assign properties correctly
-        newImage.url = imageData.url;
-        newImage.filename = imageData.originalname;
-        newImage.contentType = imageData.mimetype;
-        newImage.imageData = imageData.buffer;
-      }
       // Attempt to add user using userRepo
-      const addUserResponse = await this.userRepo.addUser(userModel, newImage);
+      const addUserResponse = await this.userRepo.addUser(userModel,image);
       // Handle addUserResponse based on result
       if (!addUserResponse) {
         throw new Error("Failed to add user");
@@ -69,8 +60,16 @@ class UserService extends BaseService {
           throw new Error("InvalidCredentials");
         }
         lodash.omit(user.password); //remove password
+        // firebase token
+        const firebaseToken = {
+          fcmToken: request.fcmToken,
+          deviceInfo: request.deviceInfo,
+        };
+        session.firebaseToken = firebaseToken; // save forebase token
+        session.user = user; // save user
+
         //save token in database
-        const token = await super.assignToken(user, session);
+        const token = await super.assignToken(session);
         // return session with token
         return { session: token, user: session.user };
       }

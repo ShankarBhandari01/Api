@@ -3,24 +3,38 @@ const Logger = require("../utils/logger");
 const { DatabaseError } = require("../utils/errors");
 const logger = new Logger();
 const BaseRepo = require("./BaseRepository");
+const userTable = require("../models/UserModel");
+const imageModel = require("../models/Image");
 
 class UserRepository extends BaseRepo {
-  constructor(userModel) {
+  constructor(connection) {
     super();
-    this.userModel = userModel;
+    this.connection = connection;
+    // model registered in connection
+    this.userModel = userTable(connection);
+    this.imageModel = imageModel(connection);
   }
 
   addUser = async (user, image) => {
-    const session = await mongoose.startSession();
+    const session = await this.connection.startSession();
     session.startTransaction();
     let attempts = 0;
     // Retry 3 times
     while (attempts < 3) {
       try {
-        // Upload the image first
-        const uploadedImage =this.uploadImage(image, session);
-        // Reference the uploaded image's ID in the user models
-        user.profilePic = uploadedImage.id;
+        const newImage = this.imageModel();
+        if (image && image.length > 0) {
+          const imageData = image[0];
+          // Assign properties correctly
+          newImage.url = imageData.url;
+          newImage.filename = imageData.originalname;
+          newImage.contentType = imageData.mimetype;
+          newImage.imageData = imageData.buffer;
+          // Upload the image first
+          const uploadedImage = await this.uploadImage(newImage, session);
+          // Reference the uploaded image's ID in the user models
+          user.profilePic = uploadedImage.id;
+        }
         // Insert user data with the image reference
         const newUser = await this.userModel.create([user], { session });
         // Commit the transaction
@@ -49,13 +63,14 @@ class UserRepository extends BaseRepo {
     try {
       const user = await this.userModel
         .findOne({ email: email })
-        .populate("profilePic").lean();
+        .populate("profilePic")
+        .lean();
 
       if (user == null) {
         return null; // Return null if user is not found
       }
 
-      if (user.profilePic) {
+      if (user.profilePic instanceof mongoose.Model) {
         // Convert Binary to Base64
         user.profileBase64 = `data:${
           user.profilePic.contentType
@@ -65,7 +80,9 @@ class UserRepository extends BaseRepo {
       return user;
     } catch (error) {
       logger.log(`Error retrieving user by email: ${error.message}`, "error");
-      throw new DatabaseError("Error retrieving user from the database");
+      throw new DatabaseError(
+        `Error retrieving user from the database: ${error.message}`
+      );
     }
   };
 }

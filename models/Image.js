@@ -19,4 +19,4 @@ const ImageSchema = new Schema({
   uploadedAt: { type: Date, default: Date.now, index: true }, // Timestamp
 });
 
-module.exports = model("Image", ImageSchema);
+module.exports = (connection) => connection.model("Image", ImageSchema);

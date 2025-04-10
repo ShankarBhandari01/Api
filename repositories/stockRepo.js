@@ -1,18 +1,20 @@
 const BaseRepo = require("./BaseRepository");
 const { UpdateError } = require("../utils/errors");
-const { Category } = require("../models/Stocks");
+const StockModels = require("../models/Stocks");
 
 class StockRepository extends BaseRepo {
-  constructor(stockModel) {
-    super();
-    this.stockModel = stockModel;
+  constructor(connection) {
+    super(connection);
+    this.connection = connection;
+    this.stockModel = StockModels(connection).Stock;
+    this.Category = StockModels(connection).Category;
   }
 
   addStock = (stock) => {
     return this.stockModel.create(stock);
   };
 
-  getAllStock = async (skip, limit,sort) => {
+  getAllStock = async (skip, limit, sort) => {
     try {
       return await this.stockModel
         .find({ isDeleted: false, isActive: true })
@@ -44,7 +46,7 @@ class StockRepository extends BaseRepo {
           $match: {
             isDeleted: false,
             isActive: true,
-            categoryID: {$ne: null, $ne: ""},
+            categoryID: { $ne: null, $ne: "" },
           },
         },
         {
@@ -61,9 +63,9 @@ class StockRepository extends BaseRepo {
         {
           $group: {
             _id: "$categoryDetails._id", // Group by category ID
-            categoryEn: {$first: "$categoryDetails.name.en"}, // Get English name
-            categoryFi: {$first: "$categoryDetails.name.fi"}, // Get Finnish name
-            items: {$push: "$$ROOT"}, // Push stock items under each category
+            categoryEn: { $first: "$categoryDetails.name.en" }, // Get English name
+            categoryFi: { $first: "$categoryDetails.name.fi" }, // Get Finnish name
+            items: { $push: "$$ROOT" }, // Push stock items under each category
           },
         },
         {
@@ -74,7 +76,7 @@ class StockRepository extends BaseRepo {
                 en: "$categoryEn", // English name
                 fi: "$categoryFi", // Finnish name
               },
-              items: {$ifNull: ["$items", []]}, // Ensure items is an empty array if no items exist
+              items: { $ifNull: ["$items", []] }, // Ensure items is an empty array if no items exist
             },
           },
         },
@@ -88,17 +90,17 @@ class StockRepository extends BaseRepo {
     return await this.stockModel.aggregate([
       {
         $match: {
-          $and: [{isDeleted: false}, {isActive: true}],
-          "nameOfWeek.en": {$ne: null, $ne: ""},
+          $and: [{ isDeleted: false }, { isActive: true }],
+          "nameOfWeek.en": { $ne: null, $ne: "" },
         },
       },
       {
         $group: {
           _id: "$nameOfWeek.en",
-          nameOfWeekEn: {$first: "$nameOfWeek.en"},
-          nameOfWeekFi: {$first: "$nameOfWeek.fi"},
-          dayOfWeek: {$first: "$dayOfWeek"},
-          items: {$push: "$$ROOT"},
+          nameOfWeekEn: { $first: "$nameOfWeek.en" },
+          nameOfWeekFi: { $first: "$nameOfWeek.fi" },
+          dayOfWeek: { $first: "$dayOfWeek" },
+          items: { $push: "$$ROOT" },
         },
       },
       {
@@ -114,7 +116,7 @@ class StockRepository extends BaseRepo {
         },
       },
       {
-        $sort: {dayOfWeek: 1},
+        $sort: { dayOfWeek: 1 },
       },
     ]);
   };
@@ -185,7 +187,7 @@ class StockRepository extends BaseRepo {
       ]);
     } else if (type === "category") {
       // Search in the categories collection
-      results = await Category.aggregate([
+      results = await this.Category.aggregate([
         {
           $match: {
             isDeleted: false,
@@ -213,18 +215,23 @@ class StockRepository extends BaseRepo {
 
   addCategory = async (category) => {
     try {
-      return await Category.create(category);
+      return await this.Category.create(category);
     } catch (error) {
       throw new Error("error adding category: " + error.message);
     }
   };
 
-  getAllCategory = async () => {
+  getAllCategory = async (skip, limit) => {
     try {
-      return await Category.find({ isDeleted: false, isActive: true });
+      return await this.Category.find({ isDeleted: false, isActive: true })
+        .skip(skip)
+        .limit(limit);
     } catch (error) {
       throw new Error("getting category: " + error.message);
     }
+  };
+  getCategoryCount = async () => {
+    return this.Category.countDocuments({ isDeleted: false, isActive: true });
   };
   updateCategory = async (categoryID, updateData) => {
     try {

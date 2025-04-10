@@ -7,36 +7,19 @@ const {
 const auth = require("../../middleware/auth");
 
 // Endpoint to subscribe user
-router.post("/subscribe", languageMiddleware, async (req, res, next) => {
-  try {
-    const controller = new SubscriberController(req, res);
-    await controller.subscribe();
-  } catch (error) {
-    next(error);
-  }
-});
+router.post("/subscribe", languageMiddleware, (req, res) =>
+  new SubscriberController(req, res).subscribe()
+);
 
 // Endpoint to unsubscribe user
-router.post("/unsubscribe", languageMiddleware, async (req, res) => {
-  try {
-    const controller = new SubscriberController(req, res);
-    await controller.unsubscribe();
-  } catch (error) {
-    next(error);
-  }
-});
+router.post("/unsubscribe", languageMiddleware, (req, res) =>
+  new SubscriberController(req, res).unsubscribe()
+);
 // Endpoint to send marketing emails to all subscribers
 router.post(
   "/sendMarketingEmail",
   languageMiddleware,
-  auth.isAuthunticated,
-  async (req, res) => {
-    try {
-      const controller = new SubscriberController(req, res);
-      await controller.sendMarketingEmail();
-    } catch (error) {
-      next(error);
-    }
-  }
+  auth.isAuthenticated,
+  (req, res) => new SubscriberController(req, res).sendMarketingEmail()
 );
 module.exports = router;

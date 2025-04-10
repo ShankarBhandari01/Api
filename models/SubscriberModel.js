@@ -5,6 +5,5 @@ const subscriberSchema = new Schema({
   subscribedAt: { type: Date, default: Date.now },
 });
 
-const Subscriber = model("Subscriber", subscriberSchema);
-
-module.exports = { Subscriber };
+module.exports = (connection) =>
+  connection.model("Subscriber", subscriberSchema);

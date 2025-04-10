@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const dotenv = require('dotenv');
 
 const algorithm = 'aes-256-cbc';
-const password = 'your-encryption-password';  // Store this securely
+const password = 'your-encryption-password'; 
 
 // Function to decrypt the content
 function decrypt(text) {

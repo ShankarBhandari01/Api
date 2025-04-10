@@ -1,12 +1,11 @@
 const express = require("express");
 const session = require("express-session");
-
 const compression = require("compression");
-const uuid = require("uuid");
 const config = require("../config/appconfig.js");
 const Logger = require("../utils/logger.js");
 const path = require("path");
 const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
+const { languageMiddleware } = require("../middleware/languageMiddleware");
 const corsMiddleware = require("../middleware/CorsMiddleware.js");
 const requestLogger = require("../middleware/RequestLogger");
 const app = express();
@@ -28,23 +27,22 @@ app.use(
   })
 );
 
-app.set("db", require("../database/db.js"));
+//app.set("db", require("../database/ConnectionManager.js"));
 app.set("port", process.env.DEV_APP_PORT);
 
 app.use(compression());
 app.use(require("method-override")());
-
 // Apply CORS middleware globally
 app.use(corsMiddleware);
-
 app.use(express.json());
 // Middleware to parse urlencoded form data
 app.use(express.urlencoded({ extended: true }));
 //the request logging middleware
 app.use(requestLogger);
+// the language middleware
+app.use(languageMiddleware);
 // Middleware to log API requests and responses
 app.use(loggingMiddleware);
-
 
 //test url
 app.get("/", (req, res) => {

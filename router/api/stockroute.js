@@ -25,10 +25,9 @@ router.get("/getallstock", languageMiddleware, getAllStock);
 router.post(
   "/addCategory",
   languageMiddleware,
-  auth.isAuthunticated,
+  auth.isAuthenticated,
   addCategory
 );
 router.get("/getAllCategory", languageMiddleware, getAllCategory);
-router.get("/Stock/:id", languageMiddleware, auth.isAuthunticated, viewOne);
 
 module.exports = router;

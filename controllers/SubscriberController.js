@@ -1,47 +1,48 @@
 const BaseController = require("./BaseController");
-const {Subscriber} = require("../models/SubscriberModel");
-
-const {SubscriberRepository} = require("../repositories/SubscriberRepository");
-const {SubscriberService} = require("../services/SubscriberService");
-
-const repository = new SubscriberRepository(Subscriber);
-const service = new SubscriberService(repository)
+const { SubscriberService } = require("../services/SubscriberService");
 
 class SubscriberController extends BaseController {
-    constructor(req, res) {
-        super(req, res);
-    }
+  constructor(req, res) {
+    super(req, res);
+  }
 
-    subscribe = async () => {
-        try {
-            const response = await service.subscribe(this.req.body);
-            this.sendResponse(response, "success");
-        } catch (error) {
-            this.sendError(error);
-        }
-    }
+  // Subscribe
+  subscribe = async () => {
+    await this.runServiceMethod(
+      SubscriberService,
+      async (service) => {
+        return await service.subscribe(this.req.body);
+      },
+      "Subscription successful"
+    );
+  };
 
-    getAll = async () => {
+  // Unsubscribe
+  unsubscribe = async () => {
+    await this.runServiceMethod(
+      SubscriberService,
+      async (service) => {
+        return await service.unsubscribe(this.req.body.email);
+      },
+      "Unsubscription successful"
+    );
+  };
 
-    }
+  // Send Marketing Email
+  sendMarketingEmail = async () => {
+    await this.runServiceMethod(
+      SubscriberService,
+      async (service) => {
+        return await service.sendMarketingEmail(this.req.body);
+      },
+      "Marketing email sent successfully"
+    );
+  };
 
-    unsubscribe = async () => {
-        try {
-            const response = await service.unsubscribe(this.req.body.email);
-            this.sendResponse(response, "success");
-        } catch (error) {
-            this.sendError(error);
-        }
-
-    }
-
-    sendMarketingEmail = async () => {
-        try{
-            const response = await service.sendMarketingEmail(this.req.body)
-        }catch (error) {
-            this.sendError(error);
-        }
-    }
+  getAll = async () => {
+    // Implementation for getting all subscribers if needed in the future.
+    // E.g., you can add pagination or search filters.
+  };
 }
 
-module.exports = {SubscriberController}; //export the controller
+module.exports = { SubscriberController };

@@ -1,11 +1,13 @@
 const BaseRepo = require("./BaseRepository");
-const { Table } = require("../models/Reservation");
 const { DatabaseError } = require("../utils/errors");
+const Reservation = require("../models/Reservation");
 
 class ReservationRepository extends BaseRepo {
-  constructor(reservation) {
-    super();
-    this.reservation = reservation;
+  constructor(connection) {
+    super(connection);
+    this.connection = connection;
+    this.reservationModel = Reservation(connection).ReservationModel;
+    this.tableModel = Reservation(connection).TableModel;
   }
 
   /**
@@ -16,12 +18,12 @@ class ReservationRepository extends BaseRepo {
    */
   addReservation = async (reservation) => {
     try {
-      const table = await Table.findOne().sort({ _id: 1 }).lean();
+      const table = await this.tableModel.findOne().sort({ _id: 1 }).lean();
       if (!table) {
         throw new DatabaseError("No available tables found.");
       }
       reservation.table_id = table._id;
-      return await this.reservation.create(reservation);
+      return await this.reservationModel.create(reservation);
     } catch (error) {
       throw new DatabaseError(`Error retrieving tables: ${error.message}`);
     }
@@ -45,7 +47,7 @@ class ReservationRepository extends BaseRepo {
       };
     }
 
-    return await this.reservation
+    return await this.reservationModel
       .find(query)
       .populate("table_id")
       .sort({ reservation_date: -1 }) // Sort by reservation date
@@ -55,7 +57,7 @@ class ReservationRepository extends BaseRepo {
   };
 
   getReservationCount = async () => {
-    return await this.reservation.countDocuments();
+    return await this.reservationModel.countDocuments();
   };
 }
 

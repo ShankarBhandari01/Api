@@ -82,9 +82,14 @@ const categorySchema = new Schema({
   },
 });
 
-// Food Category Model
-const Category = model("Category", categorySchema);
-const Stock = model("Stock", stockSchema);
+stockSchema.index({ categoryID: 1 });
+stockSchema.index({ stockName: 1 });
+categorySchema.index({ name: 1 });
+
 
 // Export models for use
-module.exports = { Category, Stock };
+module.exports = (connection) => {
+  const Category = connection.model("Category", categorySchema);
+  const Stock = connection.model("Stock", stockSchema);
+  return { Category, Stock };
+};

@@ -54,7 +54,7 @@ class EmailService extends BaseService {
       await this.transporter.sendMail(mailOptions);
       console.log(`${subject} email sent successfully`);
     } catch (error) {
-      console.error("Error sending email:", error);
+      console.log(`Error sending email:${error}`, 'error');
     }
   }
 
@@ -72,6 +72,7 @@ class EmailService extends BaseService {
       reservation_time,
       number_of_guests,
       special_requests,
+      reservation_code,
     } = reservationData;
 
     reservation_time = `${hours}:${minutes}`;
@@ -83,6 +84,7 @@ class EmailService extends BaseService {
       reservation_time,
       number_of_guests,
       special_requests,
+      reservation_code,
     };
 
     // Determine the subject based on language
