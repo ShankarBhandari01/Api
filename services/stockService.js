@@ -6,8 +6,8 @@ class StockService extends BaseService {
   constructor(connection) {
     super(connection);
     this.connection = connection;
-    
     this.Stock = StockModels(this.connection).Stock;
+    this.Category = StockModels(this.connection).Category;
     this.stockRepo = new StockRepository(connection);
   }
 
@@ -134,7 +134,7 @@ class StockService extends BaseService {
       let insertedCategory;
 
       // parsing dto to category class
-      const categoryModel = new Category(category);
+      const categoryModel = new this.Category(category);
       // Add the category to the repository
       if (category.mode === "new") {
         insertedCategory = await this.stockRepo.addCategory(categoryModel);
