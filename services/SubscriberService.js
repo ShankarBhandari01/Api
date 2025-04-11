@@ -46,7 +46,8 @@ class SubscriberService extends BaseService {
     try {
       const subscribers = await this.repository.getSubscribers();
       if (subscribers) {
-        const response = new EmailService().sendPushNotification();
+        
+        const response = new EmailService().sendPushNotification(subscribers);
       }
     } catch (error) {
       throw { message: error.message };
