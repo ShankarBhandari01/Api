@@ -105,6 +105,43 @@ const reservationValidationSchema = Joi.object({
 
   special_requests: Joi.string().allow("", null).max(500).messages({
     "string.max": "Special requests must be less than 500 characters",
+  }),
+}).unknown(true);
+
+// Export Joi schemas
+const campaignSchema = Joi.object({
+  name: Joi.string().trim().required().messages({
+    "any.required": "Campaign name is required",
+    "string.empty": "Campaign name cannot be empty",
+  }),
+
+  message: Joi.object({
+    en: Joi.string().default("new listed"),
+    fi: Joi.string().default("uusi listattu"),
+  }).messages({
+    "object.base": "Message must be an object with language keys",
+  }),
+
+  startDate: Joi.date().required().messages({
+    "any.required": "Start date is required",
+    "date.base": "Start date must be a valid date",
+  }),
+
+  endDate: Joi.date().required().messages({
+    "any.required": "End date is required",
+    "date.base": "End date must be a valid date",
+  }),
+
+  offer_terms: Joi.object({
+    en: Joi.string().default("new listed"),
+    fi: Joi.string().default("uusi listattu"),
+  }).messages({
+    "object.base": "Offer terms must be an object with language keys",
+  }),
+
+  offer_details: Joi.string().trim().required().messages({
+    "any.required": "Offer details are required",
+    "string.empty": "Offer details cannot be empty",
   })
 }).unknown(true);
 
@@ -113,4 +150,5 @@ module.exports = {
   loginSchema,
   userSchema,
   reservationValidationSchema,
+  campaignSchema,
 };

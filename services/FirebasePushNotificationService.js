@@ -53,7 +53,7 @@ class FirebasePushNotificationService extends BaseService {
 
       const fcmsTokens = await this.getFcmToken();
 
-      if (fcmsTokens && fcmsTokens.length > 0) {
+      if (fcmsTokens !== "" && fcmsTokens.length > 0) {
         const message = {
           notification: {
             title: notification.title,
@@ -68,6 +68,8 @@ class FirebasePushNotificationService extends BaseService {
           )}`,
           "info"
         );
+      } else {
+        this.log("No FCM tokens found", "error");
       }
     } catch (error) {
       this.log(`Error sending notification: ${error}`, "error");

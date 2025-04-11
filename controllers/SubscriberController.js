@@ -28,20 +28,14 @@ class SubscriberController extends BaseController {
     );
   };
 
-  // Send Marketing Email
-  sendMarketingEmail = async () => {
+  addCampaingn = async () => {
     await this.runServiceMethod(
       SubscriberService,
       async (service) => {
-        return await service.sendMarketingEmail(this.req.body);
+        return await service.addCampaingn(this.req.body);
       },
-      "Marketing email sent successfully"
+      "Campain added successfully"
     );
-  };
-
-  getAll = async () => {
-    // Implementation for getting all subscribers if needed in the future.
-    // E.g., you can add pagination or search filters.
   };
 }
 

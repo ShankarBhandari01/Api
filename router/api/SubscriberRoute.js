@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { languageMiddleware } = require("../../middleware/languageMiddleware");
+const { campaignSchemaValidation } = require("../../middleware/DataValidator");
 const {
   SubscriberController,
 } = require("../../controllers/SubscriberController");
@@ -15,11 +16,12 @@ router.post("/subscribe", languageMiddleware, (req, res) =>
 router.post("/unsubscribe", languageMiddleware, (req, res) =>
   new SubscriberController(req, res).unsubscribe()
 );
-// Endpoint to send marketing emails to all subscribers
+// Endpoint to add Campaingn to all subscribers
 router.post(
-  "/sendMarketingEmail",
+  "/addCampaingn",
   languageMiddleware,
+  campaignSchemaValidation,
   auth.isAuthenticated,
-  (req, res) => new SubscriberController(req, res).sendMarketingEmail()
+  (req, res) => new SubscriberController(req, res).addCampaingn()
 );
 module.exports = router;

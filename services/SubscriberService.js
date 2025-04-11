@@ -1,6 +1,7 @@
 const BaseService = require("./BaseService");
-const { EmailService } = require("./EmailService");
-const {SubscriberRepository}= require("../repositories/SubscriberRepository");
+const {
+  SubscriberRepository,
+} = require("../repositories/SubscriberRepository");
 
 class SubscriberService extends BaseService {
   constructor(connection) {
@@ -28,6 +29,15 @@ class SubscriberService extends BaseService {
     }
   };
 
+  getSubscribers = async () => {
+    try {
+      const response = await this.repository.getAllSubscribers();
+      const { _id, subscribedAt, ...updateData } = response.toObject();
+      return super.prepareResponse(updateData);
+    } catch (error) {
+      throw { message: error.message };
+    }
+  };
   getSubscriberByEmail = async (email) => {
     try {
       return await this.repository.getSubscriberByEmail(email);
@@ -42,13 +52,12 @@ class SubscriberService extends BaseService {
       throw { message: error.message };
     }
   };
-  sendMarketingEmail = async (message) => {
+
+  addCampaingn = async (campaign) => {
     try {
-      const subscribers = await this.repository.getSubscribers();
-      if (subscribers) {
-        
-        const response = new EmailService().sendPushNotification(subscribers);
-      }
+      // const subscribers = await this.repository.getSubscribers();
+      const response = this.repository.addCampaingn(campaign);
+      return super.prepareResponse(response);
     } catch (error) {
       throw { message: error.message };
     }

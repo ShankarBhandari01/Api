@@ -9,6 +9,11 @@ module.exports = {
     env: process.env.NODE_ENV || "development",
     corsPolicies: process.env.CORS_WHITELIST,
   },
+  agenda: {
+    CAMPAIGN_EMAIL_SCHEDULE: process.env.CAMPAIGN_EMAIL_SCHEDULE || "1 day",
+    EXPIRE_CAMPAIGN_SCHEDULE:
+      process.env.EXPIRE_CAMPAIGN_SCHEDULE || "0 0 * * *",
+  },
   db: {
     port: process.env.DB_PORT || 27017,
     database: process.env.DB_NAME || "restaurant-pos-api",
@@ -38,12 +43,7 @@ module.exports = {
   file: {
     uploadDir: path.join(__dirname, "../public/images"),
     ALLOWED_FILE_TYPES: process.env.ALLOWED_FILE_TYPES
-    ? process.env.ALLOWED_FILE_TYPES.split(',')
-    : [
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/svg+xml",
-      ],
+      ? process.env.ALLOWED_FILE_TYPES.split(",")
+      : ["image/jpeg", "image/png", "image/gif", "image/svg+xml"],
   },
 };
