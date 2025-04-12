@@ -289,6 +289,43 @@ class StockRepository extends BaseRepo {
 
     return results;
   };
+
+  addCategory = async (category) => {
+    try {
+      return await this.Category.create(category);
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
+  };
+
+  getAllCategory = async (skip, limit) => {
+    try {
+      return await this.Category.find({ isDeleted: false, isActive: true })
+        .skip(skip)
+        .limit(limit);
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
+  };
+  getCategoryCount = async () => {
+    return this.Category.countDocuments({ isDeleted: false, isActive: true });
+  };
+  updateCategory = async (categoryID, updateData) => {
+    try {
+      const updatedCategory = await this.Category.findByIdAndUpdate(
+        categoryID,
+        updateData,
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedCategory) {
+        throw new Error("Category not found");
+      }
+      return updatedCategory;
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
+  };
 }
 
 module.exports = StockRepository;
