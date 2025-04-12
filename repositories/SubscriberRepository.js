@@ -15,7 +15,7 @@ class SubscriberRepository extends BaseRepository {
     try {
       return await this.model.create(subscribers);
     } catch (error) {
-      throw new DatabaseError(`Error adding subscribers: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
 
@@ -23,14 +23,14 @@ class SubscriberRepository extends BaseRepository {
     try {
       return await this.model.findOne({ email: email });
     } catch (error) {
-      throw new DatabaseError(`Error getting subscribers: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
   unsubscribe = async (email) => {
     try {
       await this.model.deleteOne({ email: email });
     } catch (error) {
-      throw new DatabaseError(`Error deleting subscribers: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
 
@@ -38,7 +38,7 @@ class SubscriberRepository extends BaseRepository {
     try {
       return await this.model.find();
     } catch (error) {
-      throw new DatabaseError(`Error getting subscribers: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
 
@@ -54,7 +54,7 @@ class SubscriberRepository extends BaseRepository {
     try {
       return await this.CampaignModel.create(Campaign);
     } catch (error) {
-      throw new DatabaseError(`Error adding campaign: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
 
@@ -66,7 +66,7 @@ class SubscriberRepository extends BaseRepository {
       }
       return await this.CampaignModel.find(filters);
     } catch (error) {
-      throw new DatabaseError(`Error getting campaigns: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
   getAllActiveCampaign = async () => {

@@ -2,7 +2,7 @@ const StockDTO = require("../dtos/StockDTO");
 const CategoryDTO = require("../dtos/CategoryDTO");
 const RequestHandler = require("../utils/RequestHandler");
 const dbConnection = require("../database/ConnectionManager");
-const {StockService} = require("../services/stockService");
+const { StockService } = require("../services/stockService");
 const requestHandler = new RequestHandler();
 
 //add menus items
@@ -31,18 +31,14 @@ exports.saveStock = async (req, res) => {
 exports.addCategory = async (req, res) => {
   try {
     const lang = req.session.lang || "en"; // Default to English
-
     // creating dto
     const categoryDto = new CategoryDTO(req.body);
-
     // database connection
     const connection = await dbConnection.getConnection(
       req.session.envConfig.database
     );
-
     const stockService = new StockService(connection);
     const response = await stockService.addCategory(categoryDto, lang);
-
     res.statusCode = response.statusCode;
     return res.json(response);
   } catch (err) {
@@ -57,19 +53,16 @@ exports.getAllCategory = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     // Validate the limit to avoid too many results
-    if (limit >= 100) {
+    if (limit > 100) {
       const message = "Limit must be less than 100";
       throw { message: message };
     }
-
     // database connection
     const connection = await dbConnection.getConnection(
       req.session.envConfig.database
     );
-
     const stockService = new StockService(connection);
     const response = await stockService.getAllCategory(page, limit);
-
     res.statusCode = response.statusCode;
     return res.json(response);
   } catch (err) {
@@ -86,6 +79,8 @@ exports.getAllStock = async (req, res) => {
     const type = req.query.searchType || "";
     const filterType = req.query.filterType || "";
     const categoryId = req.query.categoryId || "";
+    const sort = req.query.sort || "";
+    const sortBy = req.query.sortBy || "";
 
     let response;
     // Get pagination parameters from query
@@ -100,6 +95,8 @@ exports.getAllStock = async (req, res) => {
       filterType,
       categoryId,
       lang,
+      sortBy,
+      sort,
     };
     // Validate the limit to avoid too many results
     if (limit >= 100) {
@@ -149,4 +146,3 @@ const updateImageUrl = (item, req) => ({
     ? `${req.protocol}://${req.get("host")}/public/${item.image}`
     : null, // If no image, set to null
 });
-

@@ -30,37 +30,20 @@ class SubscriberService extends BaseService {
   };
 
   getSubscribers = async () => {
-    try {
-      const response = await this.repository.getAllSubscribers();
-      const { _id, subscribedAt, ...updateData } = response.toObject();
-      return super.prepareResponse(updateData);
-    } catch (error) {
-      throw { message: error.message };
-    }
+    return await this.handleRepositoryCall(this.repository.getAllSubscribers);
   };
   getSubscriberByEmail = async (email) => {
-    try {
-      return await this.repository.getSubscriberByEmail(email);
-    } catch (error) {
-      throw { message: error.message };
-    }
+    return await this.repository.getSubscriberByEmail(email);
   };
   unsubscribe = async (email) => {
-    try {
-      return await this.repository.unsubscribe(email);
-    } catch (error) {
-      throw { message: error.message };
-    }
+    return await this.handleRepositoryCall(this.repository.unsubscribe, email);
   };
 
   addCampaingn = async (campaign) => {
-    try {
-      // const subscribers = await this.repository.getSubscribers();
-      const response = this.repository.addCampaingn(campaign);
-      return super.prepareResponse(response);
-    } catch (error) {
-      throw { message: error.message };
-    }
+    return await this.handleRepositoryCall(
+      this.repository.addCampaingn,
+      campaign
+    );
   };
 }
 

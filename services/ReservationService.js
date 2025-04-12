@@ -9,14 +9,10 @@ class ReservationService extends BaseService {
   }
 
   addReservation = async (newReservation) => {
-    try {
-      const response = await this.reservationRepository.addReservation(
-        newReservation
-      );
-      return super.prepareResponse(response);
-    } catch (error) {
-      throw { message: error.message };
-    }
+    return await this.handleRepositoryCall(
+      this.reservationRepository.addReservation,
+      newReservation
+    );
   };
   getAllReservation = async (filters) => {
     try {

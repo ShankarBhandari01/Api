@@ -23,7 +23,7 @@ class BaseController extends RequestHandler {
   }
 
   /**
-   * 🌍 Generic executor for *any* service method
+   * Generic executor for *any* service method
    * @param {Function} ServiceClass - pass the service class (e.g. CompanyService)
    * @param {Function} actionFn - function that receives the service instance and returns a Promise
    * @param {String} successMessage - success response message
@@ -37,7 +37,7 @@ class BaseController extends RequestHandler {
   ) {
     try {
       const connection = await this.getDbConnection();
-      const service = new ServiceClass(connection); // instantiate your service here
+      const service = new ServiceClass(connection);
       const result = await actionFn(service);
 
       if (sendResult) {

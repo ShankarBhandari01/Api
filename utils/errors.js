@@ -3,7 +3,7 @@ class DatabaseError extends Error {
   constructor(message) {
     super(message);
     this.name = "DatabaseError";
-    this.status = 500;
+    this.status = 400;
   }
 }
 
@@ -11,7 +11,7 @@ class UpdateError extends Error {
   constructor(message) {
     super(message);
     this.name = "updateError";
-    this.status = 500;
+    this.status = 400;
   }
 }
 

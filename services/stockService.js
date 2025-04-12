@@ -1,4 +1,4 @@
-const { StockRepository } = require("../repositories/stockRepo");
+const StockRepository = require("../repositories/stockRepo");
 const BaseService = require("./BaseService");
 const StockModels = require("../models/Stocks");
 
@@ -60,31 +60,39 @@ class StockService extends BaseService {
         page = 1,
         limit = 10,
         lang,
+        sortBy = "createdDate",
+        sort = "desc",
       } = searchFilters;
 
       const skip = this.getSkipNumber(page, limit);
 
-      // Determine totalCount only if necessary
-      if (filterType === "categoryWise" && categoryId) {
-        totalCount = await this.stockRepo.getStockCount(searchFilters);
+      // Determine totalCount based on the filter
+      if (searchText && type === "item") {
+        totalCount = await this.stockRepo.getStockCountBySearch(
+          searchText,
+          type,
+          lang
+        );
+      } else if (filterType === "categoryWise" && categoryId) {
+        totalCount = await this.stockRepo.getStockCountByCategory(categoryId);
       } else {
         totalCount = await this.stockRepo.getStockCount();
       }
 
-      // Reset skip if total items are less than one page
-      const finalSkip = totalCount < 20 ? 0 : skip;
+      const finalSkip = totalCount < limit ? 0 : skip;
 
       let stock;
       let rsType;
 
-      // Handle search text
       if (searchText && type === "item") {
         stock = await this.stockRepo.getStockBySearch(
           searchText,
           type,
           finalSkip,
           limit,
-          lang
+          lang,
+          sortBy,
+          sort
         );
         rsType = "stock";
       } else {
@@ -93,13 +101,17 @@ class StockService extends BaseService {
             if (!categoryId) {
               stock = await this.stockRepo.getGroupByCategory();
             } else {
-              stock = await this.stockRepo.getCategoryWiseStock(categoryId);
+              stock = await this.stockRepo.getCategoryWiseStock(
+                categoryId,
+                finalSkip,
+                limit
+              );
             }
             rsType = "categoryWise";
             break;
 
           case "nameOfWeekWise":
-            stock = await this.stockRepo.getItemDaysNameWise();
+            stock = await this.stockRepo.getItemDaysNameWise(finalSkip, limit);
             rsType = "nameOfWeekWise";
             break;
 
@@ -114,7 +126,6 @@ class StockService extends BaseService {
 
       response = super.prepareResponse(stock, rsType);
 
-      // Add pagination only if stock exists
       if (Array.isArray(stock) && stock.length > 0) {
         response.pagination = {
           currentPage: page,

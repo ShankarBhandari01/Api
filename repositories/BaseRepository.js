@@ -127,9 +127,8 @@ class BaseRepository extends Logger {
   uploadImage = async (image, session) => {
     try {
       return await image.save({ session });
-    } catch (err) {
-      this.log(`Error uploading image: ${err.message}`, "error");
-      throw new DatabaseError("Error uploading image: " + err.message);
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
     }
   };
 

@@ -75,6 +75,60 @@ class FirebasePushNotificationService extends BaseService {
       this.log(`Error sending notification: ${error}`, "error");
     }
   };
+
+  sendPushNotificationToAdminsOnNewOrder = async (orderData) => {
+    try {
+      const { customer, items, totalAmount, createdDate } = orderData;
+
+      const orderTime = new Date(createdDate).toLocaleTimeString("fi-FI", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      const orderDate = new Date(createdDate).toLocaleDateString("fi-FI", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      const itemSummary = items
+        .map((i) => `${i.name.fi || i.name.en} x${i.quantity}`)
+        .join(", ");
+
+      const title = `New Order Received`;
+
+      const body =
+        `${customer?.name || "A customer"} placed an order of ${
+          items.length
+        } item(s) on ${orderDate} at ${orderTime}.\n` +
+        `Items: ${itemSummary}\nTotal: €${totalAmount}`;
+
+      const notification = {
+        title,
+        body,
+      };
+
+      const fcmsTokens = await this.getFcmToken();
+      if (Array.isArray(fcmsTokens) && fcmsTokens.length > 0) {
+        const message = {
+          notification,
+          tokens: fcmsTokens.map((fcm) => fcm.token),
+        };
+
+        const response = await admin.messaging().sendEachForMulticast(message);
+
+        this.log(
+          `Order notification sent to admins: ${JSON.stringify(response)}`,
+          "info"
+        );
+      } else {
+        this.log("No admin FCM tokens found", "warn");
+      }
+    } catch (error) {
+      this.log(`Error sending order notification: ${error}`, "error");
+    }
+  };
 }
 
 module.exports = FirebasePushNotificationService;

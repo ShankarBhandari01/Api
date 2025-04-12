@@ -20,19 +20,15 @@ module.exports = (connection) => {
         type: String,
         default: () => generateAlphanumericId("CUST-"),
         unique: true,
-        index: true,
       },
-      contact: {
-        name: { type: String, required: true },
-        email: { type: String, required: true, unique: true },
-        phone: { type: String },
-      },
-      createdAt: { type: Date, default: Date.now },
+      name: { type: String, required: true },
+      email: { type: String, required: true, unique: true },
+      phone: { type: String, required: true },
+      address: { type: String },
     },
     { timestamps: { createdAt: "createdDate", updatedAt: "updated_ts" } }
   );
   // Indexes for customer schema for faster searches
-  customerSchema.index({ contact: 1 });
   customerSchema.index({ createdAt: 1 });
   // Order Schema
   const orderSchema = new Schema(
@@ -41,7 +37,6 @@ module.exports = (connection) => {
         type: String,
         default: () => generateAlphanumericId("ORD-"),
         unique: true,
-        index: true,
       },
       customer: {
         type: mongoose.Schema.Types.ObjectId,
@@ -52,23 +47,33 @@ module.exports = (connection) => {
         {
           item: { type: mongoose.Schema.Types.ObjectId, ref: "Stock" },
           quantity: { type: Number, required: true },
+          pricePerItem: { type: Number, required: true },
+          totalPrice: { type: Number, required: true },
+          name: {
+            en: { type: String, required: true, trim: true },
+            fi: { type: String, required: true, trim: true },
+          },
+          special_requests: { type: String, required: true, trim: true },
+          _id: false,
         },
       ],
       totalAmount: { type: Number, required: true },
       status: {
         type: String,
-        enum: ["pending", "completed", "cancelled"],
+        enum: [
+          "pending",
+          "processing",
+          "rejected",
+          "accepted",
+          "completed",
+          "cancelled",
+        ],
         default: "pending",
       },
       orderQuantity: { type: Number, required: true },
-      createdAt: { type: Date, default: Date.now },
-      updatedAt: { type: Date, default: Date.now },
     },
     { timestamps: { createdAt: "createdDate", updatedAt: "updated_ts" } }
   );
-  // Indexes for order schema for fast queries
-  orderSchema.index({ orderId: 1 });
-  orderSchema.index({ customer: 1 });
   orderSchema.index({ createdAt: 1 });
   // Create models
   CustomerModel = connection.model("Customer", customerSchema);
