@@ -235,7 +235,7 @@ class StockRepository extends BaseRepo {
   };
   updateCategory = async (categoryID, updateData) => {
     try {
-      const updatedCategory = await Category.findByIdAndUpdate(
+      const updatedCategory = await this.Category.findByIdAndUpdate(
         categoryID,
         updateData,
         { new: true, runValidators: true }
