@@ -21,6 +21,7 @@
     "joi": "^17.13.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "memorystore": "^1.6.7",
     "method-override": "^3.0.0",
     "moment-timezone": "^0.5.48",
     "mongoose": "^8.4.1",

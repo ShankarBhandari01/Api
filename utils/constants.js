@@ -110,9 +110,11 @@ const reservationValidationSchema = Joi.object({
 
 // Export Joi schemas
 const campaignSchema = Joi.object({
-  name: Joi.string().trim().required().messages({
-    "any.required": "Campaign name is required",
-    "string.empty": "Campaign name cannot be empty",
+  name: Joi.object({
+    en: Joi.string().default("new listed"),
+    fi: Joi.string().default("uusi listattu"),
+  }).messages({
+    "object.base": "name must be an object with language keys",
   }),
 
   message: Joi.object({
@@ -139,10 +141,12 @@ const campaignSchema = Joi.object({
     "object.base": "Offer terms must be an object with language keys",
   }),
 
-  offer_details: Joi.string().trim().required().messages({
-    "any.required": "Offer details are required",
-    "string.empty": "Offer details cannot be empty",
-  })
+  offer_details: Joi.object({
+    en: Joi.string().default("new listed"),
+    fi: Joi.string().default("uusi listattu"),
+  }).messages({
+    "object.base": "Offer details must be an object with language keys",
+  }),
 }).unknown(true);
 
 module.exports = {

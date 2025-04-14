@@ -75,7 +75,7 @@ class SubscriberRepository extends BaseRepository {
       status: "Active",
       startDate: { $lte: now },
       endDate: { $gte: now },
-    });
+    }).lean();
     return campaigns;
   };
 

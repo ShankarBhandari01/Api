@@ -20,8 +20,8 @@ router.post("/unsubscribe", languageMiddleware, (req, res) =>
 router.post(
   "/addCampaingn",
   languageMiddleware,
-  campaignSchemaValidation,
   auth.isAuthenticated,
+  campaignSchemaValidation,
   (req, res) => new SubscriberController(req, res).addCampaingn()
 );
 module.exports = router;

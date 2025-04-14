@@ -10,7 +10,7 @@ class EmailService extends BaseService {
     this.templates = {
       en: "./templates/en.html",
       fi: "./templates/fi.html",
-      marketingEn: ".templates/marketingEn.html",
+      marketingEn: "templates/marketingEn.html",
       marketingFi: "templates/marketingFi.html",
     };
     // Transporter configuration
@@ -28,7 +28,11 @@ class EmailService extends BaseService {
   loadTemplate(lang, ismarketing = false) {
     let filePath;
     if (ismarketing) {
-      filePath = this.templates["marketingFi"];
+      if(lang=="en"){
+        filePath = this.templates["marketingEn"];
+      }else{
+        filePath = this.templates["marketingFi"];
+      }
     } else {
       filePath = this.templates[lang] || this.templates["en"];
     }
@@ -56,9 +60,9 @@ class EmailService extends BaseService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log(`${subject} email sent successfully`);
+      this.log(`${subject} email sent successfully`,'info');
     } catch (error) {
-      console.log(`Error sending email:${error}`, "error");
+      this.log(`Error sending email:${error}`, "error");
     }
   }
 
@@ -107,7 +111,7 @@ class EmailService extends BaseService {
   //Send a push notification
   async sendPushNotification(templateData) {
     //Determine the subject based on language
-    const subject = lang === "fi" ? "Uusi Ilmoitus" : "New Notification";
+    const subject = templateData.lang === "fi" ? "Uusi Ilmoitus" : "New Notification";
     //Send the push notification email using the generic method
     await this.sendEmailNotification({
       customer_email: templateData.customer_email,

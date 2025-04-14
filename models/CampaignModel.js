@@ -1,7 +1,10 @@
 const { object } = require("joi");
 const { Schema } = require("mongoose");
 const CampaingnScheme = new Schema({
-  name: { type: String, required: true },
+  name: {
+    en: { type: String, default: "new listed" },
+    fi: { type: String, default: "uusi listattu" },
+  },
   message: {
     en: { type: String, default: "new listed" },
     fi: { type: String, default: "uusi listattu" },

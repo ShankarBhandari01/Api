@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const MemoryStore = require("memorystore")(session);
 const compression = require("compression");
 const config = require("../config/appconfig.js");
 const Logger = require("../utils/logger.js");
@@ -8,10 +9,11 @@ const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
 const { languageMiddleware } = require("../middleware/languageMiddleware");
 const corsMiddleware = require("../middleware/CorsMiddleware.js");
 const requestLogger = require("../middleware/RequestLogger");
-const EmailMarketingJob = require("../jobs/EmailMarketingJob.js");
+const EmailMarketingJobManager = require("../jobs/EmailMarketingJobManager.js");
+
 const app = express();
 const logger = new Logger();
-const job = new EmailMarketingJob();
+const job = new EmailMarketingJobManager();
 
 app.set("config", config); // the system configrations
 // user session
@@ -19,10 +21,13 @@ app.use(
   session({
     secret: config.auth.jwt_secret,
     resave: false,
+    store: new MemoryStore({
+      checkPeriod: 1000 * 60 * 60 * 24,
+    }),
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Only set secure cookies in production (requires HTTPS)
+      secure: process.env.NODE_ENV === "production",
       maxAge: 1000 * 60 * 60 * 24,
     }, // 1 day
   })
