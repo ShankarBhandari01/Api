@@ -1,4 +1,4 @@
-// middlewares/cors.middleware.js
+//middlewares/cors.middleware.js
 const cors = require("cors");
 const config = require('../config/appconfig')
 

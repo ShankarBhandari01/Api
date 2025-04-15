@@ -68,18 +68,13 @@ class UserService extends BaseService {
           throw new Error("InvalidCredentials");
         }
         // check user role
-        const roleWithMenus = await this.companyRepository.findRoleById(
-          user.role
-        );
+        const roleWithMenus = await this.getUserRole(user.role);
         if (!roleWithMenus) {
           throw new Error("Invalid role. Role does not exist.");
         }
 
         //Remove sensitive fields
-        const sanitizedUser = lodash.omit(user, [
-          "password",
-          "createdDate",
-        ]);
+        const sanitizedUser = lodash.omit(user, ["password", "createdDate"]);
 
         // Add role and menuRights
         sanitizedUser.role = {
@@ -110,6 +105,10 @@ class UserService extends BaseService {
       throw { message: err.message }; // Propagate the error to the controller
     }
   };
+
+  // get user roles
+  getUserRole = async (roldId) =>
+    await this.companyRepository.findRoleById(roldId);
   // get user details
   getUser = async (request) =>
     await this.userRepo.getUserByUsername(request.email);

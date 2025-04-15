@@ -36,11 +36,11 @@ class BaseRepository extends Logger {
         });
       }
       super.log(
-        `Token successfully saved or updated for user: ${user._id}`,
+        `[Api] Token successfully saved or updated for user: ${user._id}`,
         "info"
       );
     } catch (error) {
-      this.log(`Error saving or updating token:${error}`, " error");
+      this.log(`[Api] Error saving or updating token:${error}`, " error");
       throw new Error(`Error saving or updating token:${error}`);
     }
   }
@@ -49,7 +49,7 @@ class BaseRepository extends Logger {
       const fcmTokenTable = FcmToken(this.connection);
       return await fcmTokenTable.find().lean();
     } catch (error) {
-      this.log(`FCM token error:${err}`, "error");
+      this.log(`[Api] FCM token error:${err}`, "error");
     }
   };
   // save fcm token
@@ -71,9 +71,9 @@ class BaseRepository extends Logger {
         { upsert: true }
       );
 
-      this.log("FCM Token registered successfully", "info");
+      this.log("[Api] FCM Token registered successfully", "info");
     } catch (err) {
-      this.log(`FCM token error:${err}`, "error");
+      this.log(`[Api] FCM token error:${err}`, "error");
       await Promise.reject(err);
     }
   };
@@ -81,7 +81,7 @@ class BaseRepository extends Logger {
     try {
       return log.save();
     } catch (error) {
-      this.log(`Error while inserting user log ${error}`, "error");
+      this.log(`[Api] Error while inserting user log ${error}`, "error");
       await Promise.reject(error);
     }
   }
@@ -119,7 +119,7 @@ class BaseRepository extends Logger {
       const tokentable = accessToken(this.connection);
       return tokentable.findOneAndDelete({ userId }).select(false);
     } catch (error) {
-      this.log(`Error uploading image: ${err.message}`, "error");
+      this.log(`[Api] Error uploading image: ${err.message}`, "error");
       throw new DatabaseError("Error uploading image: " + err.message);
     }
   }
@@ -134,7 +134,7 @@ class BaseRepository extends Logger {
 
   // Utility function to log and throw errors
   logAndThrowError = (message, err) => {
-    this.log(message, "error");
+    this.log(`[Api] ${message}`, "error");
     throw new DatabaseError(`${message}: ${err.message}`);
   };
 }

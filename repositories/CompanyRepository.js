@@ -13,9 +13,8 @@ class CompanyRepository extends BaseRepo {
     this.menu = Menu(connection);
     this.role = Role(connection);
   }
-
+  deleteRole = async (id) => await this.role.deleteOne({ _id: id });
   updateRoles = async (updateRoles) => updateRoles.save();
-  getMenus = async () => await this.menu.find().lean();
   getRoles = async () =>
     await this.role
       .find()
@@ -23,18 +22,20 @@ class CompanyRepository extends BaseRepo {
         path: "menuRights.menu",
       })
       .lean();
-
   findRoleById = async (id) =>
     await this.role.findById(id).populate({
       path: "menuRights.menu",
     });
-
   findRoleByName = async (newName) =>
     await this.role.findOne({ name: newName });
   addRole = async (roleData) => await this.role.create(roleData);
+  
+  getMenus = async () => await this.menu.find().lean();
+  deleteMenu = async (id) => await this.menu.deleteOne({ _id: id });
   addMenu = async (newMenu) => await this.menu.create(newMenu);
   findMenuById = async (id) => await this.menu.findById(id);
   getMenuByPath = async (inPath) => await this.menu.findOne({ path: inPath });
+  updateMenu = async (updateMenu) => await updateMenu.save();
 
   // Utility function to handle image upload logic
   async handleLogoUpload(imageData, session) {

@@ -70,32 +70,32 @@ function onListening() {
   const addr = server.address();
   const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
 
-  logger.log(`Server started and listening on ${bind}`, 'info');
+  logger.log(`[App] Server started and listening on ${bind}`, 'info');
 }
 
 /**
  * Graceful shutdown handler
  */
 function gracefulShutdown(signal) {
-  logger.log(`Received ${signal}. Shutting down gracefully...`, 'info');
+  logger.log(`[App] Received ${signal}. Shutting down gracefully...`, 'info');
 
   // Close any active database connection
   const dbConnection = app.get('db');
   if (dbConnection && dbConnection.close) {
     dbConnection.close(() => {
-      logger.log("Database connection closed successfully.", 'info');
+      logger.log("[App] Database connection closed successfully.", 'info');
     });
   }
 
   // Close the HTTP server
   server.close(() => {
-    logger.log("HTTP server closed successfully", 'info');
+    logger.log("[App] HTTP server closed successfully", 'info');
     process.exit(0);
   });
 
   // Force shutdown if server does not close in time
   setTimeout(() => {
-    logger.log("Forced shutdown due to timeout", 'error');
+    logger.log("[App] Forced shutdown due to timeout", 'error');
     process.exit(1);
   }, 30000); // 30 seconds timeout
 }
@@ -103,7 +103,7 @@ function gracefulShutdown(signal) {
 /**
  * Listen on provided port, on all network interfaces.
  */
-logger.log(`Running in ${process.env.NODE_ENV || 'development'} mode`, 'info');
+logger.log(`[App] Running in ${process.env.NODE_ENV || 'development'} mode`, 'info');
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
@@ -114,14 +114,14 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 // Handle uncaught exceptions (for debugging)
 process.on('uncaughtException', (err) => {
-  logger.log(`Uncaught Exception: ${err.message}`, 'error');
+  logger.log(`[App] Uncaught Exception: ${err.message}`, 'error');
   logger.log(err.stack, 'error');
   process.exit(1); // Exit with failure code
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  logger.log(`Unhandled Promise Rejection: ${err.message}`, 'error');
+  logger.log(`[App] Unhandled Promise Rejection: ${err.message}`, 'error');
   logger.log(err.stack, 'error');
   process.exit(1); // Exit with failure code
 });

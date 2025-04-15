@@ -6,6 +6,8 @@ class CompanyService extends BaseService {
     super(connection);
     this.companyRepository = new CompanyRepository(connection);
   }
+  deleteRole = async (id) =>
+    await this.handleRepositoryCall(this.companyRepository.deleteRole, id);
 
   updateRole = async (id, role) => {
     try {
@@ -27,17 +29,18 @@ class CompanyService extends BaseService {
       existingRole.name = role.name || existingRole.name;
       existingRole.description = role.description || existingRole.description;
       existingRole.menuRights = role.menuRights || existingRole.menuRights;
-      
+
       // updated roles
       return await this.handleRepositoryCall(
         this.companyRepository.updateRoles,
         existingRole
       );
     } catch (err) {
-      throw { message: err.message };
+      this.logAndThrowError("updateRole error ", err);
     }
   };
-
+  deleteMenu = async (id) =>
+    await this.handleRepositoryCall(this.companyRepository.deleteMenu, id);
   getMenus = async (leng) =>
     await this.handleRepositoryCall(this.companyRepository.getMenus);
   getRoles = async (leng) =>
@@ -67,9 +70,47 @@ class CompanyService extends BaseService {
         roleData
       );
     } catch (error) {
-      throw { message: error.message };
+      this.logAndThrowError("addRoleWithMenuRights error ", error);
     }
   }
+  updateMenu = async (id, menu) => {
+    try {
+      const existingMenu = await this.companyRepository.findMenuById(id);
+      if (!existingMenu) {
+        throw new Error("Menu not found");
+      }
+
+      // Check for uniqueness if path is being changed
+      if (menu.path && menu.path !== existingMenu.path) {
+        const menuWithSameName = await this.companyRepository.getMenuByPath(
+          menu.path
+        );
+        if (menuWithSameName) {
+          throw new Error("Menu name already exists");
+        }
+      }
+
+      // Update fields
+      existingMenu.name = menu.name || existingMenu.name;
+      existingMenu.description = menu.description || existingMenu.description;
+      existingMenu.path = menu.path || existingMenu.path;
+      existingMenu.icon = menu.icon || existingMenu.icon;
+      existingMenu.parent = menu.parent || existingMenu.parent;
+      existingMenu.order = menu.order || existingMenu.order;
+      existingMenu.isActive =
+        typeof menu.isActive === "boolean"
+          ? menu.isActive
+          : existingMenu.isActive;
+
+      // Save updated menu
+      return await this.handleRepositoryCall(
+        this.companyRepository.updateMenu,
+        existingMenu
+      );
+    } catch (err) {
+      this.logAndThrowError("updateMenu error", err);
+    }
+  };
 
   addMenus = async (menus) => {
     const results = [];

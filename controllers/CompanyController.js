@@ -6,15 +6,28 @@ class CompanyController extends BaseController {
   constructor(req, res) {
     super(req, res);
   }
-
+  deleteRole = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.deleteRole(id),
+      "Role deleted successfully"
+    );
+  };
   updateRole = async () => {
     const { id } = this.req.params;
     await this.runServiceMethod(
       CompanyService,
-      (service) => service.updateRole(id,this.req.body),
-      "Roles fetched successfully"
+      (service) => service.updateRole(id, this.req.body),
+      "Role updated successfully"
     );
   };
+  addRole = async () =>
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.addRoleWithMenuRights(this.req.body, this.lang),
+      "Role info added"
+    );
 
   getRoles = async () =>
     await this.runServiceMethod(
@@ -23,18 +36,28 @@ class CompanyController extends BaseController {
       "Roles fetched successfully"
     );
 
+  updateMenu = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.updateMenu(id, this.req.body),
+      "Menu updated successfully"
+    );
+  };
+  deleteMenu = () => {
+    const { id } = this.req.params;
+    this.runServiceMethod(
+      CompanyService,
+      (service) => service.deleteMenu(id),
+      "Mennu deleted successfully"
+    );
+  };
+
   getMenus = async () =>
     await this.runServiceMethod(
       CompanyService,
       (service) => service.getMenus(this.lang),
       "Menus fetched successfully"
-    );
-
-  addRole = async () =>
-    await this.runServiceMethod(
-      CompanyService,
-      (service) => service.addRoleWithMenuRights(this.req.body, this.lang),
-      "Role info added"
     );
 
   async addMenu() {
