@@ -51,7 +51,7 @@ app.use(loggingMiddleware);
 //test url
 app.get("/", (req, res) => res.send("Hello, world!"));
 // Register the Email Marketing Job when the server starts
-job.init();
+//job.init();
 //access the upload endpoint for images
 app.use(
   "/public",

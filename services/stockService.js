@@ -52,7 +52,7 @@ class StockService extends BaseService {
     let totalCount = 0;
 
     try {
-      const {
+      let {
         filterType,
         categoryId,
         searchText,
@@ -64,16 +64,23 @@ class StockService extends BaseService {
         sort = "desc",
       } = searchFilters;
 
+      if (sortBy == "") {
+        sortBy = "createdDate";
+      }
+      if (sort == "") {
+        sort = "desc";
+      }
+
       const skip = this.getSkipNumber(page, limit);
 
       // Determine totalCount based on the filter
-      if (searchText && type === "item") {
+      if (searchText && type == "item") {
         totalCount = await this.stockRepo.getStockCountBySearch(
           searchText,
           type,
           lang
         );
-      } else if (filterType === "categoryWise" && categoryId) {
+      } else if (filterType == "categoryWise" && categoryId) {
         totalCount = await this.stockRepo.getStockCountByCategory(categoryId);
       } else {
         totalCount = await this.stockRepo.getStockCount();
@@ -84,7 +91,7 @@ class StockService extends BaseService {
       let stock;
       let rsType;
 
-      if (searchText && type === "item") {
+      if (searchText && type == "item") {
         stock = await this.stockRepo.getStockBySearch(
           searchText,
           type,

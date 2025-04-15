@@ -18,7 +18,7 @@ class MongoConnectionManager extends logger {
       autoIndex: false,
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
-      maxPoolSize: 10,
+      maxPoolSize: 5,
       minPoolSize: 1,
     };
   }
@@ -34,12 +34,16 @@ class MongoConnectionManager extends logger {
 
     // If the connection is not available or ready, initiate a new one
     try {
-      this.log(`[Mongo] Attempting to connect to database: "${dbName}"`,'info');
-      let uri = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
+      this.log(
+        `[Mongo] Attempting to connect to database: "${dbName}"`,
+        "info"
+      );
+        let uri = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
+      //let uri = `mongodb://0.0.0.0:27017/${dbName}`;
       const conn = await mongoose.createConnection(uri, this._defaultOptions);
 
       conn.on("connected", () => {
-        this.log(`[Mongo] Connected to "${dbName}"`,'info');
+        this.log(`[Mongo] Connected to "${dbName}"`, "info");
       });
 
       conn.on("error", (err) => {
@@ -47,7 +51,7 @@ class MongoConnectionManager extends logger {
       });
 
       conn.on("disconnected", () => {
-        this.log(`[Mongo] Disconnected from "${dbName}"`,'info');
+        this.log(`[Mongo] Disconnected from "${dbName}"`, "info");
       });
 
       conn.on("reconnectFailed", () => {
@@ -74,14 +78,14 @@ class MongoConnectionManager extends logger {
    */
   async shutdown() {
     try {
-      this.log("[Mongo] Shutting down and closing all connections...",'info');
+      this.log("[Mongo] Shutting down and closing all connections...", "info");
       const shutdownPromises = Object.keys(this.connections).map((dbName) =>
         this.connections[dbName].close()
       );
 
       // Wait for all connections to close
       await Promise.all(shutdownPromises);
-      this.log("[Mongo] All MongoDB connections closed.",'info');
+      this.log("[Mongo] All MongoDB connections closed.", "info");
     } catch (error) {
       this.log(`[Mongo] Error during shutdown: ${error.message}`, "error");
     }
@@ -101,7 +105,7 @@ class MongoConnectionManager extends logger {
     if (this.connections[dbName]) {
       try {
         await this.connections[dbName].close();
-        this.log(`[Mongo] Connection to "${dbName}" closed.`,'info');
+        this.log(`[Mongo] Connection to "${dbName}" closed.`, "info");
         delete this.connections[dbName]; // Clean up the connection reference
       } catch (error) {
         this.log(

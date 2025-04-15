@@ -215,15 +215,14 @@ class StockRepository extends BaseRepo {
   getStockCountBySearch = async (searchText, type, lang) => {
     const searchPath =
       lang === "fi"
-        ? ["stockName.fi"]
-        : ["stockName.en"];
+        ? ["stockName.fi", "description.fi"]
+        : ["stockName.en", "description.en"];
 
     if (type === "item") {
       const count = await this.stockModel.aggregate([
-        { $match: { isDeleted: false, isActive: true } },
         {
           $search: {
-            index: "name",
+            index: "default",
             text: {
               query: searchText,
               path: searchPath,
@@ -231,6 +230,7 @@ class StockRepository extends BaseRepo {
             },
           },
         },
+        { $match: { isDeleted: false, isActive: true } },
         { $count: "totalCount" },
       ]);
       return count.length > 0 ? count[0].totalCount : 0;
@@ -261,11 +261,10 @@ class StockRepository extends BaseRepo {
     if (!search || !["item", "category"].includes(type)) {
       return [];
     }
-
     const searchPath =
       lang === "fi"
-        ? ["stockName.fi"]
-        : ["stockName.en"];
+        ? ["stockName.fi", "description.fi"]
+        : ["stockName.en", "description.en"];
     const sortDirection = sort === "asc" ? 1 : -1;
 
     let results;
@@ -274,8 +273,8 @@ class StockRepository extends BaseRepo {
       const pipeline = [
         {
           $search: {
-            index: "name",
-            text: { query: search, path: searchPath, fuzzy: { maxEdits: 1 } },
+            index: "default",
+            text: { query: search, path: searchPath,},
           },
         },
         { $match: { isDeleted: false, isActive: true } },

@@ -76,7 +76,7 @@ exports.getAllStock = async (req, res) => {
     const lang = req.session.lang || "en"; // Default to English
 
     const searchText = req.query.search || "";
-    const type = req.query.searchType || "";
+    const type = req.query.searchType.trim() || "";
     const filterType = req.query.filterType || "";
     const categoryId = req.query.categoryId || "";
     const sort = req.query.sort || "";
