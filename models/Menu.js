@@ -5,7 +5,6 @@ const MenuSchema = new mongoose.Schema({
   name: { type: String, required: true }, // e.g., "Campaigns"
   path: { type: String, required: true }, // e.g., "/campaigns"
   parent: { type: mongoose.Schema.Types.ObjectId, ref: "Menu", default: null },
-  availablePermissions: [{ type: String }], // e.g., ['read', 'write', 'delete']
   icon: { type: String },
   order: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
@@ -13,4 +12,5 @@ const MenuSchema = new mongoose.Schema({
 
 MenuSchema.index({ path: 1 }, { unique: true });
 MenuSchema.index({ parent: 1 });
+
 module.exports = (conn) => conn.model("Menu", MenuSchema);

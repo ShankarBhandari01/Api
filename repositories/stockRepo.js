@@ -215,8 +215,8 @@ class StockRepository extends BaseRepo {
   getStockCountBySearch = async (searchText, type, lang) => {
     const searchPath =
       lang === "fi"
-        ? ["stockName.fi", "description.fi"]
-        : ["stockName.en", "description.en"];
+        ? ["stockName.fi"]
+        : ["stockName.en"];
 
     if (type === "item") {
       const count = await this.stockModel.aggregate([
@@ -264,8 +264,8 @@ class StockRepository extends BaseRepo {
 
     const searchPath =
       lang === "fi"
-        ? ["stockName.fi", "description.fi"]
-        : ["stockName.en", "description.en"];
+        ? ["stockName.fi"]
+        : ["stockName.en"];
     const sortDirection = sort === "asc" ? 1 : -1;
 
     let results;
