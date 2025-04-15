@@ -5,14 +5,17 @@ const logger = new Logger();
 const BaseRepo = require("./BaseRepository");
 const userTable = require("../models/UserModel");
 const imageModel = require("../models/Image");
+const Menu = require("../models/Menu");
+const Role = require("../models/Role");
 
 class UserRepository extends BaseRepo {
   constructor(connection) {
-    super();
+    super(connection);
     this.connection = connection;
-    // model registered in connection
     this.userModel = userTable(connection);
     this.imageModel = imageModel(connection);
+    this.menu = Menu(connection);
+    this.role = Role(connection);
   }
 
   addUser = async (user, image) => {
@@ -65,9 +68,8 @@ class UserRepository extends BaseRepo {
         .findOne({ email: email })
         .populate("profilePic")
         .lean();
-
       if (user == null) {
-        return null; // Return null if user is not found
+        return null;
       }
 
       if (user.profilePic instanceof mongoose.Model) {

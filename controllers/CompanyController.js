@@ -7,6 +7,43 @@ class CompanyController extends BaseController {
     super(req, res);
   }
 
+  updateRole = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.updateRole(id,this.req.body),
+      "Roles fetched successfully"
+    );
+  };
+
+  getRoles = async () =>
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.getRoles(this.lang),
+      "Roles fetched successfully"
+    );
+
+  getMenus = async () =>
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.getMenus(this.lang),
+      "Menus fetched successfully"
+    );
+
+  addRole = async () =>
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.addRoleWithMenuRights(this.req.body, this.lang),
+      "Role info added"
+    );
+
+  async addMenu() {
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.addMenus(this.req.body, this.lang),
+      "Menu info added"
+    );
+  }
   async getCompanyInfo() {
     await this.runServiceMethod(
       CompanyService,

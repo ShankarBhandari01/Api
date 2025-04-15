@@ -1,4 +1,4 @@
-const { Schema,model } = require("mongoose");
+const { Schema, model } = require("mongoose");
 //creating the user scheme
 const userSchema = new Schema({
   profilePic: {
@@ -27,7 +27,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  role: { type: String, enum: ["user", "admin", "manager"], default: "user" }, // Role field
+  role: { type: Schema.Types.ObjectId, ref: "Role", default: null }, // link to role
   createdDate: {
     type: Date,
     default: Date.now,

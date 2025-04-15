@@ -126,7 +126,19 @@ class BaseService extends BaseRepo {
       const result = await repositoryMethod(...params);
       return this.prepareResponse(result);
     } catch (err) {
-      throw { message: err.message || "An error occurred", stack: err.stack }; // Add stack trace for debugging
+      // Log error for debugging in development
+      if (process.env.NODE_ENV !== "production") {
+        this.log(
+          `Error occurred while executing repository method:${err}`,
+          " error"
+        );
+      }
+      throw {
+        message:
+          err.message ||
+          "An error occurred while interacting with the database",
+        stack: err.stack,
+      };
     }
   };
 }

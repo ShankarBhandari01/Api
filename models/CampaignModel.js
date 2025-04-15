@@ -1,4 +1,3 @@
-const { object } = require("joi");
 const { Schema } = require("mongoose");
 const CampaingnScheme = new Schema({
   name: {

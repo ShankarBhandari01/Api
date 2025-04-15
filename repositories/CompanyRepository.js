@@ -2,13 +2,39 @@ const BaseRepo = require("./BaseRepository");
 const reservationModels = require("../models/Reservation");
 const CompanyModel = require("../models/Company");
 const ImageSchema = require("../models/Image");
+const Menu = require("../models/Menu");
+const Role = require("../models/Role");
 
 class CompanyRepository extends BaseRepo {
   constructor(connection) {
     super(connection);
     this.company = CompanyModel(connection).CompanyModel;
     this.imageModel = ImageSchema(connection);
+    this.menu = Menu(connection);
+    this.role = Role(connection);
   }
+
+  updateRoles = async (updateRoles) => updateRoles.save();
+  getMenus = async () => await this.menu.find().lean();
+  getRoles = async () =>
+    await this.role
+      .find()
+      .populate({
+        path: "menuRights.menu",
+      })
+      .lean();
+
+  findRoleById = async (id) =>
+    await this.role.findById(id).populate({
+      path: "menuRights.menu",
+    });
+
+  findRoleByName = async (newName) =>
+    await this.role.findOne({ name: newName });
+  addRole = async (roleData) => await this.role.create(roleData);
+  addMenu = async (newMenu) => await this.menu.create(newMenu);
+  findMenuById = async (id) => await this.menu.findById(id);
+  getMenuByPath = async (inPath) => await this.menu.findOne({ path: inPath });
 
   // Utility function to handle image upload logic
   async handleLogoUpload(imageData, session) {
@@ -23,20 +49,14 @@ class CompanyRepository extends BaseRepo {
     }
     return null;
   }
-
   // Get company info with population of related fields
-  getCompanyInfo = async () => {
-    try {
-      return await this.company
-        .findOne()
-        .populate("openingHours")
-        .populate("logo")
-        .sort({ created_at: -1 })
-        .lean();
-    } catch (err) {
-      this.logAndThrowError("Error retrieving company info", err);
-    }
-  };
+  getCompanyInfo = async () =>
+    await this.company
+      .findOne()
+      .populate("openingHours")
+      .populate("logo")
+      .sort({ created_at: -1 })
+      .lean();
 
   // Add or update company info with logo handling
   addCompanyInfo = async (companyInfo) => {
