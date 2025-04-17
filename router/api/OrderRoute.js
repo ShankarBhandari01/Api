@@ -7,22 +7,19 @@ const auth = require("../../middleware/auth"); //middleware for varifying user
 router.post("/saveOrder", languageMiddleware, (req, res) =>
   new OrderController(req, res).saveOrder()
 );
-router.get(
-  "/getOrders",
-  languageMiddleware,
-  (req, res) => new OrderController(req, res)
+
+router.get("/status/:orderId", languageMiddleware, (req, res) =>
+  new OrderController(req, res).getOrderStatus()
 );
+
 router.put(
-  "/orders/:order_id/:status",
+  "/orders/:orderId/:status",
   languageMiddleware,
   auth.isAuthenticated,
   (req, res) => new OrderController(req, res).updateStatus()
 );
-router.get(
-  "/AllOrders",
-  languageMiddleware,
-  auth.isAuthenticated,
-  (req, res) => new OrderController(req, res).getOrderByStatusOrAll()
+router.get("/AllOrders", languageMiddleware, auth.isAuthenticated, (req, res) =>
+  new OrderController(req, res).getOrderByStatusOrAll()
 );
 
 module.exports = router;

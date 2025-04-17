@@ -70,6 +70,13 @@ class OrderService extends BaseService {
     }
   };
 
+  getOrderStatus = async (order_id) => {
+    return await this.handleRepositoryCall(
+      this.orderRespository.getOrderByOrderId,
+      order_id
+    );
+  };
+
   updateOrderStatus = async (order_id, status) => {
     try {
       const validStatuses = [
