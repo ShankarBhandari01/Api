@@ -1,16 +1,23 @@
-// models/Menu.js
 const mongoose = require("mongoose");
+const menuSchema = new mongoose.Schema(
+  {
+    date: { type: String },
+    menuType: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MenuType",
+      required: true,
+    },
+    name: { type: String, required: true }, // e.g., “Wednesday Special”
+    description: { type: String },
+    items: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Stock",
+      },
+    ],
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
 
-const MenuSchema = new mongoose.Schema({
-  name: { type: String, required: true }, // e.g., "Campaigns"
-  path: { type: String, required: true }, // e.g., "/campaigns"
-  parent: { type: mongoose.Schema.Types.ObjectId, ref: "Menu", default: null },
-  icon: { type: String },
-  order: { type: Number, default: 0 },
-  isActive: { type: Boolean, default: true },
-});
-
-MenuSchema.index({ path: 1 }, { unique: true });
-MenuSchema.index({ parent: 1 });
-
-module.exports = (conn) => conn.model("Menu", MenuSchema);
+module.exports = (conn) => conn.model("Menu", menuSchema);

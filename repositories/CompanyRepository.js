@@ -2,7 +2,7 @@ const BaseRepo = require("./BaseRepository");
 const reservationModels = require("../models/Reservation");
 const CompanyModel = require("../models/Company");
 const ImageSchema = require("../models/Image");
-const Menu = require("../models/Menu");
+const Menu = require("../models/UiMenuRight");
 const Role = require("../models/Role");
 
 class CompanyRepository extends BaseRepo {
@@ -29,7 +29,7 @@ class CompanyRepository extends BaseRepo {
   findRoleByName = async (newName) =>
     await this.role.findOne({ name: newName });
   addRole = async (roleData) => await this.role.create(roleData);
-  
+
   getMenus = async () => await this.menu.find().lean();
   deleteMenu = async (id) => await this.menu.deleteOne({ _id: id });
   addMenu = async (newMenu) => await this.menu.create(newMenu);

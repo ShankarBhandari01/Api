@@ -7,5 +7,6 @@ router.use(require("./CompanyRoute"));
 router.use(require("./ReservationRoute"));
 router.use(require("./SubscriberRoute"));
 router.use(require("./OrderRoute"));
+router.use(require("./MenuRoute"));
 
 module.exports = router;

@@ -8,7 +8,7 @@ const RoleSchema = new mongoose.Schema({
     {
       menu: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Menu",
+        ref: "UiMenuRight",
         required: true,
       },
       permissions: [{ type: String }], // e.g., ['read', 'write']

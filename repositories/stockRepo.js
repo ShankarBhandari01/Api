@@ -1,5 +1,6 @@
 const BaseRepo = require("./BaseRepository");
 const StockModels = require("../models/Stocks");
+const MenuType = require("../models/MenuType");
 const mongoose = require("mongoose");
 
 class StockRepository extends BaseRepo {
@@ -8,7 +9,32 @@ class StockRepository extends BaseRepo {
     this.connection = connection;
     this.stockModel = StockModels(connection).Stock;
     this.Category = StockModels(connection).Category;
+    this.menuTypes = MenuType(connection);
   }
+
+  /**
+   * Adds new menu types to the database.
+   *
+   * @param {Array<Object>} newMenuTypes - An array of menu type objects to be inserted.
+   * Each object should include:
+   *   - name {String} : Display name of the menu type (e.g., "Lunch Menu").
+   *   - code {String} : Unique identifier/code (e.g., "lunch").
+   *   - description {String} [optional]: Extra details about this menu type.
+   *
+   * @returns {Promise<Array<Object>>} - Returns the inserted menu type documents.
+   *
+   * @throws {Error} - Throws an error if insertion fails (e.g., duplicate codes).
+   *
+   * @example
+   * const menuTypes = [
+   *   { name: "Lunch Menu", code: "lunch", description: "Available 11:00–15:00" },
+   *   { name: "Today’s Special", code: "todays_special", description: "Chef's daily pick" }
+   * ];
+   * const result = await addMenuType(menuTypes);
+   */
+  addMenuType = async (newMenuTypes) => {
+    return await this.menuTypes.insertMany(newMenuTypes);
+  };
 
   /**
    * Adds a new stock item to the database.
@@ -274,7 +300,7 @@ class StockRepository extends BaseRepo {
         {
           $search: {
             index: "default",
-            text: { query: search, path: searchPath,},
+            text: { query: search, path: searchPath },
           },
         },
         { $match: { isDeleted: false, isActive: true } },

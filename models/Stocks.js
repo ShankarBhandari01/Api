@@ -44,6 +44,7 @@ const stockSchema = new Schema(
       fi: { type: String, required: false },
     },
     isSpicy: { type: Boolean, require: false, default: false },
+    spiceLevel: { type: Number,default: 0 },
     isVagen: { type: Boolean, require: false, default: false },
     isVegetarian: { type: Boolean, require: false, default: false },
   },
@@ -85,7 +86,6 @@ const categorySchema = new Schema({
 stockSchema.index({ categoryID: 1 });
 stockSchema.index({ stockName: 1 });
 categorySchema.index({ name: 1 });
-
 
 // Export models for use
 module.exports = (connection) => {

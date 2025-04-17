@@ -5,7 +5,7 @@ const logger = new Logger();
 const BaseRepo = require("./BaseRepository");
 const userTable = require("../models/UserModel");
 const imageModel = require("../models/Image");
-const Menu = require("../models/Menu");
+const Menu = require("../models/UiMenuRight");
 const Role = require("../models/Role");
 
 class UserRepository extends BaseRepo {

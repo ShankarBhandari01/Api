@@ -12,6 +12,7 @@ const auth = require("../../middleware/auth"); //middleware for varifying user
 const fileupload = require("../../middleware/fileUploadMiddleware");
 const { languageMiddleware } = require("../../middleware/languageMiddleware");
 
+
 //add stock route
 router.post(
   "/addStock",

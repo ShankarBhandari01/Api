@@ -32,7 +32,7 @@ router.post(
 );
 // POST Menu
 router.post(
-  "/addMenu",
+  "/routeMenu",
   languageMiddleware,
   auth.isAuthenticated,
   checkAccess("/addMenu", "write"),
@@ -40,14 +40,14 @@ router.post(
 );
 // GET Menu
 router.get(
-  "/menus",
+  "/routeMenu",
   languageMiddleware,
   auth.isAuthenticated,
   checkAccess("/menus", "read"),
   (req, res) => new CompanyController(req, res).getMenus()
 );
 router.put(
-  "/menus/:id",
+  "/routeMenu/:id",
   languageMiddleware,
   auth.isAuthenticated,
   checkAccess("/menus", "update"),
@@ -55,7 +55,7 @@ router.put(
 );
 // DELETE Menu
 router.delete(
-  "/menus/:id",
+  "/routeMenu/:id",
   languageMiddleware,
   auth.isAuthenticated,
   checkAccess("/menus", "delete"),
