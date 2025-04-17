@@ -133,7 +133,7 @@ class StockService extends BaseService {
 
           default:
             stock = await this.stockRepo.getAllStock(finalSkip, limit, {
-              _id: 1,
+              "stockName.en": 1,
             });
             rsType = "Allstock";
             break;

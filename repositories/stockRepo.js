@@ -78,7 +78,7 @@ class StockRepository extends BaseRepo {
     try {
       return await this.stockModel
         .find({ categoryID, isDeleted: false, isActive: true })
-        .sort({ _id: 1 })
+        .sort({ "stockName.en": 1 })
         .populate("categoryID")
         .exec();
     } catch (error) {
