@@ -1,45 +1,97 @@
-const Logger = require("../utils/logger");
-const RequestHandler = require("../utils/RequestHandler");
-const CompanyRepository = require("../repositories/CompanyRepository");
-const { Company } = require("../models/Company");
 const { CompanyService } = require("../services/CompanyService");
-const { mapToCompanyDTO } = require("../helper/CompanyDTOHelper"); // Import the helper function
+const { mapToCompanyDTO } = require("../helper/CompanyDTOHelper");
+const BaseController = require("./BaseController");
 
-
-const logger = new Logger();
-const requestHandler = new RequestHandler(logger);
-
-const companyRepo = new CompanyRepository(Company);
-const companyService = new CompanyService(companyRepo);
-
-
-
-exports.getCompanyInfo = async (req, res, next) => {
-  try {
-    const lang = req.session.lang || "en"; // Default to English
-    const response = await companyService.getCompanyInfo(lang);
-
-    return requestHandler.sendSuccess(res, "company info")(response);
-  } catch (err) {
-    requestHandler.sendError(req, res, err);
+class CompanyController extends BaseController {
+  constructor(req, res) {
+    super(req, res);
   }
-};
-exports.addCompanyInfo = async (req, res, next) => {
-  try {
-    const lang = req.session.lang || "en"; // Default to English
-    const companyDTO = mapToCompanyDTO(req);
-    const response = await companyService.addCompanyInfo(companyDTO, lang);
-    return requestHandler.sendSuccess(res, "company info")(response);
-  } catch (err) {
-    requestHandler.sendError(req, res, err);
+  deleteRole = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.deleteRole(id),
+      "Role deleted successfully"
+    );
+  };
+  updateRole = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.updateRole(id, this.req.body),
+      "Role updated successfully"
+    );
+  };
+  addRole = async () =>
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.addRoleWithMenuRights(this.req.body, this.lang),
+      "Role info added"
+    );
+
+  getRoles = async () =>
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.getRoles(this.lang),
+      "Roles fetched successfully"
+    );
+
+  updateMenu = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.updateMenu(id, this.req.body),
+      "Menu updated successfully"
+    );
+  };
+  deleteMenu = () => {
+    const { id } = this.req.params;
+    this.runServiceMethod(
+      CompanyService,
+      (service) => service.deleteMenu(id),
+      "Mennu deleted successfully"
+    );
+  };
+
+  getMenus = async () =>
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.getMenus(this.lang),
+      "Menus fetched successfully"
+    );
+
+  async addMenu() {
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.addMenus(this.req.body, this.lang),
+      "Menu info added"
+    );
   }
-};
-exports.addTable = async (req, res) => {
-  try {
-   const lang = req.session.lang || "en"; // Default to English
-    const response = await companyService.addTable(req.body,lang);
-    return requestHandler.sendSuccess(res, "tables info")(response);
-  } catch (error) {
-    requestHandler.sendError(req, res, error);
+  async getCompanyInfo() {
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.getCompanyInfo(this.lang),
+      "Company info fetched"
+    );
   }
-};
+  async addCompanyInfo() {
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => {
+        const dto = mapToCompanyDTO(this.req);
+        return service.addCompanyInfo(dto, this.lang);
+      },
+      "Company info added"
+    );
+  }
+
+  async addTable() {
+    await this.runServiceMethod(
+      CompanyService,
+      (service) => service.addTable(this.req.body, this.lang),
+      "Table added"
+    );
+  }
+}
+
+module.exports = CompanyController;

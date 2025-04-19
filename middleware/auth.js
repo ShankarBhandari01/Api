@@ -2,75 +2,105 @@ const jwt = require("jsonwebtoken");
 const _ = require("lodash");
 const config = require("../config/appconfig");
 const RequestHandler = require("../utils/RequestHandler");
-const Logger = require("../utils/logger");
 const BaseService = require("../services/BaseService");
+const dbConnection = require("../database/ConnectionManager");
 
-const baseService = new BaseService();
-const logger = new Logger();
-const requestHandler = new RequestHandler(logger);
+const requestHandler = new RequestHandler();
+
 function getTokenFromHeader(req) {
-  if (
-    (req.headers.authorization &&
-      req.headers.authorization.split(" ")[0] === "Token") ||
-    (req.headers.authorization &&
-      req.headers.authorization.split(" ")[0] === "Bearer")
-  ) {
-    return req.headers.authorization.split(" ")[1];
+  const authorization = req.headers.authorization || "";
+  const parts = authorization.split(" ");
+
+  if (parts.length === 2 && (parts[0] === "Bearer" || parts[0] === "Token")) {
+    return parts[1];
   }
 
   return null;
 }
 
-async function verifyToken(req, res, next) {
+function handleAuthorizationError(res) {
+  requestHandler.throwError(
+    res,
+    401,
+    "Unauthorized",
+    "Not Authorized to access this resource!"
+  )();
+}
+
+async function verifyTokenInDatabase(req,token) {
+  const connection = await dbConnection.getConnection(
+    req.session.envConfig.database
+  );
+  const baseService = new BaseService(connection);
+
+  const storedToken = await baseService.getCurrentUserToken(token);
+  if (!storedToken) {
+    return { isValid: false, message: "Invalid or expired token" };
+  }
+  return { isValid: true, DatabaseToken: storedToken };
+}
+
+function verifyJwtToken(token, secret, req, res, next) {
+  jwt.verify(token, secret, (err, decoded) => {
+    if (err) {
+      return requestHandler.throwError(
+        res,
+        401,
+        "Unauthorized",
+        "Please provide a valid token, your token might be expired"
+      )();
+    }
+
+    req.session.user = decoded.sanitizedSession;
+    next();
+  });
+}
+
+async function verifyAuthToken(req, res, next) {
   try {
-    if (_.isUndefined(req.headers.authorization)) {
-      requestHandler.throwError(
-        res,
-        401,
-        "Unauthorized",
-        "Not Authorized to access this resource!"
-      )();
-    }
-    const Bearer = req.headers.authorization.split(" ")[0];
-
-    if (!Bearer || Bearer !== "Bearer") {
-      requestHandler.throwError(
-        res,
-        401,
-        "Unauthorized",
-        "Not Authorized to access this resource!"
-      )();
-    }
-
-    const token = req.headers.authorization.split(" ")[1];
+    const token = getTokenFromHeader(req);
 
     if (!token) {
-      requestHandler.throwError(
-        res,
-        401,
-        "Unauthorized",
-        "Not Authorized to access this resource!"
-      )();
+      return handleAuthorizationError(res);
     }
-    // Check if the token exists in the database
-    const storedToken = await baseService.getCurrentUserToken(token);
-    // validation of token in database
-    if (!storedToken)
-      return res.status(401).json({ message: "Invalid or expired token" });
 
-    // verifies secret and checks exp
-    jwt.verify(token, config.auth.jwt_secret, (err, decoded) => {
-      if (err) {
-        requestHandler.throwError(
-          res,
-          401,
-          "Unauthorized",
-          "please provide a vaid token ,your token might be expired"
-        )();
-      }
-      req.decoded = decoded;
-      next();
-    });
+    // Check if token exists in the database
+    const { isValid, message } = await verifyTokenInDatabase(req, token);
+    if (!isValid) {
+      return res.status(401).json({ message });
+    }
+    // Verifies the token's secret and expiration
+    verifyJwtToken(token, config.auth.jwt_secret, req, res, next);
+  } catch (err) {
+    requestHandler.sendError(req, res, err);
+  }
+}
+
+async function verifyRefreshToken(req, res, next) {
+  try {
+    const token = getTokenFromHeader(req);
+
+    if (!token) {
+      return handleAuthorizationError(res);
+    }
+
+    // Check if refresh token exists in the database
+    const { isValid, message, DatabaseToken } = await verifyTokenInDatabase(
+      req,
+      token
+    );
+    if (!isValid) {
+      return res.status(401).json({ code: 401, message });
+    }
+    // verify the token date
+    const now = new Date();
+    if (now > new Date(DatabaseToken.refreshExpiresAt)) {
+      return res
+        .status(401)
+        .json({ code: 401, message: "Refresh token expired" });
+    }
+    // Verifies the refresh token's secret and expiration
+    verifyJwtToken(token, config.auth.refresh_token_secret, req, res, next);
   } catch (err) {
     requestHandler.sendError(req, res, err);
   }
@@ -78,5 +108,6 @@ async function verifyToken(req, res, next) {
 
 module.exports = {
   getJwtToken: getTokenFromHeader,
-  isAuthunticated: verifyToken,
+  isAuthenticated: verifyAuthToken,
+  isRefreshTokenAuthenticated: verifyRefreshToken,
 };

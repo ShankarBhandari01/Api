@@ -1,11 +1,13 @@
 const BaseRepo = require("./BaseRepository");
-const { Table } = require("../models/Reservation");
 const { DatabaseError } = require("../utils/errors");
+const Reservation = require("../models/Reservation");
 
 class ReservationRepository extends BaseRepo {
-  constructor(reservation) {
-    super();
-    this.reservation = reservation;
+  constructor(connection) {
+    super(connection);
+    this.connection = connection;
+    this.reservationModel = Reservation(connection).ReservationModel;
+    this.tableModel = Reservation(connection).TableModel;
   }
 
   /**
@@ -16,46 +18,50 @@ class ReservationRepository extends BaseRepo {
    */
   addReservation = async (reservation) => {
     try {
-      const table = await Table.findOne().sort({ _id: 1 }).lean();
+      const table = await this.tableModel.findOne().sort({ _id: 1 }).lean();
       if (!table) {
         throw new DatabaseError("No available tables found.");
       }
       reservation.table_id = table._id;
-      return await this.reservation.create(reservation);
+      return await this.reservationModel.create(reservation);
     } catch (error) {
-      throw new DatabaseError(`Error retrieving tables: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
 
   getReservations = async (skip = 0, limit = 10, filterToday = false) => {
-    let query = {};
+    try {
+      let query = {};
 
-    if (filterToday) {
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0); // Start of today
+      if (filterToday) {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0); // Start of today
 
-      const endOfDay = new Date();
-      endOfDay.setHours(23, 59, 59, 999); // End of today
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999); // End of today
 
-      query = {
-        reservation_date: {
-          $gte: startOfDay,
-          $lt: endOfDay,
-        },
-      };
+        query = {
+          reservation_date: {
+            $gte: startOfDay,
+            $lt: endOfDay,
+          },
+        };
+      }
+
+      return await this.reservationModel
+        .find(query)
+        .populate("table_id")
+        .sort({ reservation_date: -1 }) // Sort by reservation date
+        .skip(skip)
+        .limit(limit)
+        .lean();
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
     }
-
-    return await this.reservation
-      .find(query)
-      .populate("table_id")
-      .sort({ reservation_date: -1 }) // Sort by reservation date
-      .skip(skip)
-      .limit(limit)
-      .lean();
   };
 
   getReservationCount = async () => {
-    return await this.reservation.countDocuments();
+    return await this.reservationModel.countDocuments();
   };
 }
 

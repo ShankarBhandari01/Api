@@ -1,18 +1,13 @@
 const express = require("express");
-
 const router = express.Router();
-
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-
 const fs = require("fs");
 const path = require("path");
 const _ = require("lodash");
 const config = require("../config/appconfig");
-
 const directoryPath = path.join(__dirname, "../router/api");
 const pathes = [];
-
 const filesName = fs.readdirSync(directoryPath, (err, files) => {
   // handling error
   if (err) {
@@ -34,7 +29,6 @@ function getFullPathes(names) {
 }
 
 getFullPathes(filesName);
-
 const options = {
   swaggerDefinition: {
     info: {

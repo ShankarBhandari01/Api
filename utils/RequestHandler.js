@@ -1,28 +1,25 @@
 const _ = require("lodash");
+const Logger = require("../utils/logger");
 
-class RequestHandler {
-  constructor(logger) {
-    this.logger = logger;
-  }
-
-  throwIf(res,fn, status, errorType, errorMessage) {
+class RequestHandler extends Logger {
+  throwIf(res, fn, status, errorType, errorMessage) {
     res.message = errorMessage.message;
     return (result) =>
       fn(result) ? this.throwError(status, errorType, errorMessage)() : result;
   }
 
-  validateJoi(res,err, status, errorType, errorMessage) {
+  validateJoi(res, err, status, errorType, errorMessage) {
     res.message = errorMessage.message;
     if (err) {
-      this.logger.log(`error in validating request : ${errorMessage}`, "warn");
+      this.log(`error in validating request : ${errorMessage}`, "warn");
     }
     return !_.isNull(err)
       ? this.throwError(status, errorType, errorMessage)()
       : "";
   }
 
-  throwError(res=null, status, errorType, errorMessage) {
-    if(res){
+  throwError(res = null, status, errorType, errorMessage) {
+    if (res) {
       res.message = errorMessage;
     }
     return (e) => {
@@ -45,7 +42,7 @@ class RequestHandler {
 
   sendSuccess(res, message, status) {
     res.message = message;
-    this.logger.log(
+    this.log(
       `a request has been made and proccessed successfully at: ${new Date()}`,
       "info"
     );
@@ -64,7 +61,7 @@ class RequestHandler {
 
   sendError(req, res, error) {
     res.message = error.message;
-    this.logger.log(
+    this.log(
       `error ,Error during processing request: ${`${req.protocol}://${req.get(
         "host"
       )}${req.originalUrl}`} details message: ${error.message}`,

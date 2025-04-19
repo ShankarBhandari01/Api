@@ -1,66 +1,79 @@
-const { UserRepository } = require("../repositories/UserRepository");
 const { UserService } = require("../services/userService");
-const RequestHandler = require("../utils/RequestHandler");
-const Logger = require("../utils/logger");
-const UserModel = require("../models/UserModel");
+const BaseController = require("./BaseController");
 
-const userRepository = new UserRepository(UserModel);
-const userService = new UserService(userRepository);
-
-const logger = new Logger();
-const requestHandler = new RequestHandler(logger);
-
-exports.signup = async (req, res) => {
-  try {
-    // Set session language only if provided
-    if (req.query.lang) {
-      req.session.lang = req.query.lang;
-    }
-    const lang = req.session.lang || "en"; // Default to English
-
-    const bodyData = req.body; // user data
-    const image = req.files?.image || null; // Handle missing files safely
-
-    const response = await userService.doSignUp(bodyData, image);
-    return requestHandler.sendSuccess(res, "User Created ")(response);
-  } catch (err) {
-    return requestHandler.sendError(req, res, err);
+class UserController extends BaseController {
+  constructor(req, res) {
+    super(req, res);
   }
-};
-exports.login = async (req, res) => {
-  try {
-    const lang = req.session.lang || "en"; // Default to English
 
-    const response = await userService.doLogin(req.body, req.session);
-    return requestHandler.sendSuccess(res, "User login ")(response);
-  } catch (err) {
-    return requestHandler.sendError(req, res, err);
-  }
-};
+  // Signup method
+  signup = async () => {
+    await this.runServiceMethod(
+      UserService,
+      async (service) => {
+        const bodyData = this.req.body;
+        const image = this.req.files?.image || null;
+        return await service.doSignUp(bodyData, image);
+      },
+      "User Created"
+    );
+  };
 
-exports.logout = async (req, res) => {
-  try {
-    const response = await userService.logout(req.decoded.sanitizedSession.id);
-   
-    if (response) {
-      req.session.destroy((err) => {
-        if (err) {
-          return requestHandler.sendError(req, res, err);
+  // Refresh Token method
+  refreshToken = async () => {
+    await this.runServiceMethod(
+      UserService,
+      async (service) => {
+        return await service.assignToken(this.req.session);
+      },
+      "Token Refreshed"
+    );
+  };
+
+  // Login method
+  login = async () => {
+    await this.runServiceMethod(
+      UserService,
+      async (service) => {
+        return await service.doLogin(this.req.body, this.req.session);
+      },
+      "User Logged In"
+    );
+  };
+
+  // Logout method
+  logout = async () => {
+    await this.runServiceMethod(
+      UserService,
+      async (service) => {
+        const user = this.req.session.user;
+        if (!user || !user._id) {
+          throw new Error("User not logged in");
         }
-        res.clearCookie("connect.sid");
-        return requestHandler.sendSuccess(
-          res,
-          "User logged out successfully"
-        )(response);
-      });
-    } else {
-      return requestHandler.sendError(
-        req,
-        res,
-        new Error("Logout service failed")
-      );
-    }
-  } catch (err) {
-    return requestHandler.sendError(req, res, err);
-  }
-};
+
+        const userId = user._id;
+        const response = await service.logout(userId);
+
+        if (response) {
+          // Ensure session destruction is complete before clearing the cookie
+          await new Promise((resolve, reject) => {
+            this.req.session.destroy((err) => {
+              if (err) {
+                return reject(new Error("Logout session destruction failed"));
+              }
+              this.res.clearCookie("connect.sid");
+              resolve();
+            });
+          });
+
+          return { message: "User logged out successfully" };
+        } else {
+          throw new Error("Logout service failed");
+        }
+      },
+      "User Logged Out"
+    );
+  };
+}
+
+module.exports = UserController;

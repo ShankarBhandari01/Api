@@ -9,6 +9,11 @@ module.exports = {
     env: process.env.NODE_ENV || "development",
     corsPolicies: process.env.CORS_WHITELIST,
   },
+  agenda: {
+    CAMPAIGN_EMAIL_SCHEDULE: process.env.CAMPAIGN_EMAIL_SCHEDULE || "1 day",
+    EXPIRE_CAMPAIGN_SCHEDULE:
+      process.env.EXPIRE_CAMPAIGN_SCHEDULE || "0 0 * * *",
+  },
   db: {
     port: process.env.DB_PORT || 27017,
     database: process.env.DB_NAME || "restaurant-pos-api",
@@ -22,11 +27,11 @@ module.exports = {
     logpath: "/myapp/logs/",
   },
   auth: {
-    jwt_secret: process.env.JWT_SECRET || "VmVyeVBvd2VyZnVsbFNlY3JldA==",
+    jwt_secret: process.env.JWT_SECRET || "VmVyeVBvd2VyewZnVsbFNlY3JldA==",
     jwt_expiresin: process.env.JWT_EXPIRES_IN || "1d",
     saltRounds: process.env.SALT_ROUND || 10,
     refresh_token_secret:
-      process.env.REFRESH_TOKEN_SECRET || "VmVyeVBvd2VyZnVsbFNlY3JldA==",
+      process.env.REFRESH_TOKEN_SECRET || "VmVyeVBvd2dsdfVyZnVsbFNlY3JldA==",
     refresh_token_expiresin: process.env.REFRESH_TOKEN_EXPIRES_IN || "2d", // 2 days
   },
   sendgrid: {
@@ -38,12 +43,7 @@ module.exports = {
   file: {
     uploadDir: path.join(__dirname, "../public/images"),
     ALLOWED_FILE_TYPES: process.env.ALLOWED_FILE_TYPES
-    ? process.env.ALLOWED_FILE_TYPES.split(',')
-    : [
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/svg+xml",
-      ],
+      ? process.env.ALLOWED_FILE_TYPES.split(",")
+      : ["image/jpeg", "image/png", "image/gif", "image/svg+xml"],
   },
 };

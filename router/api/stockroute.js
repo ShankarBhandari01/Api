@@ -5,13 +5,13 @@ const {
   addCategory,
   getAllStock,
   getAllCategory,
-  viewOne,
 } = require("../../controllers/StockController"); //controller for adding stock
 const { stockvalidator } = require("../../middleware/StockValidator"); //middleware for stock validator
 const auth = require("../../middleware/auth"); //middleware for varifying user
 // middleware for image upload
 const fileupload = require("../../middleware/fileUploadMiddleware");
-const {languageMiddleware} = require("../../middleware/languageMiddleware");
+const { languageMiddleware } = require("../../middleware/languageMiddleware");
+
 
 //add stock route
 router.post(
@@ -19,16 +19,16 @@ router.post(
   languageMiddleware,
   fileupload.uploadStock,
   stockvalidator,
+  auth.isAuthenticated,
   saveStock
 );
 router.get("/getallstock", languageMiddleware, getAllStock);
 router.post(
   "/addCategory",
   languageMiddleware,
-  auth.isAuthunticated,
+  auth.isAuthenticated,
   addCategory
 );
 router.get("/getAllCategory", languageMiddleware, getAllCategory);
-router.get("/Stock/:id", languageMiddleware, auth.isAuthunticated, viewOne);
 
 module.exports = router;

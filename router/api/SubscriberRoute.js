@@ -1,42 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const { languageMiddleware } = require("../../middleware/languageMiddleware");
+const { campaignSchemaValidation } = require("../../middleware/DataValidator");
 const {
   SubscriberController,
 } = require("../../controllers/SubscriberController");
 const auth = require("../../middleware/auth");
 
 // Endpoint to subscribe user
-router.post("/subscribe", languageMiddleware, async (req, res, next) => {
-  try {
-    const controller = new SubscriberController(req, res);
-    await controller.subscribe();
-  } catch (error) {
-    next(error);
-  }
-});
+router.post("/subscribe", languageMiddleware, (req, res) =>
+  new SubscriberController(req, res).subscribe()
+);
 
 // Endpoint to unsubscribe user
-router.post("/unsubscribe", languageMiddleware, async (req, res) => {
-  try {
-    const controller = new SubscriberController(req, res);
-    await controller.unsubscribe();
-  } catch (error) {
-    next(error);
-  }
-});
-// Endpoint to send marketing emails to all subscribers
+router.post("/unsubscribe", languageMiddleware, (req, res) =>
+  new SubscriberController(req, res).unsubscribe()
+);
+// Endpoint to add Campaingn to all subscribers
 router.post(
-  "/sendMarketingEmail",
+  "/addCampaingn",
   languageMiddleware,
-  auth.isAuthunticated,
-  async (req, res) => {
-    try {
-      const controller = new SubscriberController(req, res);
-      await controller.sendMarketingEmail();
-    } catch (error) {
-      next(error);
-    }
-  }
+  auth.isAuthenticated,
+  campaignSchemaValidation,
+  (req, res) => new SubscriberController(req, res).addCampaingn()
 );
 module.exports = router;

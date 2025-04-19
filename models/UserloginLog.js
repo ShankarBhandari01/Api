@@ -1,8 +1,8 @@
 const { Schema, model } = require("mongoose");
 
 const userlogSchema = new Schema({
-  requestData:{
-    type:Object
+  requestData: {
+    type: Object,
   },
   platform: {
     type: String,
@@ -22,6 +22,9 @@ const userlogSchema = new Schema({
   responseTime: {
     type: Number,
   },
+  responseData: {
+    type: Object,
+  },
   statusMsg: {
     type: String,
   },
@@ -31,5 +34,8 @@ const userlogSchema = new Schema({
   },
 });
 
+userlogSchema.index({ email: 1 });
+userlogSchema.index({ timestamp: -1 });
 // the models of the UserLoginLog scheme
-module.exports = model("UserLoginLog", userlogSchema);
+module.exports = (connection) =>
+  connection.model("UserLoginLog", userlogSchema);

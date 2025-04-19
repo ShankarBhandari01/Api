@@ -1,12 +1,14 @@
 const bcrypt = require("bcrypt");
 const lodash = require("lodash");
 const BaseService = require("./BaseService");
-const imageModel = require("../models/Image");
+const { UserRepository } = require("../repositories/UserRepository");
+const CompanyRepository = require("../repositories/CompanyRepository");
 
 class UserService extends BaseService {
-  constructor(userRepo) {
-    super();
-    this.userRepo = userRepo;
+  constructor(connection) {
+    super(connection);
+    this.userRepo = new UserRepository(connection);
+    this.companyRepository = new CompanyRepository(connection);
   }
 
   doSignUp = async (userModel, image) => {
@@ -19,19 +21,19 @@ class UserService extends BaseService {
       // Hash the password using bcrypt
       const hashedPassword = await bcrypt.hash(userModel.password, 10);
       userModel.password = hashedPassword;
-
-      const newImage = new imageModel();
-      if (image && image.length > 0) {
-        const imageData = image[0];
-
-        // Assign properties correctly
-        newImage.url = imageData.url;
-        newImage.filename = imageData.originalname;
-        newImage.contentType = imageData.mimetype;
-        newImage.imageData = imageData.buffer;
+      // check user role
+      if (!userModel.role) {
+        throw new Error("User role is required.");
+      }
+      // check if user role is valid
+      const roleExists = await this.companyRepository.findRoleById(
+        userModel.role
+      );
+      if (!roleExists) {
+        throw new Error("Invalid role. Role does not exist.");
       }
       // Attempt to add user using userRepo
-      const addUserResponse = await this.userRepo.addUser(userModel, newImage);
+      const addUserResponse = await this.userRepo.addUser(userModel, image);
       // Handle addUserResponse based on result
       if (!addUserResponse) {
         throw new Error("Failed to add user");
@@ -56,9 +58,6 @@ class UserService extends BaseService {
       if (user === null) {
         throw new Error("UserNotFound");
       } else {
-        if (user.role === "user" || user.role === undefined) {
-          throw new Error("Permission Denied");
-        }
         const isPasswordMatch = await bcrypt.compare(
           request.password,
           user.password
@@ -68,9 +67,37 @@ class UserService extends BaseService {
           // Password does not match
           throw new Error("InvalidCredentials");
         }
-        lodash.omit(user.password); //remove password
+        // check user role
+        const roleWithMenus = await this.getUserRole(user.role);
+        if (!roleWithMenus) {
+          throw new Error("Invalid role. Role does not exist.");
+        }
+
+        //Remove sensitive fields
+        const sanitizedUser = lodash.omit(user, ["password", "createdDate"]);
+
+        // Add role and menuRights
+        sanitizedUser.role = {
+          name: roleWithMenus.name,
+          description: roleWithMenus.description,
+          menuRights: roleWithMenus.menuRights
+            .filter((mr) => mr.menu !== null)
+            .map((mr) => ({
+              menu: mr.menu,
+              permissions: mr.permissions,
+            })),
+        };
+
+        session.user = sanitizedUser; // save user
+        // firebase token
+        const firebaseToken = {
+          fcmToken: request.fcmToken,
+          deviceInfo: request.deviceInfo,
+        };
+        session.firebaseToken = firebaseToken; // save forebase token
+
         //save token in database
-        const token = await super.assignToken(user, session);
+        const token = await super.assignToken(session);
         // return session with token
         return { session: token, user: session.user };
       }
@@ -78,6 +105,10 @@ class UserService extends BaseService {
       throw { message: err.message }; // Propagate the error to the controller
     }
   };
+
+  // get user roles
+  getUserRole = async (roldId) =>
+    await this.companyRepository.findRoleById(roldId);
   // get user details
   getUser = async (request) =>
     await this.userRepo.getUserByUsername(request.email);

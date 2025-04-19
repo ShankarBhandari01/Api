@@ -1,36 +1,36 @@
 const express = require("express");
 const router = express.Router();
-const controller = require("../../controllers/UserController"); //controller for sign up route
+
+const UserController = require("../../controllers/UserController");
 const {
   validateUser,
   validateLogin,
-} = require("../../middleware/DataValidator"); // middlerware for sign up validator
-const auth = require("../../middleware/auth"); //middleware for varifying user
-// middleware for image upload
-const fileupload = require("../../middleware/fileUploadMiddleware");
-// language middleware
-const {languageMiddleware} = require("../../middleware/languageMiddleware");
+} = require("../../middleware/DataValidator");
 
-//User Signup route
-router.post(
-  "/signup",
-  languageMiddleware,
-  fileupload.uploadImage,
-  validateUser,
-  controller.signup
+const auth = require("../../middleware/auth");
+const fileupload = require("../../middleware/fileUploadMiddleware");
+const { languageMiddleware } = require("../../middleware/languageMiddleware");
+
+// User Signup route
+router.post("/signup", fileupload.uploadImage, validateUser, (req, res) =>
+  new UserController(req, res).signup()
 );
-//user Login route
-router.post(
-  "/login", 
-  languageMiddleware,
-   validateLogin,
-   controller.login
-  );
-// logout route
-router.post(
-  "/logout",
-  languageMiddleware,
-  auth.isAuthunticated,
-  controller.logout
+
+// User Login route
+router.post("/login", validateLogin, (req, res) =>
+  new UserController(req, res).login()
 );
+
+router.post(
+  "/token/refresh",
+  languageMiddleware,
+  auth.isRefreshTokenAuthenticated,
+  (req, res) => new UserController(req, res).refreshToken()
+);
+
+// User Logout route
+router.post("/logout", languageMiddleware, auth.isAuthenticated, (req, res) =>
+  new UserController(req, res).logout()
+);
+
 module.exports = router;

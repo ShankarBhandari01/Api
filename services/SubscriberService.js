@@ -1,10 +1,13 @@
 const BaseService = require("./BaseService");
-const { EmailService } = require("./EmailService");
+const {
+  SubscriberRepository,
+} = require("../repositories/SubscriberRepository");
 
 class SubscriberService extends BaseService {
-  constructor(repository) {
-    super();
-    this.repository = repository;
+  constructor(connection) {
+    super(connection);
+    this.connection = connection;
+    this.repository = new SubscriberRepository(connection);
   }
 
   subscribe = async (subscribers) => {
@@ -26,29 +29,21 @@ class SubscriberService extends BaseService {
     }
   };
 
+  getSubscribers = async () => {
+    return await this.handleRepositoryCall(this.repository.getAllSubscribers);
+  };
   getSubscriberByEmail = async (email) => {
-    try {
-      return await this.repository.getSubscriberByEmail(email);
-    } catch (error) {
-      throw { message: error.message };
-    }
+    return await this.repository.getSubscriberByEmail(email);
   };
   unsubscribe = async (email) => {
-    try {
-      return await this.repository.unsubscribe(email);
-    } catch (error) {
-      throw { message: error.message };
-    }
+    return await this.handleRepositoryCall(this.repository.unsubscribe, email);
   };
-  sendMarketingEmail = async (message) => {
-    try {
-      const subscribers = await this.repository.getSubscribers();
-      if (subscribers) {
-        const response = new EmailService().sendPushNotification();
-      }
-    } catch (error) {
-      throw { message: error.message };
-    }
+
+  addCampaingn = async (campaign) => {
+    return await this.handleRepositoryCall(
+      this.repository.addCampaingn,
+      campaign 
+    );   
   };
 }
 

@@ -1,18 +1,62 @@
 const BaseRepo = require("./BaseRepository");
-const { UpdateError } = require("../utils/errors");
-const { Category } = require("../models/Stocks");
+const StockModels = require("../models/Stocks");
+const MenuType = require("../models/MenuType");
+const mongoose = require("mongoose");
 
 class StockRepository extends BaseRepo {
-  constructor(stockModel) {
-    super();
-    this.stockModel = stockModel;
+  constructor(connection) {
+    super(connection);
+    this.connection = connection;
+    this.stockModel = StockModels(connection).Stock;
+    this.Category = StockModels(connection).Category;
+    this.menuTypes = MenuType(connection);
   }
 
-  addStock = (stock) => {
-    return this.stockModel.create(stock);
+  /**
+   * Adds new menu types to the database.
+   *
+   * @param {Array<Object>} newMenuTypes - An array of menu type objects to be inserted.
+   * Each object should include:
+   *   - name {String} : Display name of the menu type (e.g., "Lunch Menu").
+   *   - code {String} : Unique identifier/code (e.g., "lunch").
+   *   - description {String} [optional]: Extra details about this menu type.
+   *
+   * @returns {Promise<Array<Object>>} - Returns the inserted menu type documents.
+   *
+   * @throws {Error} - Throws an error if insertion fails (e.g., duplicate codes).
+   *
+   * @example
+   * const menuTypes = [
+   *   { name: "Lunch Menu", code: "lunch", description: "Available 11:00–15:00" },
+   *   { name: "Today’s Special", code: "todays_special", description: "Chef's daily pick" }
+   * ];
+   * const result = await addMenuType(menuTypes);
+   */
+  addMenuType = async (newMenuTypes) => {
+    return await this.menuTypes.insertMany(newMenuTypes);
   };
 
-  getAllStock = async (skip, limit,sort) => {
+  /**
+   * Adds a new stock item to the database.
+   * @param {Object} stock - The stock data to be added.
+   * @returns {Promise<Object>} The created stock item.
+   */
+  addStock = async (stock) => {
+    try {
+      return await this.stockModel.create(stock);
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
+  };
+
+  /**
+   * Retrieves all active, non-deleted stock items with pagination and sorting.
+   * @param {number} skip - The number of items to skip (for pagination).
+   * @param {number} limit - The number of items to limit the result to (for pagination).
+   * @param {Object} sort - The sorting options (e.g., by price, name).
+   * @returns {Promise<Array>} The list of stock items.
+   */
+  getAllStock = async (skip, limit, sort) => {
     try {
       return await this.stockModel
         .find({ isDeleted: false, isActive: true })
@@ -20,23 +64,32 @@ class StockRepository extends BaseRepo {
         .limit(limit)
         .sort(sort)
         .lean();
-    } catch (err) {
-      throw new Error(`Error fetching stock items ${err.message}`);
-    }
-  };
-  getCategoryWiseStock = async (categoryID) => {
-    try {
-      return await this.stockModel
-        .find({ categoryID: categoryID, isDeleted: false, isActive: true })
-        .sort({ _id: 1 })
-        .populate("categoryID")
-        .exec();
     } catch (error) {
-      console.error("Error fetching categoryWise stock:", error);
-      throw new Error(`Error retrieving stock: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
 
+  /**
+   * Retrieves stock items filtered by category.
+   * @param {string} categoryID - The category ID to filter by.
+   * @returns {Promise<Array>} The list of stock items within the specified category.
+   */
+  getCategoryWiseStock = async (categoryID) => {
+    try {
+      return await this.stockModel
+        .find({ categoryID, isDeleted: false, isActive: true })
+        .populate("categoryID")
+        .sort({ "categoryID.categoryName": 1, "stockName.en": 1 })
+        .exec();
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
+  };
+
+  /**
+   * Retrieves stock items grouped by category.
+   * @returns {Promise<Array>} The stock items grouped by category.
+   */
   getGroupByCategory = async () => {
     try {
       return await this.stockModel.aggregate([
@@ -44,81 +97,81 @@ class StockRepository extends BaseRepo {
           $match: {
             isDeleted: false,
             isActive: true,
-            categoryID: {$ne: null, $ne: ""},
+            categoryID: { $ne: null, $ne: "" },
           },
         },
         {
           $lookup: {
             from: "categories",
-            localField: "categoryID", // Field in stockModel (references category)
-            foreignField: "_id", // Field in categories collection
+            localField: "categoryID",
+            foreignField: "_id",
             as: "categoryDetails",
           },
         },
-        {
-          $unwind: "$categoryDetails", // Flatten categoryDetails to a single object
-        },
+        { $unwind: "$categoryDetails" },
         {
           $group: {
-            _id: "$categoryDetails._id", // Group by category ID
-            categoryEn: {$first: "$categoryDetails.name.en"}, // Get English name
-            categoryFi: {$first: "$categoryDetails.name.fi"}, // Get Finnish name
-            items: {$push: "$$ROOT"}, // Push stock items under each category
+            _id: "$categoryDetails._id",
+            categoryEn: { $first: "$categoryDetails.name.en" },
+            categoryFi: { $first: "$categoryDetails.name.fi" },
+            items: { $push: "$$ROOT" },
           },
         },
         {
           $project: {
-            _id: 0, // Exclude default _id
+            _id: 0,
             categoryName: {
-              category: {
-                en: "$categoryEn", // English name
-                fi: "$categoryFi", // Finnish name
-              },
-              items: {$ifNull: ["$items", []]}, // Ensure items is an empty array if no items exist
+              category: { en: "$categoryEn", fi: "$categoryFi" },
+              items: { $ifNull: ["$items", []] },
             },
           },
         },
       ]);
     } catch (error) {
-      console.error("Error fetching category-wise stock:", error);
-      throw new Error(`Error retrieving stock: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
+
+  /**
+   * Retrieves stock items grouped by the day of the week.
+   * @returns {Promise<Array>} The stock items grouped by the name of the week and day of the week.
+   */
   getItemDaysNameWise = async () => {
     return await this.stockModel.aggregate([
       {
         $match: {
-          $and: [{isDeleted: false}, {isActive: true}],
-          "nameOfWeek.en": {$ne: null, $ne: ""},
+          $and: [{ isDeleted: false }, { isActive: true }],
+          "nameOfWeek.en": { $ne: null, $ne: "" },
         },
       },
       {
         $group: {
           _id: "$nameOfWeek.en",
-          nameOfWeekEn: {$first: "$nameOfWeek.en"},
-          nameOfWeekFi: {$first: "$nameOfWeek.fi"},
-          dayOfWeek: {$first: "$dayOfWeek"},
-          items: {$push: "$$ROOT"},
+          nameOfWeekEn: { $first: "$nameOfWeek.en" },
+          nameOfWeekFi: { $first: "$nameOfWeek.fi" },
+          dayOfWeek: { $first: "$dayOfWeek" },
+          items: { $push: "$$ROOT" },
         },
       },
       {
         $project: {
           _id: 0,
           categoryName: {
-            category: {
-              en: "$nameOfWeekEn",
-              fi: "$nameOfWeekFi",
-            },
+            category: { en: "$nameOfWeekEn", fi: "$nameOfWeekFi" },
             items: "$items",
           },
         },
       },
-      {
-        $sort: {dayOfWeek: 1},
-      },
+      { $sort: { dayOfWeek: 1 } },
     ]);
   };
 
+  /**
+   * Updates a stock item by its ID.
+   * @param {string} stockId - The ID of the stock item to update.
+   * @param {Object} updateData - The data to update the stock item with.
+   * @returns {Promise<Object>} The updated stock item.
+   */
   updateStock = async (stockId, updateData) => {
     try {
       const updatedStock = await this.stockModel.findByIdAndUpdate(
@@ -132,9 +185,15 @@ class StockRepository extends BaseRepo {
       }
       return updatedStock;
     } catch (error) {
-      throw new UpdateError(`Error updating stock: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
+
+  /**
+   * Counts the total number of active, non-deleted stock items.
+   * @param {Object} searchFilters - The filters to apply when counting stock items.
+   * @returns {Promise<number>} The total count of stock items.
+   */
   getStockCount = async (searchFilters) => {
     try {
       if (searchFilters) {
@@ -149,86 +208,136 @@ class StockRepository extends BaseRepo {
         isActive: true,
       });
     } catch (err) {
-      throw new Error("Error counting stock items: " + err.message);
+      this.logAndThrowError(err.message, err);
     }
   };
 
-  getStockBySearch = async (search, type, skip, limit, lang) => {
-    let results;
+  /**
+   * Counts the total number of stock items in a given category.
+   * @param {string} categoryId - The ID of the category to count stock items in.
+   * @returns {Promise<number>} The total count of stock items in the specified category.
+   */
+  getStockCountByCategory = async (categoryId) => {
+    const count = await this.stockModel.aggregate([
+      {
+        $match: {
+          isDeleted: false,
+          isActive: true,
+          category: mongoose.Types.ObjectId(categoryId),
+        },
+      },
+      { $count: "totalCount" },
+    ]);
+    return count.length > 0 ? count[0].totalCount : 0;
+  };
+
+  /**
+   * Counts the total number of stock items based on search text.
+   * @param {string} searchText - The search text to filter stock items.
+   * @param {string} type - The search type ("item" or "category").
+   * @param {string} lang - The language of the search text ("en" or "fi").
+   * @returns {Promise<number>} The total count of stock items matching the search text.
+   */
+  getStockCountBySearch = async (searchText, type, lang) => {
     const searchPath =
       lang === "fi"
         ? ["stockName.fi", "description.fi"]
-        : ["stockName.en", "description.en"]; // Default to 'en' if not 'fi'
+        : ["stockName.en", "description.en"];
 
     if (type === "item") {
-      results = await this.stockModel.aggregate([
+      const count = await this.stockModel.aggregate([
         {
-          $match: {
-            isDeleted: false,
-            isActive: true,
-          },
           $search: {
-            index: "name", // the name of your search index
+            index: "default",
             text: {
-              query: search,
-              path: searchPath, // fields to search
+              query: searchText,
+              path: searchPath,
               fuzzy: { maxEdits: 1 },
             },
           },
         },
-        {
-          $skip: skip, // Skip documents based on the page number
-        },
-        {
-          $limit: limit, // Limit the number of results (page size)
-        },
+        { $match: { isDeleted: false, isActive: true } },
+        { $count: "totalCount" },
       ]);
-    } else if (type === "category") {
-      // Search in the categories collection
-      results = await Category.aggregate([
-        {
-          $match: {
-            isDeleted: false,
-            isActive: true,
-          },
-          $search: {
-            index: "name", // your category index
-            text: {
-              query: search,
-              path: ["name.en"], // assuming you are searching by category name
-              fuzzy: { maxEdits: 1 },
-            },
-          },
-        },
-        {
-          $skip: skip, // Skip documents based on the page number
-        },
-        {
-          $limit: limit, // Limit the number of results (page size)
-        },
-      ]);
+      return count.length > 0 ? count[0].totalCount : 0;
     }
-    return results; // Return the results
+    return 0;
+  };
+
+  /**
+   * Retrieves stock items based on search text, type, and pagination.
+   * @param {string} search - The search text.
+   * @param {string} type - The search type ("item" or "category").
+   * @param {number} skip - The number of items to skip (for pagination).
+   * @param {number} limit - The number of items to limit the result to (for pagination).
+   * @param {string} lang - The language for search.
+   * @param {string} sortBy - The field to sort by (e.g., "relevance" or "price").
+   * @param {string} sort - The sort order ("asc" or "desc").
+   * @returns {Promise<Array>} The list of matching stock items.
+   */
+  getStockBySearch = async (
+    search,
+    type,
+    skip = 0,
+    limit = 10,
+    lang = "en",
+    sortBy = "relevance",
+    sort = "desc"
+  ) => {
+    if (!search || !["item", "category"].includes(type)) {
+      return [];
+    }
+    const searchPath =
+      lang === "fi"
+        ? ["stockName.fi", "description.fi"]
+        : ["stockName.en", "description.en"];
+    const sortDirection = sort === "asc" ? 1 : -1;
+
+    let results;
+
+    if (type === "item") {
+      const pipeline = [
+        {
+          $search: {
+            index: "default",
+            text: { query: search, path: searchPath },
+          },
+        },
+        { $match: { isDeleted: false, isActive: true } },
+        { $skip: skip },
+        { $limit: limit },
+        { $sort: { [sortBy]: sortDirection } },
+      ];
+
+      results = await this.stockModel.aggregate(pipeline);
+    }
+
+    return results;
   };
 
   addCategory = async (category) => {
     try {
-      return await Category.create(category);
+      return await this.Category.create(category);
     } catch (error) {
-      throw new Error("error adding category: " + error.message);
+      this.logAndThrowError(error.message, error);
     }
   };
 
-  getAllCategory = async () => {
+  getAllCategory = async (skip, limit) => {
     try {
-      return await Category.find({ isDeleted: false, isActive: true });
+      return await this.Category.find({ isDeleted: false, isActive: true })
+        .skip(skip)
+        .limit(limit);
     } catch (error) {
-      throw new Error("getting category: " + error.message);
+      this.logAndThrowError(error.message, error);
     }
+  };
+  getCategoryCount = async () => {
+    return this.Category.countDocuments({ isDeleted: false, isActive: true });
   };
   updateCategory = async (categoryID, updateData) => {
     try {
-      const updatedCategory = await Category.findByIdAndUpdate(
+      const updatedCategory = await this.Category.findByIdAndUpdate(
         categoryID,
         updateData,
         { new: true, runValidators: true }
@@ -239,11 +348,9 @@ class StockRepository extends BaseRepo {
       }
       return updatedCategory;
     } catch (error) {
-      throw new UpdateError(`Error updating category: ${error.message}`);
+      this.logAndThrowError(error.message, error);
     }
   };
 }
 
-module.exports = {
-  StockRepository,
-};
+module.exports = StockRepository;

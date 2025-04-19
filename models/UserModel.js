@@ -27,12 +27,13 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  role: { type: String, enum: ["user", "admin", "manager"], default: "user" }, // Role field
+  role: { type: Schema.Types.ObjectId, ref: "Role", default: null }, // link to role
   createdDate: {
     type: Date,
     default: Date.now,
   },
 });
 
+userSchema.index({ profilePic: 1 });
 // the models of the user scheme
-module.exports = model("User", userSchema);
+module.exports = (connection) => connection.model("User", userSchema);

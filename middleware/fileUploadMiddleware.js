@@ -1,4 +1,4 @@
-const FileUpload = require("../utils/FileUpload"); // Assuming FileUpload class is in utils folder
+const FileUpload = require("../utils/FileUpload");
 const config = require("../config/appconfig");
 
 // File filter function

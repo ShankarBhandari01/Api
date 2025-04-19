@@ -17,6 +17,7 @@ class StockDTO {
     this.isSpicy = stock.isSpicy;
     this.isVagen = stock.isVagen;
     this.isVegetarian = stock.isVegetarian;
+    this.spiceLevel = stock.spiceLevel; // 1-3
   }
 
   // stringified JSON fields
