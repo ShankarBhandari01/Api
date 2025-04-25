@@ -29,7 +29,7 @@ class StockService extends BaseService {
       if (StockDto.image && StockDto.image.image?.[0]?.filename) {
         stockModel.image = StockDto.image.image[0].filename;
       } else {
-        stockModel.image = "";
+        stockModel.image = null;
       }
       // check the mode of the transaction
       if (StockDto.mode === "new") {
