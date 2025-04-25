@@ -1,7 +1,7 @@
 class StockDTO {
   constructor(stock, stockImage) {
     this.id = stock.id;
-    this.image = stockImage || stock.image;
+    this.image = stockImage || null;
     this.stockName = this.parseLangField(stock.stockName);
     this.description = this.parseLangField(stock.description);
     this.remarks = this.parseLangField(stock.remarks);
@@ -18,6 +18,7 @@ class StockDTO {
     this.isVagen = stock.isVagen;
     this.isVegetarian = stock.isVegetarian;
     this.spiceLevel = stock.spiceLevel; // 1-3
+    this.isBuffet = stock.isBuffet;
   }
 
   // stringified JSON fields
