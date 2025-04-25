@@ -17,6 +17,7 @@ router.post(
 router.post(
   "/addMenu",
   languageMiddleware,
+  auth.isAuthenticated,
   (req, res) => new MenuController(req, res).addMenu()
 );
 // GET menu

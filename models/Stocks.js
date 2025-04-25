@@ -34,7 +34,6 @@ const stockSchema = new Schema(
       required: true,
       min: 0,
     },
-    tags: [{ type: String }],
     isBuffet: { type: Boolean, default: false },
     currency: { type: String, default: "€" },
     isActive: { type: Boolean, default: true },
