@@ -1,7 +1,7 @@
 class StockDTO {
   constructor(stock, stockImage) {
     this.id = stock.id;
-    this.image = stockImage || "";
+    this.image = stockImage ? stockImage : null;
     this.stockName = this.parseLangField(stock.stockName);
     this.description = this.parseLangField(stock.description);
     this.remarks = this.parseLangField(stock.remarks);

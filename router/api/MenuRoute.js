@@ -17,11 +17,10 @@ router.post(
 router.post(
   "/addMenu",
   languageMiddleware,
-  auth.isAuthenticated,
   (req, res) => new MenuController(req, res).addMenu()
 );
 // GET menu
-router.get("/menus", languageMiddleware, (req, res) =>
+router.get("/menutype", languageMiddleware, (req, res) =>
   new MenuController(req, res).getAllMenus()
 );
 // GET menu by ID

@@ -15,7 +15,7 @@ class MenuRepository extends BaseRepo {
 
   addMenu = async (menuData) => {
     try {
-      const existingMenu = await this.getMenuByType(menuData.menuType);
+      const existingMenu = await this.getMenuByType(menuData);
       if (existingMenu) {
         throw new Error("A menu with this type already exists.");
       }
@@ -27,14 +27,43 @@ class MenuRepository extends BaseRepo {
     }
   };
 
-  getMenuByType = async (menuTypes) => {
+  getMenuByType = async (menuData) => {
     const existingMenu = await this.menu
       .findOne({
-        menuType: menuTypes,
+        menuType: menuData.menuType,
+        name: { $regex: new RegExp(`^${menuData.name}$`, "i") },
       })
       .populate("menuType")
       .populate({
-        path: "items",
+        path: "starters",
+        populate: {
+          path: "categoryID",
+          model: "Category",
+        },
+      })
+      .populate({
+        path: "mainCourses",
+        populate: {
+          path: "categoryID",
+          model: "Category",
+        },
+      })
+      .populate({
+        path: "desserts",
+        populate: {
+          path: "categoryID",
+          model: "Category",
+        },
+      })
+      .populate({
+        path: "drinks",
+        populate: {
+          path: "categoryID",
+          model: "Category",
+        },
+      })
+      .populate({
+        path: "extras",
         populate: {
           path: "categoryID",
           model: "Category",
@@ -43,71 +72,77 @@ class MenuRepository extends BaseRepo {
     return existingMenu;
   };
 
-  getGroupedMenuWithWeekdays = async () => {
+  getGroupedMenuWithWeekdays = async (type) => {
     return await this.menu.aggregate([
       {
         $lookup: {
-          from: "stocks",
-          localField: "items",
-          foreignField: "_id",
-          as: "items",
-        },
-      },
-      { $unwind: "$items" },
-      {
-        $match: {
-          "items.isDeleted": false,
-          "items.isActive": true,
-          "items.nameOfWeek.en": { $ne: null, $ne: "" },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            menuType: "$menuType",
-            day: "$items.nameOfWeek.en",
-          },
-          menuTypeId: { $first: "$menuType" },
-          nameOfWeekEn: { $first: "$items.nameOfWeek.en" },
-          nameOfWeekFi: { $first: "$items.nameOfWeek.fi" },
-          dayOfWeek: { $first: "$items.dayOfWeek" },
-          items: { $addToSet: "$items" },
-        },
-      },
-      {
-        $group: {
-          _id: "$menuTypeId",
-          category: {
-            $push: {
-              name: { en: "$nameOfWeekEn", fi: "$nameOfWeekFi" },
-              dayOfWeek: "$dayOfWeek",
-              items: "$items",
-            },
-          },
-        },
-      },
-      {
-        $lookup: {
           from: "menutypes",
-          localField: "_id",
+          localField: "menuType",
           foreignField: "_id",
           as: "menuTypeInfo",
         },
       },
       { $unwind: "$menuTypeInfo" },
       {
-        $project: {
-          _id: 0,
-          menuType: {
-            name: "$menuTypeInfo.name",
-            code: "$menuTypeInfo.code",
-            category: "$category",
-          },
+        $match: {
+          isActive: true,
+          isDeleted: { $ne: true },
+          "menuTypeInfo.code": type, // match by menuType.code now
         },
       },
       {
-        $sort: {
-          "menuType.category.dayOfWeek": 1,
+        $lookup: {
+          from: "stocks",
+          localField: "starters",
+          foreignField: "_id",
+          as: "starters",
+        },
+      },
+      {
+        $lookup: {
+          from: "stocks",
+          localField: "mainCourses",
+          foreignField: "_id",
+          as: "mainCourses",
+        },
+      },
+      {
+        $lookup: {
+          from: "stocks",
+          localField: "desserts",
+          foreignField: "_id",
+          as: "desserts",
+        },
+      },
+      {
+        $lookup: {
+          from: "stocks",
+          localField: "drinks",
+          foreignField: "_id",
+          as: "drinks",
+        },
+      },
+      {
+        $lookup: {
+          from: "stocks",
+          localField: "extras",
+          foreignField: "_id",
+          as: "extras",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          menuType: "$menuTypeInfo",
+          name: "$name",
+          description: "$description",
+          starters: 1,
+          mainCourses: 1,
+          desserts: 1,
+          drinks: 1,
+          extras: 1,
+          isActive: 1,
+          amount: 1,
         },
       },
     ]);
@@ -142,7 +177,6 @@ class MenuRepository extends BaseRepo {
           model: "Category",
         },
       });
-
 
   updateMenu = async (id, menuData) => {
     try {

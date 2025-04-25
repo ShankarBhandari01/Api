@@ -14,7 +14,8 @@ class MenuService extends BaseService {
 
   getAllMenus = async (lang, type) => {
     return await this.handleRepositoryCall(
-      this.menuRepository.getGroupedMenuWithWeekdays
+      this.menuRepository.getGroupedMenuWithWeekdays,
+      type
     );
   };
 
@@ -26,7 +27,7 @@ class MenuService extends BaseService {
       }
       if (menuData.name && menuData.name !== existingMenu.name) {
         const menuWithSameName = await this.menuRepository.getMenuByType(
-          menuData.menuType
+          menuData
         );
         if (menuWithSameName) {
           throw new Error("Menu name already exists");
