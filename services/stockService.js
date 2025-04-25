@@ -28,6 +28,8 @@ class StockService extends BaseService {
       // Handle image upload
       if (StockDto.image && StockDto.image.image?.[0]?.filename) {
         stockModel.image = StockDto.image.image[0].filename;
+      } else {
+        stockModel.image = "";
       }
       // check the mode of the transaction
       if (StockDto.mode === "new") {
