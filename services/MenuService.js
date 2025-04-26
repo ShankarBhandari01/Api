@@ -47,24 +47,20 @@ class MenuService extends BaseService {
         }
       }
       // Update fields
-      const updatedMenu = await this.Menu.findByIdAndUpdate(id, menuData, {
-        new: true,
-      });
-      return updatedMenu;
+      await this.handleRepositoryCall(
+        this.menuRepository.updateMenu,
+        id,
+        menuData
+      );
     } catch (error) {
       throw new Error("Error updating menu: " + error.message);
     }
   };
-  deleteMenu = async (id) => {
-    try {
-      const deletedMenu = await this.Menu.findByIdAndDelete(id);
-      if (!deletedMenu) {
-        throw new Error("Menu not found");
-      }
-      return deletedMenu;
-    } catch (error) {
-      throw new Error("Error deleting menu: " + error.message);
-    }
-  };
+  deleteMenu = async (id) =>
+    await this.handleRepositoryCall(this.menuRepository.deleteMenu, id);
+
+  deleteMenuType = async (id) =>
+    await this.handleRepositoryCall(this.menuRepository.deleteMenuType, id);
 }
+
 module.exports = { MenuService };

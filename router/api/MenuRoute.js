@@ -36,5 +36,12 @@ router.delete(
   auth.isAuthenticated,
   (req, res) => new MenuController(req, res).deleteMenu()
 );
+// DELETE menu type
+router.delete(
+  "/menuType/:id",
+  languageMiddleware,
+  auth.isAuthenticated,
+  (req, res) => new MenuController(req, res).deleteMenuType()
+);
 
 module.exports = router;

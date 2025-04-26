@@ -113,9 +113,6 @@ class MenuRepository extends BaseRepo {
   };
 
   getGroupedMenuWithWeekdays = async (type) => {
-
-
-
     return await this.menu.aggregate([
       {
         $lookup: {
@@ -197,7 +194,35 @@ class MenuRepository extends BaseRepo {
         .findById(id)
         .populate("menuType")
         .populate({
-          path: "items",
+          path: "starters",
+          populate: {
+            path: "categoryID",
+            model: "Category",
+          },
+        })
+        .populate({
+          path: "mainCourses",
+          populate: {
+            path: "categoryID",
+            model: "Category",
+          },
+        })
+        .populate({
+          path: "desserts",
+          populate: {
+            path: "categoryID",
+            model: "Category",
+          },
+        })
+        .populate({
+          path: "drinks",
+          populate: {
+            path: "categoryID",
+            model: "Category",
+          },
+        })
+        .populate({
+          path: "extras",
           populate: {
             path: "categoryID",
             model: "Category",
@@ -214,7 +239,35 @@ class MenuRepository extends BaseRepo {
       .find()
       .populate("menuType")
       .populate({
-        path: "items",
+        path: "starters",
+        populate: {
+          path: "categoryID",
+          model: "Category",
+        },
+      })
+      .populate({
+        path: "mainCourses",
+        populate: {
+          path: "categoryID",
+          model: "Category",
+        },
+      })
+      .populate({
+        path: "desserts",
+        populate: {
+          path: "categoryID",
+          model: "Category",
+        },
+      })
+      .populate({
+        path: "drinks",
+        populate: {
+          path: "categoryID",
+          model: "Category",
+        },
+      })
+      .populate({
+        path: "extras",
         populate: {
           path: "categoryID",
           model: "Category",
@@ -255,7 +308,18 @@ class MenuRepository extends BaseRepo {
       const deletedMenu = await this.menu.findByIdAndDelete(id);
       return deletedMenu;
     } catch (error) {
-      throw new Error("Error deleting menu: " + error.message);
+      this.logAndThrowError("Error deleting menu", error);
+    }
+  };
+  deleteMenuType = async (id) => {
+    try {
+      const deletedMenuType = await this.menuTypes.findByIdAndDelete(id);
+      if (!deletedMenuType) {
+        throw new Error("Menu type not found");
+      }
+      return deletedMenuType;
+    } catch (error) {
+      this.logAndThrowError("Error deleting menu type", error);
     }
   };
   findMenuById = async (id) => {
@@ -264,7 +328,35 @@ class MenuRepository extends BaseRepo {
         .findById(id)
         .populate("menuType")
         .populate({
-          path: "items",
+          path: "starters",
+          populate: {
+            path: "categoryID",
+            model: "Category",
+          },
+        })
+        .populate({
+          path: "mainCourses",
+          populate: {
+            path: "categoryID",
+            model: "Category",
+          },
+        })
+        .populate({
+          path: "desserts",
+          populate: {
+            path: "categoryID",
+            model: "Category",
+          },
+        })
+        .populate({
+          path: "drinks",
+          populate: {
+            path: "categoryID",
+            model: "Category",
+          },
+        })
+        .populate({
+          path: "extras",
           populate: {
             path: "categoryID",
             model: "Category",

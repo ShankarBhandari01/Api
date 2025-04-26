@@ -58,5 +58,13 @@ class MenuController extends BaseController {
       "Menu deleted successfully"
     );
   };
+
+  deleteMenuType = async () => {
+    await this.runServiceMethod(
+      MenuService,
+      (service) => service.deleteMenuType(this.req.params.id),
+      "Menu type deleted successfully"
+    );
+  };
 }
 module.exports = MenuController;
