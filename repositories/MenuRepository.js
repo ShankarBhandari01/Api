@@ -113,6 +113,9 @@ class MenuRepository extends BaseRepo {
   };
 
   getGroupedMenuWithWeekdays = async (type) => {
+
+
+
     return await this.menu.aggregate([
       {
         $lookup: {
@@ -127,7 +130,7 @@ class MenuRepository extends BaseRepo {
         $match: {
           isActive: true,
           isDeleted: { $ne: true },
-          "menuTypeInfo.code": type, // match by menuType.code now
+          ...(type ? { "menuTypeInfo.code": type } : {}),
         },
       },
       {
