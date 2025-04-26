@@ -20,8 +20,14 @@ router.post(
   auth.isAuthenticated,
   (req, res) => new MenuController(req, res).addMenu()
 );
+router.get(
+  "/menuType",
+  languageMiddleware,
+  (req, res) => new MenuController(req, res).getMenuTypes()
+);
+
 // GET menu
-router.get("/menutype", languageMiddleware, (req, res) =>
+router.get("/menusBytype", languageMiddleware, (req, res) =>
   new MenuController(req, res).getAllMenus()
 );
 // GET menu by ID

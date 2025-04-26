@@ -5,6 +5,14 @@ class MenuController extends BaseController {
   constructor(req, res) {
     super(req, res);
   }
+
+  getMenuTypes = async () => {
+    await this.runServiceMethod(
+      MenuService,
+      (service) => service.getMenuTypes(),
+      "Menu types fetched successfully"
+    );
+  }
   addMenu = async () => {
     await this.runServiceMethod(
       MenuService,
@@ -12,6 +20,10 @@ class MenuController extends BaseController {
       "Menu added successfully"
     );
   };
+
+
+
+
   getMenu = async () => {
     await this.runServiceMethod(
       MenuService,

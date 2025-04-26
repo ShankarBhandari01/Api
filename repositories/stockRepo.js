@@ -37,6 +37,22 @@ class StockRepository extends BaseRepo {
   };
 
   /**
+   * Retrieves all available menu types from the database.
+   *
+   * @async
+   * @function getMenuTypes
+   * @returns {Promise<Array>} A promise that resolves to an array of menu type documents.
+   * @throws Will throw an error if fetching menu types fails.
+   */
+  getMenuTypes = async () => {
+    try {
+      return await this.menuTypes.find();
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
+  };
+
+  /**
    * Adds a new stock item to the database.
    * @param {Object} stock - The stock data to be added.
    * @returns {Promise<Object>} The created stock item.
