@@ -1,11 +1,13 @@
 const admin = require("firebase-admin");
 const serviceAccount = require("../firebase-service-account.json");
 const BaseService = require("./BaseService");
+const NotificationRepository = require("../repositories/NotificationRepository");
 
 class FirebasePushNotificationService extends BaseService {
   constructor(connection) {
     super(connection);
     this.connection = connection;
+    this.notificationRepository = new NotificationRepository(connection);
     this.initializeFirebase();
   }
 
@@ -52,7 +54,9 @@ class FirebasePushNotificationService extends BaseService {
       };
 
       const fcmsTokens = await this.getFcmToken();
-
+      // Save notification to the database
+      await this.savenotification(notification, null, "reservation");
+      // Send notification to all tokens
       if (fcmsTokens !== "" && fcmsTokens.length > 0) {
         const message = {
           notification: {
@@ -75,7 +79,7 @@ class FirebasePushNotificationService extends BaseService {
       this.log(`Error sending notification: ${error}`, "error");
     }
   };
-
+  // Send push notification to admins on new order
   sendPushNotificationToAdminsOnNewOrder = async (orderData) => {
     try {
       const { customer, items, totalAmount, createdDate } = orderData;
@@ -108,8 +112,11 @@ class FirebasePushNotificationService extends BaseService {
         title,
         body,
       };
-
+      // get all admin tokens
       const fcmsTokens = await this.getFcmToken();
+      // Save notification to the database
+      await this.savenotification(notification, customer, "order");
+      // Send notification to admins
       if (Array.isArray(fcmsTokens) && fcmsTokens.length > 0) {
         const message = {
           notification,
@@ -129,6 +136,39 @@ class FirebasePushNotificationService extends BaseService {
       this.log(`Error sending order notification: ${error}`, "error");
     }
   };
+  // Save notification to the database
+  savenotification = async (notificationData, customer, type) => {
+    try {
+      let notification = {};
+      notification.title = notificationData.title;
+      notification.message = notificationData.body;
+      notification.type = type;
+      notification.customerId = customer ? customer._id : null;
+
+      return await this.handleRepositoryCall(
+        this.notificationRepository.saveNotification,
+        notification
+      );
+    } catch (error) {
+      this.log(`Error saving notification: ${error}`, "error");
+    }
+  };
+  getNotifications = async () =>
+    await this.handleRepositoryCall(
+      this.notificationRepository.getNotifications
+    );
+
+  updateNotification = async (id) =>
+    await this.handleRepositoryCall(
+      this.notificationRepository.updateSeenStatus,
+      id
+    );
+
+  deleteNotification = async (id) =>
+    await this.handleRepositoryCall(
+      this.notificationRepository.deleteNotification,
+      id
+    );
 }
 
 module.exports = FirebasePushNotificationService;
