@@ -13,46 +13,6 @@ class StockRepository extends BaseRepo {
   }
 
   /**
-   * Adds new menu types to the database.
-   *
-   * @param {Array<Object>} newMenuTypes - An array of menu type objects to be inserted.
-   * Each object should include:
-   *   - name {String} : Display name of the menu type (e.g., "Lunch Menu").
-   *   - code {String} : Unique identifier/code (e.g., "lunch").
-   *   - description {String} [optional]: Extra details about this menu type.
-   *
-   * @returns {Promise<Array<Object>>} - Returns the inserted menu type documents.
-   *
-   * @throws {Error} - Throws an error if insertion fails (e.g., duplicate codes).
-   *
-   * @example
-   * const menuTypes = [
-   *   { name: "Lunch Menu", code: "lunch", description: "Available 11:00–15:00" },
-   *   { name: "Today’s Special", code: "todays_special", description: "Chef's daily pick" }
-   * ];
-   * const result = await addMenuType(menuTypes);
-   */
-  addMenuType = async (newMenuTypes) => {
-    return await this.menuTypes.insertMany(newMenuTypes);
-  };
-
-  /**
-   * Retrieves all available menu types from the database.
-   *
-   * @async
-   * @function getMenuTypes
-   * @returns {Promise<Array>} A promise that resolves to an array of menu type documents.
-   * @throws Will throw an error if fetching menu types fails.
-   */
-  getMenuTypes = async () => {
-    try {
-      return await this.menuTypes.find();
-    } catch (error) {
-      this.logAndThrowError(error.message, error);
-    }
-  };
-
-  /**
    * Adds a new stock item to the database.
    * @param {Object} stock - The stock data to be added.
    * @returns {Promise<Object>} The created stock item.

@@ -7,8 +7,8 @@ const menuSchema = new mongoose.Schema(
       ref: "MenuType",
       required: true,
     },
-    name: { type: String, required: true }, // e.g., “Wednesday Special”
-    description: { type: String },
+    name: { type: String, required: true, trim: true}, // e.g., “Wednesday Special”
+    description: { type: String, trim: true},
     starters: [
       {
         type: mongoose.Schema.Types.ObjectId,

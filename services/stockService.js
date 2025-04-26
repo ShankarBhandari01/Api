@@ -11,15 +11,6 @@ class StockService extends BaseService {
     this.stockRepo = new StockRepository(connection);
   }
 
-  addMenuType = async (menuTypes) => {
-    try {
-      const result = await this.stockRepo.addMenuType(menuTypes);
-      return super.prepareResponse(result);
-    } catch (error) {
-      throw { message: error.message };
-    }
-  };
-
   addStock = async (StockDto) => {
     try {
       let insertedStock;

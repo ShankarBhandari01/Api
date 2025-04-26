@@ -12,6 +12,46 @@ class MenuRepository extends BaseRepo {
     this.menuTypes = MenuType(connection);
     this.menu = Menu(connection);
   }
+  getMenuTypeByCode = async (code) => {
+    try {
+      return await this.menuTypes.findOne({ code });
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
+  };
+
+  addMenuType = async (menuTypes) => {
+    try {
+      // Get existing codes
+      const existing = await this.menuTypes.find({
+        code: { $in: menuTypes.map((m) => m.code) },
+      });
+      const existingCodes = existing.map((m) => m.code);
+
+      // Filter out ones that already exist
+      const newMenuTypes = menuTypes.filter(
+        (m) => !existingCodes.includes(m.code)
+      );
+      // Only insert if there's something new
+      if (newMenuTypes.length === 0) {
+        return {
+          message: "All provided menu types already exist. Nothing inserted.",
+        };
+      }
+
+      return await this.menuTypes.insertMany(newMenuTypes);
+    } catch (error) {
+      this.logAndThrowError("Error adding menuTypes", error);
+    }
+  };
+
+  getMenuTypes = async () => {
+    try {
+      return await this.menuTypes.find();
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
+  };
 
   addMenu = async (menuData) => {
     try {

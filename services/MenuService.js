@@ -1,15 +1,23 @@
 const BaseService = require("./BaseService");
 const MenuRepository = require("../repositories/MenuRepository");
-const StockRepository = require("../repositories/stockRepo");
 
 class MenuService extends BaseService {
   constructor(connection) {
     super(connection);
     this.menuRepository = new MenuRepository(connection);
-    this.stockRepository = new StockRepository(connection);
   }
-  getMenuTypes = async () => 
-      await this.handleRepositoryCall(this.stockRepository.getMenuTypes);
+
+  addMenuType = async (menuTypes) => {
+    try {
+      const result = await this.menuRepository.addMenuType(menuTypes);
+      return super.prepareResponse(result);
+    } catch (error) {
+      throw { message: error.message };
+    }
+  };
+
+  getMenuTypes = async () =>
+    await this.handleRepositoryCall(this.menuRepository.getMenuTypes);
 
   addMenu = async (menuData) =>
     await this.handleRepositoryCall(this.menuRepository.addMenu, menuData);
