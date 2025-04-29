@@ -52,7 +52,7 @@ class MongoConnectionManager extends logger {
       if (this.env === "development" || this.env === "test") {
         uri = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
       } else {
-        uri = `mongodb://127.0.0.1:27017/${dbName}`;
+        uri = `mongodb://${username}:${password}@127.0.0.1:27017/${dbName}`;
       }
       this.pendingConnections[dbName] = this.retryConnection(
         uri,
