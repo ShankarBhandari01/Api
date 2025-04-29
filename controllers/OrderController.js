@@ -64,7 +64,7 @@ class OrderController extends BaseController {
     const page = parseInt(this.req.query.page) || 1;
     const limit = parseInt(this.req.query.limit) || 10;
     const sort = this.req.query.sort || "asc";
-    const sortBy = this.req.query.sortBy || "id";
+    const sortBy = this.req.query.sortBy || "createdDate";
 
     const filters = {
       status,

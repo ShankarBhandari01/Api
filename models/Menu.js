@@ -7,15 +7,40 @@ const menuSchema = new mongoose.Schema(
       ref: "MenuType",
       required: true,
     },
-    name: { type: String, required: true }, // e.g., “Wednesday Special”
-    description: { type: String },
-    items: [
+    name: { type: String, required: true, trim: true}, // e.g., “Wednesday Special”
+    description: { type: String, trim: true},
+    starters: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Stock",
+      },
+    ],
+    mainCourses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Stock",
+      },
+    ],
+    desserts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Stock",
+      },
+    ],
+    drinks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Stock",
+      },
+    ],
+    extras: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Stock",
       },
     ],
     isActive: { type: Boolean, default: true },
+    amount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

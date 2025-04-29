@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const crypto = require("crypto");
 // Helper function to generate alphanumeric IDs
 function generateAlphanumericId(prefix = "") {
-  return prefix + crypto.randomBytes(8).toString("hex").toUpperCase();
+  return prefix + crypto.randomBytes(4).toString("hex").toUpperCase();
 }
 // Reservation Model (Customer)
 let CustomerModel;
@@ -53,7 +53,7 @@ module.exports = (connection) => {
             en: { type: String, required: true, trim: true },
             fi: { type: String, required: true, trim: true },
           },
-          special_requests: { type: String, required: true, trim: true },
+          special_requests: { type: String, required: false, trim: true },
           _id: false,
         },
       ],

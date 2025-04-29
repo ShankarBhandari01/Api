@@ -16,7 +16,7 @@ const stockSchema = new Schema(
       fi: { type: String, required: false, trim: true },
     },
     description: {
-      en: { type: String, required: true },
+      en: { type: String, required: false },
       fi: { type: String, required: false },
     },
     remarks: {
@@ -34,6 +34,7 @@ const stockSchema = new Schema(
       required: true,
       min: 0,
     },
+    isBuffet: { type: Boolean, default: false },
     currency: { type: String, default: "€" },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
@@ -44,7 +45,7 @@ const stockSchema = new Schema(
       fi: { type: String, required: false },
     },
     isSpicy: { type: Boolean, require: false, default: false },
-    spiceLevel: { type: Number,default: 0 },
+    spiceLevel: { type: Number, default: 0 },
     isVagen: { type: Boolean, require: false, default: false },
     isVegetarian: { type: Boolean, require: false, default: false },
   },

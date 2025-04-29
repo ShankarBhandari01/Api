@@ -1,4 +1,5 @@
 const { CompanyService } = require("../services/CompanyService");
+const FirebasePushNotificationService = require("../services/FirebasePushNotificationService");
 const { mapToCompanyDTO } = require("../helper/CompanyDTOHelper");
 const BaseController = require("./BaseController");
 
@@ -92,6 +93,32 @@ class CompanyController extends BaseController {
       "Table added"
     );
   }
+
+  // notification
+  async getNotifications() {
+    await this.runServiceMethod(
+      FirebasePushNotificationService,
+      (service) => service.getNotifications(),
+      "Notifications fetched"
+    );
+  }
+
+  updateNotification = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      FirebasePushNotificationService,
+      (service) => service.updateNotification(id),
+      "Notification updated successfully"
+    );
+  };
+  deleteNotification = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      FirebasePushNotificationService,
+      (service) => service.deleteNotification(id),
+      "Notification deleted successfully"
+    );
+  };
 }
 
 module.exports = CompanyController;

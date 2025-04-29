@@ -6,13 +6,9 @@ const checkAccess = require("../../middleware/CheckAccess");
 const fileupload = require("../../middleware/fileUploadMiddleware");
 const CompanyController = require("../../controllers/CompanyController");
 // GET company info
-router.get(
-  "/getCompanyInfo",
-  languageMiddleware,
-  (req, res) => {
-    new CompanyController(req, res).getCompanyInfo();
-  }
-);
+router.get("/getCompanyInfo", languageMiddleware, (req, res) => {
+  new CompanyController(req, res).getCompanyInfo();
+});
 // POST company info
 router.post(
   "/addCompanyInfo",
@@ -92,6 +88,29 @@ router.delete(
   auth.isAuthenticated,
   checkAccess("/roles", "detele"),
   (req, res) => new CompanyController(req, res).deleteRole()
+);
+
+// notification apis
+// GET notification
+router.get(
+  "/notification",
+  languageMiddleware,
+  auth.isAuthenticated,
+  (req, res) => new CompanyController(req, res).getNotifications()
+);
+// PUT notification
+router.put(
+  "/notification/:id",
+  languageMiddleware,
+  auth.isAuthenticated,
+  (req, res) => new CompanyController(req, res).updateNotification()
+);
+// DELETE notification
+router.delete(
+  "/notification/:id",
+  languageMiddleware,
+  auth.isAuthenticated,
+  (req, res) => new CompanyController(req, res).deleteNotification()
 );
 
 module.exports = router;

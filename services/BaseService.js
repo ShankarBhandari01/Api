@@ -22,7 +22,7 @@ class BaseService extends BaseRepo {
     try {
       return await this.getFcmTokenFromDatabase();
     } catch (error) {
-      this.log(`Error sending FCM token ${error}`, "error");
+      this.log(`[Api] Error sending FCM token ${error}`, "error");
     }
   };
 

@@ -5,23 +5,6 @@ const dbConnection = require("../database/ConnectionManager");
 const { StockService } = require("../services/stockService");
 const requestHandler = new RequestHandler();
 
-exports.addMenuTypes = async (req, res) => {
-  try {
-    const lang = req.session.lang || "en";
-    // database connection
-    const connection = await dbConnection.getConnection(
-      req.session.envConfig.database
-    );
-    const stockService = new StockService(connection);
-    const response = await stockService.addMenuType(req.body);
-    // return response
-    res.statusCode = response.statusCode;
-    res.json(response);
-  } catch (error) {
-    return requestHandler.sendError(req, res, err);
-  }
-};
-
 //add menus items
 exports.saveStock = async (req, res) => {
   try {

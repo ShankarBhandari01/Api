@@ -5,7 +5,6 @@ const lodash = require("lodash");
 const dbConnection = require("../database/ConnectionManager");
 const config = require("../config/config.json");
 
-const baseService = new BaseService();
 const logger = new Logger();
 let responseData = {};
 exports.loggingMiddleware = (req, res, next) => {
@@ -32,9 +31,11 @@ exports.loggingMiddleware = (req, res, next) => {
 
       // database name
       const env = config[process.env.NODE_ENV || "development"];
-      // database connection string
-      const connection = await dbConnection.getConnection('ApiLogDatabase');
+      // log database connection string
+      const connection = await dbConnection.getConnection("ApiLogDatabase");
       const userlogModel = UserloginLog(connection);
+
+      const baseService = new BaseService();
 
       // Create a new log entry
       const log = new userlogModel({
