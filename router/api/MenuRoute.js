@@ -18,7 +18,7 @@ router.get("/menuType", languageMiddleware, (req, res) =>
 );
 
 // GET menu
-router.get("/menusBytype", languageMiddleware, (req, res) =>
+router.get("/allMenus", languageMiddleware, (req, res) =>
   new MenuController(req, res).getAllMenus()
 );
 // GET menu by ID
