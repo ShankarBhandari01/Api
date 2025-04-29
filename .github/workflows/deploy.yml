@@ -20,7 +20,7 @@ jobs:
 
       - name: Deploy to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no shankar@your.server.ip << 'EOF'
+          ssh -o StrictHostKeyChecking=no shankar@82.25.101.68 << 'EOF'
             cd /home/shankar/Api
             git pull origin master
             npm install
