@@ -23,6 +23,5 @@ jobs:
             cd /home/shankar/Api
             git pull origin master
             npm install
-            npm run build
             sudo /bin/systemctl restart my-api
           EOF
