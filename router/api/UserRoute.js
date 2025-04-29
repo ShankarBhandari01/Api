@@ -33,4 +33,5 @@ router.post("/logout", languageMiddleware, auth.isAuthenticated, (req, res) =>
   new UserController(req, res).logout()
 );
 
+
 module.exports = router;
