@@ -24,16 +24,12 @@
     "dialect": "mongodb"
   },
   "production": {
-    "url": "mongodb+srv://shankarbhandari:bhandari12345shankar@cluster0.rofic.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-    "username": "shankarbhandari",
-    "password": "bhandari12345shankar",
+    "url": "mongodb://127.0.0.1:27017/Mydatabase",
+    "username": "",
+    "password": "",
     "database": "Mydatabase",
-    "host": "cluster0.rofic.mongodb.net",
-    "retryWrites": "true",
-    "w": "majority",
-    "appName": "Cluster0",
+    "host": "127.0.0.1",
     "port": 27017,
     "dialect": "mongodb"
   }
-  
 }
