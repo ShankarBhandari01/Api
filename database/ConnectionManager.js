@@ -48,8 +48,12 @@ class MongoConnectionManager extends logger {
         `[Mongo] Attempting to connect to database: "${dbName}"`,
         "info"
       );
-      let uri = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
-
+      let uri;
+      if (env === "development" || env === "test") {
+        uri = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
+      } else {
+        uri = `mongodb://127.0.0.1:27017/${dbName}`;
+      }
       this.pendingConnections[dbName] = this.retryConnection(
         uri,
         this._defaultOptions
@@ -118,16 +122,11 @@ class MongoConnectionManager extends logger {
     if (this.connections[dbName]) {
       try {
         await this.connections[dbName].close();
-        this.log(
-          `[Mongo] Connection to "${dbName}" closed.`,
-          "info"
-        );
+        this.log(`[Mongo] Connection to "${dbName}" closed.`, "info");
         delete this.connections[dbName];
       } catch (error) {
         this.log(
-          `[Mongo] Error closing connection to "${dbName}": ${
-            error.message
-          }`,
+          `[Mongo] Error closing connection to "${dbName}": ${error.message}`,
           "error"
         );
       }
