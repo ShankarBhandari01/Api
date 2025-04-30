@@ -26,7 +26,7 @@
   "production": {
     "url": "mongodb://127.0.0.1:27017/Mydatabase",
     "username": "admin",
-    "password": "Rabintola@2025@",
+    "password": "Rabintola2025",
     "database": "Mydatabase",
     "host": "127.0.0.1",
     "port": 27017,
