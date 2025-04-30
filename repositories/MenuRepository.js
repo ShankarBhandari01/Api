@@ -172,7 +172,7 @@ class MenuRepository extends BaseRepo {
       },
       {
         $project: {
-          _id: 0,
+          _id: 1,
           menuType: "$menuTypeInfo",
           name: "$name",
           description: "$description",
