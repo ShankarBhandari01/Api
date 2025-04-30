@@ -52,12 +52,31 @@ class MenuRepository extends BaseRepo {
       this.logAndThrowError(error.message, error);
     }
   };
+  getMenuTypeById = async (id) => await this.menuTypes.findById(id);
 
   addMenu = async (menuData) => {
     try {
+      // Check if the menu type exists
+      const menuType = await this.getMenuTypeById(menuData.menuType);
+      if (!menuType) {
+        throw new Error("Menu type not found");
+      }
+      // Check if the menu with the same type and name already exists
       const existingMenu = await this.getMenuByType(menuData);
       if (existingMenu) {
         throw new Error("A menu with this type already exists.");
+      }
+      // Validate stock items exist for starters, mainCourses, desserts, drinks, and extras
+      const allItemsValid = await this.itemsExist([
+        ...menuData.starters,
+        ...menuData.mainCourses,
+        ...menuData.desserts,
+        ...menuData.drinks,
+        ...menuData.extras,
+      ]);
+      // Check if all items are valid
+      if (!allItemsValid) {
+        throw new Error("One or more stock items are invalid or not active.");
       }
 
       // Create and return the new menu
@@ -67,10 +86,26 @@ class MenuRepository extends BaseRepo {
     }
   };
 
+  // Function to check if all stock items exist
+  itemsExist = async (items) => {
+    const itemIds = items.map((item) => item);
+    const uniqueItemIds = [...new Set(itemIds)];
+
+    // Check if all items exist in the StockModel
+    const existingItemsCount = await this.stockModel.countDocuments({
+      _id: { $in: uniqueItemIds },
+      isDeleted: false,
+      isActive: true,
+    });
+
+    return existingItemsCount === uniqueItemIds.length;
+  };
+
   getMenuByType = async (menuData) => {
     const existingMenu = await this.menu
       .findOne({
         menuType: menuData.menuType,
+        "weekday.en": menuData.weekday.en,
         name: { $regex: new RegExp(`^${menuData.name}$`, "i") },
       })
       .populate("menuType")
@@ -183,7 +218,12 @@ class MenuRepository extends BaseRepo {
           extras: 1,
           isActive: 1,
           amount: 1,
+          weekday: 1,
+          weekdayNumber: { $ifNull: ["$weekday.number", 0] },
         },
+      },
+      {
+        $sort: { weekdayNumber: 1 },
       },
     ]);
   };
@@ -277,6 +317,12 @@ class MenuRepository extends BaseRepo {
   updateMenu = async (id, menuData) => {
     try {
       if (menuData.menuType) {
+        // Check if the menu type exists
+        const menuType = await this.getMenuTypeById(menuData.menuType);
+        if (!menuType) {
+          throw new Error("Menu type not found");
+        }
+        // Check if the menu with the same type and name already exists
         const existingMenu = await this.menu.findOne({
           _id: { $ne: id }, // exclude current menu from search
           menuType: menuData.menuType,
@@ -286,7 +332,18 @@ class MenuRepository extends BaseRepo {
           throw new Error("A menu with this type already exists.");
         }
       }
-
+      // Validate stock items exist for starters, mainCourses, desserts, drinks, and extras
+      const allItemsValid = await this.itemsExist([
+        ...menuData.starters,
+        ...menuData.mainCourses,
+        ...menuData.desserts,
+        ...menuData.drinks,
+        ...menuData.extras,
+      ]);
+      // Check if all items are valid
+      if (!allItemsValid) {
+        throw new Error("One or more stock items are invalid or not active.");
+      }
       // Update the menu
       const updatedMenu = await this.menu.findByIdAndUpdate(id, menuData, {
         new: true,
