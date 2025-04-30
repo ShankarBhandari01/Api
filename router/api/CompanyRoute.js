@@ -14,8 +14,8 @@ router.post(
   "/addCompanyInfo",
   languageMiddleware,
   fileupload.uploadImage,
-  auth.isAuthenticated,
-  checkAccess("/addCompanyInfo", "write"),
+ // auth.isAuthenticated,
+  //checkAccess("/addCompanyInfo", "write"),
   (req, res) => new CompanyController(req, res).addCompanyInfo()
 );
 // POST add table

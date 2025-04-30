@@ -54,7 +54,6 @@ class CompanyRepository extends BaseRepo {
   getCompanyInfo = async () =>
     await this.company
       .findOne()
-      .populate("openingHours")
       .populate("logo")
       .sort({ created_at: -1 })
       .lean();
@@ -92,7 +91,6 @@ class CompanyRepository extends BaseRepo {
           }
         )
         .populate("logo")
-        .populate("openingHours")
         .lean();
 
       await session.commitTransaction();

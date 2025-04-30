@@ -4,6 +4,7 @@ const OpeningHourSchema = new Schema({
   weekdays: { type: String, required: true },
   buffet: { type: String, required: true },
   weekends: { type: String, required: true },
+  _id: false,
 });
 
 const CompanyScheme = new Schema({
