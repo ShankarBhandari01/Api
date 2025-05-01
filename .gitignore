@@ -5,3 +5,4 @@
 /public
 firebase-service-account.json
 /config/config.json
+start.sh
