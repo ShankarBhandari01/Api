@@ -30,6 +30,8 @@ const __dirname = dirname(__filename);
 app.set("config", config); // the system configrations
 // the system configrations
 const MemoryStore = memorystore(session);
+//For CSRF protection
+app.use(cookieParser());
 // user session
 app.use(
   session({
@@ -47,9 +49,6 @@ app.use(
   })
 );
 
-// Middleware to parse cookies
-// This is important for CSRF protection
-app.use(cookieParser());
 //app.set("db", require("../database/ConnectionManager.js"));
 app.set("port", process.env.DEV_APP_PORT);
 app.use(compression());
