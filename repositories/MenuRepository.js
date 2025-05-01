@@ -111,7 +111,7 @@ class MenuRepository extends BaseRepo {
       .findOne({
         menuType: menuData.menuType,
         "weekday.en": menuData.weekday.en,
-        name: { $regex: new RegExp(`^${query}$`, "i") },
+        name: query,
       })
       .populate("menuType")
       .populate({
