@@ -32,6 +32,8 @@ app.set("config", config); // the system configrations
 const MemoryStore = memorystore(session);
 //For CSRF protection
 app.use(cookieParser());
+// CSRF Protection Middleware for sensitive routes
+app.use(csrfProtection);
 // user session
 app.use(
   session({
@@ -81,8 +83,6 @@ app.use(
 );
 //api routers
 app.use(index);
-// CSRF Protection Middleware for sensitive routes
-app.use(csrfProtection);
 // CSRF Token Middleware - Exposes CSRF token to frontend
 app.use(csrfTokenMiddleware);
 // 404 handle
