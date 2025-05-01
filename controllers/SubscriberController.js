@@ -1,5 +1,5 @@
-const BaseController = require("./BaseController");
-const { SubscriberService } = require("../services/SubscriberService");
+import BaseController from "./BaseController.js";
+import SubscriberService  from "../services/SubscriberService.js";
 
 class SubscriberController extends BaseController {
   constructor(req, res) {
@@ -39,4 +39,4 @@ class SubscriberController extends BaseController {
   };
 }
 
-module.exports = { SubscriberController };
+export default SubscriberController;

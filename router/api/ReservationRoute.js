@@ -1,11 +1,9 @@
-const express = require("express");
-const router = express.Router();
-const { languageMiddleware } = require("../../middleware/languageMiddleware");
-const ReservationController = require("../../controllers/ReservationController");
-const auth = require("../../middleware/auth"); //middleware for varifying user
-const {
-  reservationValidationSchema,
-} = require("../../middleware/DataValidator");
+import { Router } from "express";
+const router = Router();
+import { languageMiddleware } from "../../middleware/languageMiddleware.js";
+import ReservationController from "../../controllers/ReservationController.js";
+import { isAuthenticated } from "../../middleware/auth.js"; //middleware for varifying user
+import { reservationValidationSchema } from "../../middleware/DataValidator.js";
 // POST // api/reservations
 router.post(
   "/reservations",
@@ -18,8 +16,8 @@ router.post(
 router.get(
   "/getAllReservations",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   (req, res) => new ReservationController(req, res).getReservations()
 );
 
-module.exports = router;
+export default router;

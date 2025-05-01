@@ -1,14 +1,14 @@
-const express = require("express");
-const router = express.Router();
-const swaggerJSDoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
-const fs = require("fs");
-const path = require("path");
-const _ = require("lodash");
-const config = require("../config/appconfig");
-const directoryPath = path.join(__dirname, "../router/api");
+import { Router } from "express";
+const router = Router();
+import swaggerJSDoc from "swagger-jsdoc";
+import { serve, setup } from "swagger-ui-express";
+import { readdirSync } from "fs";
+import { join } from "path";
+import { isUndefined } from "lodash";
+import { app } from "../config/appconfig";
+const directoryPath = join(__dirname, "../router/api");
 const pathes = [];
-const filesName = fs.readdirSync(directoryPath, (err, files) => {
+const filesName = readdirSync(directoryPath, (err, files) => {
   // handling error
   if (err) {
     return console.log(`Unable to scan directory: ${err}`);
@@ -22,7 +22,7 @@ function getFullPathes(names) {
     if (name !== "index") {
       customePath = `./router/api/${name}`;
     }
-    if (!_.isUndefined(name)) {
+    if (!isUndefined(name)) {
       pathes.push(customePath);
     }
   });
@@ -63,7 +63,7 @@ const options = {
       },
     ],
     schemes: ["http"],
-    host: `localhost:${config.app.port}`,
+    host: `localhost:${app.port}`,
     basePath: "/api/v1",
     securityDefinitions: {
       Bearer: {
@@ -85,7 +85,7 @@ router.get("/json", (req, res) => {
   res.send(swaggerSpec);
 });
 
-router.use("/", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+router.use("/", serve, setup(swaggerSpec));
 
 function validateModel(name, model) {
   const responseValidation = swaggerSpec.validateModel(
@@ -99,7 +99,7 @@ function validateModel(name, model) {
   }
 }
 
-module.exports = {
+export default {
   router,
   validateModel,
 };

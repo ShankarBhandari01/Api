@@ -1,5 +1,5 @@
-const BaseService = require("./BaseService");
-const CompanyRepository = require("../repositories/CompanyRepository");
+import BaseService from "./BaseService.js";
+import CompanyRepository from "../repositories/CompanyRepository.js";
 
 class CompanyService extends BaseService {
   constructor(connection) {
@@ -167,6 +167,4 @@ class CompanyService extends BaseService {
     await this.handleRepositoryCall(this.companyRepository.addTable, table);
 }
 
-module.exports = {
-  CompanyService,
-};
+export default CompanyService;

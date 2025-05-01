@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+import { Schema, model } from "mongoose";
 
 const fcmTokenSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -13,4 +13,4 @@ const fcmTokenSchema = new Schema({
 
 fcmTokenSchema.index({ userId: 1, token: 1 }, { unique: true });
 
-module.exports = (connection) =>  connection.model("FcmToken", fcmTokenSchema);
+export default (connection) =>  connection.model("FcmToken", fcmTokenSchema);

@@ -1,9 +1,10 @@
-const jwt = require("jsonwebtoken");
-const _ = require("lodash");
-const config = require("../config/appconfig");
-const RequestHandler = require("../utils/RequestHandler");
-const BaseService = require("../services/BaseService");
-const dbConnection = require("../database/ConnectionManager");
+import pkg from 'jsonwebtoken';
+const { verify } = pkg;
+import _ from "lodash";
+import appconfig from "../config/appconfig.js";
+import RequestHandler from "../utils/RequestHandler.js";
+import BaseService from "../services/BaseService.js";
+import ConnectionManager from "../database/ConnectionManager.js";
 
 const requestHandler = new RequestHandler();
 
@@ -28,7 +29,7 @@ function handleAuthorizationError(res) {
 }
 
 async function verifyTokenInDatabase(req,token) {
-  const connection = await dbConnection.getConnection(
+  const connection = await ConnectionManager.getConnection(
     req.session.envConfig.database
   );
   const baseService = new BaseService(connection);
@@ -41,7 +42,7 @@ async function verifyTokenInDatabase(req,token) {
 }
 
 function verifyJwtToken(token, secret, req, res, next) {
-  jwt.verify(token, secret, (err, decoded) => {
+  verify(token, secret, (err, decoded) => {
     if (err) {
       return requestHandler.throwError(
         res,
@@ -70,7 +71,7 @@ async function verifyAuthToken(req, res, next) {
       return res.status(401).json({ message });
     }
     // Verifies the token's secret and expiration
-    verifyJwtToken(token, config.auth.jwt_secret, req, res, next);
+    verifyJwtToken(token, appconfig.auth.jwt_secret, req, res, next);
   } catch (err) {
     requestHandler.sendError(req, res, err);
   }
@@ -100,14 +101,12 @@ async function verifyRefreshToken(req, res, next) {
         .json({ code: 401, message: "Refresh token expired" });
     }
     // Verifies the refresh token's secret and expiration
-    verifyJwtToken(token, config.auth.refresh_token_secret, req, res, next);
+    verifyJwtToken(token, appconfig.auth.refresh_token_secret, req, res, next);
   } catch (err) {
     requestHandler.sendError(req, res, err);
   }
 }
 
-module.exports = {
-  getJwtToken: getTokenFromHeader,
-  isAuthenticated: verifyAuthToken,
-  isRefreshTokenAuthenticated: verifyRefreshToken,
-};
+export const getJwtToken = getTokenFromHeader;
+export const isAuthenticated = verifyAuthToken;
+export const isRefreshTokenAuthenticated = verifyRefreshToken;

@@ -1,8 +1,8 @@
-const express = require("express");
-const router = express.Router();
-const { languageMiddleware } = require("../../middleware/languageMiddleware");
-const OrderController = require("../../controllers/OrderController");
-const auth = require("../../middleware/auth"); //middleware for varifying user
+import { Router } from "express";
+const router = Router();
+import { languageMiddleware } from "../../middleware/languageMiddleware.js";
+import OrderController from "../../controllers/OrderController.js";
+import { isAuthenticated } from "../../middleware/auth.js"; //middleware for varifying user
 
 router.post("/saveOrder", languageMiddleware, (req, res) =>
   new OrderController(req, res).saveOrder()
@@ -15,11 +15,11 @@ router.get("/status/:orderId", languageMiddleware, (req, res) =>
 router.put(
   "/orders/:orderId/:status",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   (req, res) => new OrderController(req, res).updateStatus()
 );
-router.get("/AllOrders", languageMiddleware, auth.isAuthenticated, (req, res) =>
+router.get("/AllOrders", languageMiddleware, isAuthenticated, (req, res) =>
   new OrderController(req, res).getOrderByStatusOrAll()
 );
 
-module.exports = router;
+export default router;

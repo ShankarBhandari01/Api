@@ -1,10 +1,11 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../../middleware/auth");
-const { languageMiddleware } = require("../../middleware/languageMiddleware");
-const checkAccess = require("../../middleware/CheckAccess");
-const fileupload = require("../../middleware/fileUploadMiddleware");
-const CompanyController = require("../../controllers/CompanyController");
+import { Router } from "express";
+import { isAuthenticated } from "../../middleware/auth.js";
+import { languageMiddleware } from "../../middleware/languageMiddleware.js";
+import checkAccess from "../../middleware/CheckAccess.js";
+import fileupload from "../../middleware/fileUploadMiddleware.js";
+import CompanyController from "../../controllers/CompanyController.js";
+
+const router = Router();
 // GET company info
 router.get("/getCompanyInfo", languageMiddleware, (req, res) => {
   new CompanyController(req, res).getCompanyInfo();
@@ -22,7 +23,7 @@ router.post(
 router.post(
   "/addTable",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/addTable", "write"),
   (req, res) => new CompanyController(req, res).addTable()
 );
@@ -30,7 +31,7 @@ router.post(
 router.post(
   "/routeMenu",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/addMenu", "write"),
   (req, res) => new CompanyController(req, res).addMenu()
 );
@@ -38,14 +39,14 @@ router.post(
 router.get(
   "/routeMenu",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/menus", "read"),
   (req, res) => new CompanyController(req, res).getMenus()
 );
 router.put(
   "/routeMenu/:id",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/menus", "update"),
   (req, res) => new CompanyController(req, res).updateMenu()
 );
@@ -53,7 +54,7 @@ router.put(
 router.delete(
   "/routeMenu/:id",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/menus", "delete"),
   (req, res) => new CompanyController(req, res).deleteMenu()
 );
@@ -61,7 +62,7 @@ router.delete(
 router.post(
   "/addRole",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/addRole", "write"),
   (req, res) => new CompanyController(req, res).addRole()
 );
@@ -69,7 +70,7 @@ router.post(
 router.get(
   "/roles",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/roles", "read"),
   (req, res) => new CompanyController(req, res).getRoles()
 );
@@ -77,7 +78,7 @@ router.get(
 router.put(
   "/roles/:id",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/roles", "update"),
   (req, res) => new CompanyController(req, res).updateRole()
 );
@@ -85,7 +86,7 @@ router.put(
 router.delete(
   "/roles/:id",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   checkAccess("/roles", "detele"),
   (req, res) => new CompanyController(req, res).deleteRole()
 );
@@ -95,22 +96,22 @@ router.delete(
 router.get(
   "/notification",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   (req, res) => new CompanyController(req, res).getNotifications()
 );
 // PUT notification
 router.put(
   "/notification/:id",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   (req, res) => new CompanyController(req, res).updateNotification()
 );
 // DELETE notification
 router.delete(
   "/notification/:id",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   (req, res) => new CompanyController(req, res).deleteNotification()
 );
 
-module.exports = router;
+export default router;

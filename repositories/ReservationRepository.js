@@ -1,6 +1,6 @@
-const BaseRepo = require("./BaseRepository");
-const { DatabaseError } = require("../utils/errors");
-const Reservation = require("../models/Reservation");
+import BaseRepo from "./BaseRepository.js";
+import { DatabaseError } from "../utils/errors.js";
+import Reservation from "../models/Reservation.js";
 
 class ReservationRepository extends BaseRepo {
   constructor(connection) {
@@ -65,4 +65,4 @@ class ReservationRepository extends BaseRepo {
   };
 }
 
-module.exports = ReservationRepository;
+export default ReservationRepository;

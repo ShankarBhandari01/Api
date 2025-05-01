@@ -1,16 +1,16 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../../middleware/auth");
-const { languageMiddleware } = require("../../middleware/languageMiddleware");
-const checkAccess = require("../../middleware/CheckAccess");
-const MenuController = require("../../controllers/MenuController");
+import { Router } from "express";
+const router = Router();
+import { isAuthenticated } from "../../middleware/auth.js";
+import { languageMiddleware } from "../../middleware/languageMiddleware.js";
+import checkAccess from "../../middleware/CheckAccess.js";
+import MenuController from "../../controllers/MenuController.js";
 
 // POST menu Types
-router.post("/menuType", languageMiddleware, auth.isAuthenticated, (req, res) =>
+router.post("/menuType", languageMiddleware, isAuthenticated, (req, res) =>
   new MenuController(req, res).addMenuTypes()
 );
 // POST add menu
-router.post("/addMenu", languageMiddleware, auth.isAuthenticated, (req, res) =>
+router.post("/addMenu", languageMiddleware, isAuthenticated, (req, res) =>
   new MenuController(req, res).addMenu()
 );
 router.get("/menuType", languageMiddleware, (req, res) =>
@@ -26,22 +26,22 @@ router.get("/menus/:id", languageMiddleware, (req, res) =>
   new MenuController(req, res).getMenu()
 );
 // PUT update menu
-router.put("/menus/:id", languageMiddleware, auth.isAuthenticated, (req, res) =>
+router.put("/menus/:id", languageMiddleware, isAuthenticated, (req, res) =>
   new MenuController(req, res).updateMenu()
 );
 // DELETE menu
 router.delete(
   "/menus/:id",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   (req, res) => new MenuController(req, res).deleteMenu()
 );
 // DELETE menu type
 router.delete(
   "/menuType/:id",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   (req, res) => new MenuController(req, res).deleteMenuType()
 );
 
-module.exports = router;
+export default router;

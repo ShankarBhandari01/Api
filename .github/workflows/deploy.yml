@@ -3,7 +3,11 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - master 
+      - master
+
+permissions:
+  contents: read # just enough to clone the repo
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,8 +24,9 @@ jobs:
       - name: Deploy to VPS
         run: |
           ssh -o StrictHostKeyChecking=no shankar@82.25.101.68 << 'EOF'
+            set -e
             cd /home/shankar/Api
             git pull origin master
-            npm install
-            sudo /bin/systemctl restart my-api
+            npm ci --omit=dev
+            sudo systemctl restart my-api
           EOF

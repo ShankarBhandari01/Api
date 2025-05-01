@@ -1,6 +1,6 @@
-const { CompanyDTO } = require("../dtos/CompanyDTO");
+import { CompanyDTO } from "../dtos/CompanyDTO.js";
 // Helper function to map request data to CompanyDTO
-function mapToCompanyDTO(req) {
+export function mapToCompanyDTO(req) {
   const { body, files } = req;
 
   // Set default language
@@ -44,4 +44,3 @@ function parseLangField(field) {
   return field;
 }
 
-module.exports = { mapToCompanyDTO };

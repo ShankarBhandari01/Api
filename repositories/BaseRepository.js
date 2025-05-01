@@ -1,8 +1,8 @@
-const accessToken = require("../models/Token");
-const userlog = require("../models/UserloginLog");
-const Logger = require("../utils/logger");
-const { DatabaseError } = require("../utils/errors");
-const FcmToken = require("../models/FcmToken");
+import accessToken from "../models/Token.js";
+import userlog from "../models/UserloginLog.js";
+import Logger from "../utils/logger.js";
+import { DatabaseError } from "../utils/errors.js";
+import FcmToken from "../models/FcmToken.js";
 
 class BaseRepository extends Logger {
   constructor(connection) {
@@ -139,4 +139,4 @@ class BaseRepository extends Logger {
   };
 }
 
-module.exports = BaseRepository;
+export default BaseRepository;

@@ -1,5 +1,4 @@
-const { extend } = require("lodash").extend;
-class DatabaseError extends Error {
+export class DatabaseError extends Error {
   constructor(message) {
     super(message);
     this.name = "DatabaseError";
@@ -7,7 +6,7 @@ class DatabaseError extends Error {
   }
 }
 
-class UpdateError extends Error {
+export class UpdateError extends Error {
   constructor(message) {
     super(message);
     this.name = "updateError";
@@ -15,4 +14,4 @@ class UpdateError extends Error {
   }
 }
 
-module.exports = { DatabaseError, UpdateError };
+export default { DatabaseError, UpdateError };

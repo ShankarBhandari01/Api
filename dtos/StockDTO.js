@@ -34,4 +34,4 @@ class StockDTO {
   }
 }
 
-module.exports = StockDTO;
+export default StockDTO;

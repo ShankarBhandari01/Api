@@ -1,7 +1,5 @@
-const BaseService = require("./BaseService");
-const {
-  SubscriberRepository,
-} = require("../repositories/SubscriberRepository");
+import BaseService from "./BaseService.js";
+import SubscriberRepository from "../repositories/SubscriberRepository.js";
 
 class SubscriberService extends BaseService {
   constructor(connection) {
@@ -47,4 +45,4 @@ class SubscriberService extends BaseService {
   };
 }
 
-module.exports = { SubscriberService };
+export default SubscriberService;

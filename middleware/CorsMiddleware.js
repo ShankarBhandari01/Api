@@ -1,8 +1,8 @@
 //middlewares/cors.middleware.js
-const cors = require("cors");
-const config = require('../config/appconfig')
+import cors from "cors";
+import appconfig from '../config/appconfig.js';
 
-const whitelist = config.app.corsPolicies?.split(',') || [];
+const whitelist = appconfig.app.corsPolicies?.split(',') || [];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -22,4 +22,4 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-module.exports = cors(corsOptions);
+export default cors(corsOptions);

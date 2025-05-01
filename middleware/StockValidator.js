@@ -1,6 +1,6 @@
-const { check, validationResult } = require('express-validator')
+import { check, validationResult } from 'express-validator';
 
-exports.stockvalidator = [
+export const stockvalidator = [
     check('stockName')
         .trim()
         .not()

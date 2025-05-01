@@ -1,9 +1,9 @@
-const FileUpload = require("../utils/FileUpload");
-const config = require("../config/appconfig");
+import FileUpload from "../utils/FileUpload.js";
+import appconfig from "../config/appconfig.js";
 
 // File filter function
 const fileFilter = (req, file, cb) => {
-  if (config.file.ALLOWED_FILE_TYPES.includes(file.mimetype)) {
+  if (appconfig.file.ALLOWED_FILE_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(
@@ -31,4 +31,4 @@ const uploadStock = new FileUpload({
   fields: [{ name: "image", maxCount: 1 }],
 }).middleware();
 
-module.exports = { uploadImage, uploadStock };
+export default { uploadImage, uploadStock };

@@ -1,12 +1,12 @@
-const StockDTO = require("../dtos/StockDTO");
-const CategoryDTO = require("../dtos/CategoryDTO");
-const RequestHandler = require("../utils/RequestHandler");
-const dbConnection = require("../database/ConnectionManager");
-const { StockService } = require("../services/stockService");
+import StockDTO from "../dtos/StockDTO.js";
+import CategoryDTO from "../dtos/CategoryDTO.js";
+import RequestHandler from "../utils/RequestHandler.js";
+import dbConnection from "../database/ConnectionManager.js";
+import StockService  from "../services/stockService.js";
 const requestHandler = new RequestHandler();
 
 //add menus items
-exports.saveStock = async (req, res) => {
+export async function saveStock(req, res) {
   try {
     const lang = req.session.lang || "en"; // Default to English
     //create Dto
@@ -26,9 +26,9 @@ exports.saveStock = async (req, res) => {
   } catch (err) {
     return requestHandler.sendError(req, res, err);
   }
-};
+}
 
-exports.addCategory = async (req, res) => {
+export async function addCategory(req, res) {
   try {
     const lang = req.session.lang || "en"; // Default to English
     // creating dto
@@ -44,9 +44,9 @@ exports.addCategory = async (req, res) => {
   } catch (err) {
     return requestHandler.sendError(req, res, err);
   }
-};
+}
 
-exports.getAllCategory = async (req, res) => {
+export async function getAllCategory(req, res) {
   try {
     const lang = req.session.lang || "en"; // Default to English
     // Get pagination parameters from query
@@ -68,9 +68,9 @@ exports.getAllCategory = async (req, res) => {
   } catch (err) {
     return requestHandler.sendError(req, res, err);
   } // end try catch
-};
+}
 // get all the menus items
-exports.getAllStock = async (req, res) => {
+export async function getAllStock(req, res) {
   try {
     // Set the language from query or default to 'en'
     const lang = req.session.lang || "en"; // Default to English
@@ -138,7 +138,7 @@ exports.getAllStock = async (req, res) => {
   } catch (err) {
     return requestHandler.sendError(req, res, err);
   }
-};
+}
 
 const updateImageUrl = (item, req) => ({
   ...item,

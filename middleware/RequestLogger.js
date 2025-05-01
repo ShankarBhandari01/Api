@@ -1,6 +1,8 @@
-const { v4: uuid } = require("uuid");
-const Logger = require("../utils/logger");
-const lodash = require("lodash");
+import uuidPkg from 'uuid';
+const { v4: uuid } = uuidPkg;
+import Logger from "../utils/logger.js";
+import pkg from 'lodash';
+const { omit } = pkg;
 const logger = new Logger();
 const requestLogger = (req, res, next) => {
   // Generate a unique identifier for each request
@@ -13,7 +15,7 @@ const requestLogger = (req, res, next) => {
   let bodyLog = "Body not available";
   try {
     // Remove password field if it exists
-    const sanitizedBody = lodash.omit(req.body, ["password"]);
+    const sanitizedBody = omit(req.body, ["password"]);
     bodyLog = JSON.stringify(sanitizedBody);
   } catch (error) {
     bodyLog = "Failed to parse body";
@@ -47,4 +49,4 @@ const requestLogger = (req, res, next) => {
   next();
 };
 
-module.exports = requestLogger;
+export default requestLogger;

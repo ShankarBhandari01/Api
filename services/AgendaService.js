@@ -1,11 +1,9 @@
-const Agenda = require("agenda");
-const { EmailService } = require("./EmailService");
-const {
-  SubscriberRepository,
-} = require("../repositories/SubscriberRepository");
-const config = require("../config/appconfig");
-const path = require("path");
-const fs = require("fs");
+import Agenda from "agenda";
+import EmailService from "./EmailService.js";
+import SubscriberRepository from "../repositories/SubscriberRepository.js";
+import appconfig from "../config/appconfig.js";
+import { join } from "path";
+import { readFileSync } from "fs";
 
 class AgendaService extends EmailService {
   constructor(connection) {
@@ -15,8 +13,8 @@ class AgendaService extends EmailService {
     this.subscriberRepository = new SubscriberRepository(connection);
   }
   getConnectionString = () => {
-    const configPath = path.join(__dirname, "..", "config", "config.json");
-    const config = JSON.parse(fs.readFileSync(configPath))[
+    const configPath = join(__dirname, "..", "config", "config.json");
+    const config = JSON.parse(readFileSync(configPath))[
       process.env.NODE_ENV || "development"
     ];
     const uri = `mongodb+srv://${config.username}:${config.password}@${config.host}/${config.database}?retryWrites=true&w=majority&appName=Cluster0`;
@@ -153,13 +151,13 @@ class AgendaService extends EmailService {
 
     // Schedule the jobs
     await this.agenda.every(
-      config.agenda.CAMPAIGN_EMAIL_SCHEDULE,
+      appconfig.agenda.CAMPAIGN_EMAIL_SCHEDULE,
       "sendCampaignEmail"
     );
     this.log("Campaign email job scheduled.", "info");
 
     await this.agenda.every(
-      config.agenda.EXPIRE_CAMPAIGN_SCHEDULE,
+      appconfig.agenda.EXPIRE_CAMPAIGN_SCHEDULE,
       "expire old campaigns"
     );
     this.log("Expire old campaigns job scheduled.", "info");
@@ -170,4 +168,4 @@ class AgendaService extends EmailService {
   }
 }
 
-module.exports = AgendaService;
+export default AgendaService;

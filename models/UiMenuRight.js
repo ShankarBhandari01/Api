@@ -1,10 +1,10 @@
 // models/UiMenuRight.js
-const mongoose = require("mongoose");
+import { Schema } from "mongoose";
 
-const MenuSchema = new mongoose.Schema({
+const MenuSchema = new Schema({
   name: { type: String, required: true }, // e.g., "Campaigns"
   path: { type: String, required: true }, // e.g., "/campaigns"
-  parent: { type: mongoose.Schema.Types.ObjectId, ref: "UiMenuRight", default: null },
+  parent: { type: Schema.Types.ObjectId, ref: "UiMenuRight", default: null },
   icon: { type: String },
   order: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
@@ -13,4 +13,4 @@ const MenuSchema = new mongoose.Schema({
 MenuSchema.index({ path: 1 }, { unique: true });
 MenuSchema.index({ parent: 1 });
 
-module.exports = (conn) => conn.model("UiMenuRight", MenuSchema);
+export default (conn) => conn.model("UiMenuRight", MenuSchema);

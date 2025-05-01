@@ -1,6 +1,6 @@
-const StockRepository = require("../repositories/stockRepo");
-const BaseService = require("./BaseService");
-const StockModels = require("../models/Stocks");
+import StockRepository from "../repositories/stockRepo.js";
+import BaseService from "./BaseService.js";
+import StockModels from "../models/Stocks.js";
 
 class StockService extends BaseService {
   constructor(connection) {
@@ -210,6 +210,4 @@ class StockService extends BaseService {
   };
 }
 
-module.exports = {
-  StockService,
-};
+export default StockService;

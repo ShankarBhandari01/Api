@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
-const Logger = require("../utils/logger");
-const { DatabaseError } = require("../utils/errors");
-const logger = new Logger();
-const BaseRepo = require("./BaseRepository");
-const userTable = require("../models/UserModel");
-const imageModel = require("../models/Image");
-const Menu = require("../models/UiMenuRight");
-const Role = require("../models/Role");
+import { Model } from "mongoose";
+import Logger from "../utils/logger.js";
+import { DatabaseError } from "../utils/errors.js";
+import BaseRepo from "./BaseRepository.js";
+import userTable from "../models/UserModel.js";
+import imageModel from "../models/Image.js";
+import Menu from "../models/UiMenuRight.js";
+import Role from "../models/Role.js";
 
+const logger = new Logger();
 class UserRepository extends BaseRepo {
   constructor(connection) {
     super(connection);
@@ -72,7 +72,7 @@ class UserRepository extends BaseRepo {
         return null;
       }
 
-      if (user.profilePic instanceof mongoose.Model) {
+      if (user.profilePic instanceof Model) {
         // Convert Binary to Base64
         user.profileBase64 = `data:${
           user.profilePic.contentType
@@ -89,6 +89,4 @@ class UserRepository extends BaseRepo {
   };
 }
 
-module.exports = {
-  UserRepository,
-};
+export default UserRepository;

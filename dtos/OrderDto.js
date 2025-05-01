@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import { Types } from "mongoose";
 
 class OrderDTO {
   constructor({ customer, items, totalAmount }) {
@@ -8,7 +8,7 @@ class OrderDTO {
   }
 
   isValidObjectId(id) {
-    return mongoose.Types.ObjectId.isValid(id);
+    return Types.ObjectId.isValid(id);
   }
 
   validate() {
@@ -56,4 +56,4 @@ class OrderDTO {
   }
 }
 
-module.exports = OrderDTO;
+export default OrderDTO;

@@ -1,21 +1,35 @@
-const express = require("express");
-const session = require("express-session");
-const MemoryStore = require("memorystore")(session);
-const compression = require("compression");
-const config = require("../config/appconfig.js");
-const Logger = require("../utils/logger.js");
-const path = require("path");
-const { loggingMiddleware } = require("../middleware/LogMiddleware.js");
-const { languageMiddleware } = require("../middleware/languageMiddleware");
-const corsMiddleware = require("../middleware/CorsMiddleware.js");
-const requestLogger = require("../middleware/RequestLogger");
-const EmailMarketingJobManager = require("../jobs/EmailMarketingJobManager.js");
+import express, { json, urlencoded, static as expressStatic } from "express";
+import session from "express-session";
+import methodOverride from "method-override";
+import memorystore from "memorystore";
+import compression from "compression";
+import config from "../config/appconfig.js";
+import Logger from "../utils/logger.js";
+import { loggingMiddleware } from "../middleware/LogMiddleware.js";
+import { languageMiddleware } from "../middleware/languageMiddleware.js";
+import corsMiddleware from "../middleware/CorsMiddleware.js";
+import requestLogger from "../middleware/RequestLogger.js";
+import EmailMarketingJobManager from "../jobs/EmailMarketingJobManager.js";
+import index from "../router/index.js";
+import rateLimit from "../middleware/rateLimiter.js";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import cookieParser from "cookie-parser";
+import {
+  csrfTokenMiddleware,
+  csrfProtection,
+} from "../middleware/csrfMiddleware.js";
 
 const app = express();
 const logger = new Logger();
 const job = new EmailMarketingJobManager();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 app.set("config", config); // the system configrations
+// the system configrations
+const MemoryStore = memorystore(session);
 // user session
 app.use(
   session({
@@ -33,21 +47,27 @@ app.use(
   })
 );
 
+// Middleware to parse cookies
+// This is important for CSRF protection
+app.use(cookieParser());
 //app.set("db", require("../database/ConnectionManager.js"));
 app.set("port", process.env.DEV_APP_PORT);
 app.use(compression());
-app.use(require("method-override")());
+app.use(methodOverride());
 // Apply CORS middleware globally
 app.use(corsMiddleware);
-app.use(express.json());
+app.use(json());
 // Middleware to parse urlencoded form data
-app.use(express.urlencoded({ extended: true }));
+app.use(urlencoded({ extended: true }));
 //the request logging middleware
 app.use(requestLogger);
 // the language middleware
 app.use(languageMiddleware);
 // Middleware to log API requests and responses
 app.use(loggingMiddleware);
+// rate limiting middleware apply globally
+app.use(rateLimit);
+
 //test url
 app.get("/", (req, res) => res.send("Hello, world!"));
 // Register the Email Marketing Job when the server starts
@@ -55,13 +75,17 @@ app.get("/", (req, res) => res.send("Hello, world!"));
 //access the upload endpoint for images
 app.use(
   "/public",
-  express.static(path.join(__dirname, "../public/images"), {
+  expressStatic(join(__dirname, "../public/images"), {
     dotfiles: "ignore", // Don't expose files that start with '.'
     etag: false, // Disable etags to improve performance
   })
 );
 //api routers
-app.use(require("../router/index.js"));
+app.use(index);
+// CSRF Protection Middleware for sensitive routes
+app.use(csrfProtection);
+// CSRF Token Middleware - Exposes CSRF token to frontend
+app.use(csrfTokenMiddleware);
 // 404 handle
 app.use((req, res, next) => {
   var message = "the url you are trying to reach is not hosted on our server";
@@ -77,4 +101,4 @@ app.use((req, res, next) => {
   return;
 });
 // export app
-module.exports = app;
+export default app;

@@ -1,5 +1,5 @@
 // Opening Hour DTO class
-class OpeningHourDTO {
+export class OpeningHourDTO {
   constructor(lang, hours) {
     this.lang = lang; // Language code (e.g., 'en', 'fi')
     this.hours = hours; // Hours object { monday, tuesday, ..., sunday }
@@ -7,7 +7,7 @@ class OpeningHourDTO {
 }
 
 // Company DTO class
-class CompanyDTO {
+export class CompanyDTO {
   constructor(
     name,
     logo,
@@ -51,5 +51,3 @@ class CompanyDTO {
     );
   }
 }
-
-module.exports = { CompanyDTO, OpeningHourDTO };

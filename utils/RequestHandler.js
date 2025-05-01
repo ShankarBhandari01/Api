@@ -1,5 +1,6 @@
-const _ = require("lodash");
-const Logger = require("../utils/logger");
+import pkg from 'lodash';
+const { isNull, isUndefined } = pkg;
+import Logger from "../utils/logger.js";
 
 class RequestHandler extends Logger {
   throwIf(res, fn, status, errorType, errorMessage) {
@@ -13,7 +14,7 @@ class RequestHandler extends Logger {
     if (err) {
       this.log(`error in validating request : ${errorMessage}`, "warn");
     }
-    return !_.isNull(err)
+    return !isNull(err)
       ? this.throwError(status, errorType, errorMessage)()
       : "";
   }
@@ -47,7 +48,7 @@ class RequestHandler extends Logger {
       "info"
     );
     return (data, globalData) => {
-      if (_.isUndefined(status)) {
+      if (isUndefined(status)) {
         status = 200;
       }
       res.status(status).json({
@@ -74,4 +75,4 @@ class RequestHandler extends Logger {
     });
   }
 }
-module.exports = RequestHandler;
+export default RequestHandler;

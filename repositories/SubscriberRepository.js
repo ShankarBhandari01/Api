@@ -1,7 +1,6 @@
-const BaseRepository = require("./BaseRepository");
-const { DatabaseError } = require("../utils/errors");
-const Subscriber = require("../models/SubscriberModel");
-const Campaign = require("../models/CampaignModel");
+import BaseRepository from "./BaseRepository.js";
+import Subscriber from "../models/SubscriberModel.js";
+import Campaign from "../models/CampaignModel.js";
 
 class SubscriberRepository extends BaseRepository {
   constructor(connection) {
@@ -96,4 +95,4 @@ class SubscriberRepository extends BaseRepository {
   };
 }
 
-module.exports = { SubscriberRepository };
+export default SubscriberRepository;

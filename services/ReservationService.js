@@ -1,5 +1,5 @@
-const BaseService = require("./BaseService");
-const ReservationRepository = require("../repositories/ReservationRepository");
+import BaseService from "./BaseService.js";
+import ReservationRepository from "../repositories/ReservationRepository.js";
 
 class ReservationService extends BaseService {
   constructor(connection) {
@@ -53,4 +53,4 @@ class ReservationService extends BaseService {
   };
 }
 
-module.exports = ReservationService;
+export default ReservationService;

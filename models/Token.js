@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+import { Schema } from "mongoose";
 
 // Define the token schema
-const tokenSchema = new mongoose.Schema(
+const tokenSchema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -39,4 +39,4 @@ tokenSchema.pre("save", function (next) {
   next();
 });
 
-module.exports = (connection) => connection.model("Token", tokenSchema);
+export default (connection) => connection.model("Token", tokenSchema);

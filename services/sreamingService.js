@@ -1,4 +1,4 @@
-const BaseService = require("./BaseService");
+import BaseService from "./BaseService";
 
 class StreamingService extends BaseService {
   getVideoPath = () => {
@@ -6,6 +6,4 @@ class StreamingService extends BaseService {
   };
 }
 
-module.exports = {
-  StreamingService,
-};
+export default StreamingService;

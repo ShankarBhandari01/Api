@@ -1,5 +1,5 @@
-const BaseService = require("./BaseService");
-const MenuRepository = require("../repositories/MenuRepository");
+import BaseService from "./BaseService.js";
+import MenuRepository from "../repositories/MenuRepository.js";
 
 class MenuService extends BaseService {
   constructor(connection) {
@@ -63,4 +63,4 @@ class MenuService extends BaseService {
     await this.handleRepositoryCall(this.menuRepository.deleteMenuType, id);
 }
 
-module.exports = { MenuService };
+export default  MenuService;

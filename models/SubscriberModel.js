@@ -1,9 +1,9 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose";
 
 const subscriberSchema = new Schema({
   email: { type: String, required: true, unique: true },
   subscribedAt: { type: Date, default: Date.now },
 });
 
-module.exports = (connection) =>
+export default (connection) =>
   connection.model("Subscriber", subscriberSchema);

@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+import { Schema, model } from "mongoose";
 
 const ImageSchema = new Schema({
   url: {
@@ -19,4 +19,4 @@ const ImageSchema = new Schema({
   uploadedAt: { type: Date, default: Date.now, index: true }, // Timestamp
 });
 
-module.exports = (connection) => connection.model("Image", ImageSchema);
+export default (connection) => connection.model("Image", ImageSchema);
