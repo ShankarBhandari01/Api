@@ -27,6 +27,7 @@ const job = new EmailMarketingJobManager();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+app.set('trust proxy', 1); // trust first proxy
 app.set("config", config); // the system configrations
 // the system configrations
 const MemoryStore = memorystore(session);
