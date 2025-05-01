@@ -167,6 +167,4 @@ class CompanyService extends BaseService {
     await this.handleRepositoryCall(this.companyRepository.addTable, table);
 }
 
-export default {
-  CompanyService,
-};
+export default CompanyService;

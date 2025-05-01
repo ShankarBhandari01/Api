@@ -1,4 +1,4 @@
-import express, { json, urlencoded ,static as expressStatic} from "express";
+import express, { json, urlencoded, static as expressStatic } from "express";
 import session from "express-session";
 import methodOverride from "method-override";
 import memorystore from "memorystore";
@@ -12,14 +12,21 @@ import requestLogger from "../middleware/RequestLogger.js";
 import EmailMarketingJobManager from "../jobs/EmailMarketingJobManager.js";
 import index from "../router/index.js";
 import rateLimit from "../middleware/rateLimiter.js";
-import { fileURLToPath } from 'url';  
-import { dirname, join } from 'path'; 
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import cookieParser from "cookie-parser";
+import {
+  csrfTokenMiddleware,
+  csrfProtection,
+} from "../middleware/csrfMiddleware.js";
+
 const app = express();
 const logger = new Logger();
-const __filename = fileURLToPath(import.meta.url); 
+const job = new EmailMarketingJobManager();
+
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const job = new EmailMarketingJobManager();
 app.set("config", config); // the system configrations
 // the system configrations
 const MemoryStore = memorystore(session);
@@ -40,6 +47,9 @@ app.use(
   })
 );
 
+// Middleware to parse cookies
+// This is important for CSRF protection
+app.use(cookieParser());
 //app.set("db", require("../database/ConnectionManager.js"));
 app.set("port", process.env.DEV_APP_PORT);
 app.use(compression());
@@ -72,7 +82,10 @@ app.use(
 );
 //api routers
 app.use(index);
-
+// CSRF Protection Middleware for sensitive routes
+app.use(csrfProtection);
+// CSRF Token Middleware - Exposes CSRF token to frontend
+app.use(csrfTokenMiddleware);
 // 404 handle
 app.use((req, res, next) => {
   var message = "the url you are trying to reach is not hosted on our server";

@@ -6,6 +6,4 @@ class StreamingService extends BaseService {
   };
 }
 
-export default {
-  StreamingService,
-};
+export default StreamingService;

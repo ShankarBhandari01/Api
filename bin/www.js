@@ -6,6 +6,7 @@
 import { createServer } from "http";
 import app from "../server/index.js";
 import Logger from "../utils/logger.js";
+import os from "os";
 const logger = new Logger();
 
 /**
@@ -68,7 +69,13 @@ function onError(error) {
  */
 function onListening() {
   const addr = server.address();
-  const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`;
+  const networkInterfaces = os.networkInterfaces();
+  const ipAddress = networkInterfaces['eth0'] ? networkInterfaces['eth0'][0].address : 'localhost';
+
+  const bind =
+    typeof addr === "string"
+      ? `pipe ${addr}`
+      : `http://${ipAddress}:${addr.port}`;
 
   logger.log(`[App] Server started and listening on ${bind}`, "info");
 }

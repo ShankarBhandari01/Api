@@ -2,6 +2,8 @@ import BaseRepo from "./BaseRepository.js";
 import StockModels from "../models/Stocks.js";
 import MenuType from "../models/MenuType.js";
 import Menu from "../models/Menu.js";
+import pkg from 'lodash';
+const { escapeRegExp } = pkg;
 
 class MenuRepository extends BaseRepo {
   constructor(connection) {
@@ -102,11 +104,14 @@ class MenuRepository extends BaseRepo {
   };
 
   getMenuByType = async (menuData) => {
+    const escapedName = escapeRegExp(menuData.name);
+    const query = { name: { $regex: new RegExp(`^${escapedName}$`, "i") } };
+
     const existingMenu = await this.menu
       .findOne({
         menuType: menuData.menuType,
         "weekday.en": menuData.weekday.en,
-        name: { $regex: new RegExp(`^${menuData.name}$`, "i") },
+        name: { $regex: new RegExp(`^${query}$`, "i") },
       })
       .populate("menuType")
       .populate({

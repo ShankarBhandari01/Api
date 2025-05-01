@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import apiRoutes from './api/index.js';
-
+const apiVersion = process.env.API_VERSION;
 const router = Router();
-router.use('/api/v1', apiRoutes);
+router.use(`/api/${apiVersion}`, apiRoutes);
 
 export default router;
