@@ -1,13 +1,13 @@
-const fs = require('fs');
-const crypto = require('crypto');
-const dotenv = require('dotenv');
+import { readFile, writeFileSync } from 'fs';
+import { createDecipheriv } from 'crypto';
+import { config } from 'dotenv';
 
 const algorithm = 'aes-256-cbc';
 const password = 'your-encryption-password'; 
 
 // Function to decrypt the content
 function decrypt(text) {
-  const decipher = crypto.createDecipheriv(algorithm, password);
+  const decipher = createDecipheriv(algorithm, password);
   let decrypted = decipher.update(text, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
@@ -17,7 +17,7 @@ function decrypt(text) {
 function decryptEnvMiddleware(req, res, next) {
   try {
     // Read the encrypted .env.enc file
-    fs.readFile('./.env.enc', 'utf8', (err, data) => {
+    readFile('./.env.enc', 'utf8', (err, data) => {
       if (err) {
         console.log('Error reading encrypted .env file', err);
         return next(err);  // Proceed to error handling if reading fails
@@ -27,10 +27,10 @@ function decryptEnvMiddleware(req, res, next) {
       const decryptedData = decrypt(data);
 
       // Write the decrypted content to a temporary .env file
-      fs.writeFileSync('.env', decryptedData);
+      writeFileSync('.env', decryptedData);
 
       // Now load environment variables
-      dotenv.config();
+      config();
 
       next(); // Proceed to the next middleware or route handler
     });
@@ -40,4 +40,4 @@ function decryptEnvMiddleware(req, res, next) {
   }
 }
 
-module.exports = decryptEnvMiddleware;
+export default decryptEnvMiddleware;

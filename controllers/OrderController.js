@@ -1,6 +1,6 @@
-const BaseController = require("./BaseController");
-const { OrderService } = require("../services/OrderService");
-const FirebasePushNotificationService = require("../services/FirebasePushNotificationService");
+import BaseController from "./BaseController.js";
+import OrderService  from "../services/OrderService.js";
+import FirebasePushNotificationService from "../services/FirebasePushNotificationService.js";
 
 class OrderController extends BaseController {
   constructor(req, res) {
@@ -85,4 +85,4 @@ class OrderController extends BaseController {
     );
   };
 }
-module.exports = OrderController;
+export default OrderController;

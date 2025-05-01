@@ -1,9 +1,9 @@
-const BaseRepo = require("./BaseRepository");
-const reservationModels = require("../models/Reservation");
-const CompanyModel = require("../models/Company");
-const ImageSchema = require("../models/Image");
-const Menu = require("../models/UiMenuRight");
-const Role = require("../models/Role");
+import BaseRepo from "./BaseRepository.js";
+import reservationModels from "../models/Reservation.js";
+import CompanyModel from "../models/Company.js";
+import ImageSchema from "../models/Image.js";
+import Menu from "../models/UiMenuRight.js";
+import Role from "../models/Role.js";
 
 class CompanyRepository extends BaseRepo {
   constructor(connection) {
@@ -114,4 +114,4 @@ class CompanyRepository extends BaseRepo {
   };
 }
 
-module.exports = CompanyRepository;
+export default CompanyRepository;

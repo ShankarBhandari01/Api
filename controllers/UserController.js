@@ -1,5 +1,5 @@
-const { UserService } = require("../services/userService");
-const BaseController = require("./BaseController");
+import UserService from "../services/userService.js";
+import BaseController from "./BaseController.js";
 
 class UserController extends BaseController {
   constructor(req, res) {
@@ -76,4 +76,4 @@ class UserController extends BaseController {
   };
 }
 
-module.exports = UserController;
+export default UserController;

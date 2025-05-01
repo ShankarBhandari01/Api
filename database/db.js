@@ -1,9 +1,9 @@
-const mongoose = require('mongoose')
+import { set, connect } from 'mongoose';
 const env = process.env.NODE_ENV || 'development';
-const config = require(`${__dirname}/../config/config.json`)[env];
+const config = require(`${__dirname}/../config/config.json`)[env] ;
 
-mongoose.set("strictQuery", false);
-mongoose.connect(config.url,{
+set("strictQuery", false);
+connect(config.url,{
     user: config.username,
     pass: config.password,
     dbName: config.database

@@ -1,39 +1,40 @@
-const Joi = require("joi");
+import Joi from "joi";
 
-const customResourceResponse = {}; // create empty objectl
+export const customResourceResponse = {
+  success: {
+    statusCode: 200,
+    message: "Request has been processed successfully.",
+  },
+  reqCreated: {
+    statusCode: 201,
+    message: "User has been created successfully.",
+  },
+  recordNotFound: {
+    statusCode: 400,
+    message: "No record found.",
+  },
+  serverError: {
+    statusCode: 500,
+    message: "Internal server error.",
+  },
+  reqValidationError: {
+    statusCode: 422,
+    message: "Data validation failed.",
+  },
+  noUserFound: {
+    statusCode: 400,
+    message: "User does not exist. Please SignUp first.",
+  },
+  invalidCreadintial: {
+    statusCode: 400,
+    message: "Username or password incorrect",
+  },
+  invalidTokenAccess: {
+    statusCode: 401,
+    message: "Invalid Token access",
+  },
+};
 
-customResourceResponse.success = {
-  statusCode: 200,
-  message: "Request has been processed successfully.",
-};
-customResourceResponse.reqCreated = {
-  statusCode: 201,
-  message: "User has been created successfully.",
-};
-customResourceResponse.recordNotFound = {
-  statusCode: 400,
-  message: "No record found.",
-};
-customResourceResponse.serverError = {
-  statusCode: 500,
-  message: "Internal server error.",
-};
-customResourceResponse.reqValidationError = {
-  statusCode: 422,
-  message: "Data validation failed.",
-};
-customResourceResponse.noUserFound = {
-  statusCode: 400,
-  message: "User does not exist. Please SignUp first.",
-};
-customResourceResponse.invalidCreadintial = {
-  statusCode: 400,
-  message: "Username or password incorrect",
-};
-customResourceResponse.invalidTokenAccess = {
-  statusCode: 401,
-  message: "Invalid Token access",
-};
 
 // Define the Joi schema for login
 const loginSchema = Joi.object({
@@ -149,8 +150,7 @@ const campaignSchema = Joi.object({
   }),
 }).unknown(true);
 
-module.exports = {
-  customResourceResponse,
+export default {
   loginSchema,
   userSchema,
   reservationValidationSchema,

@@ -3,15 +3,15 @@
 /**
  * Module dependencies.
  */
-const http = require('http');
-const app = require('../server/index');
-const Logger = require('../utils/logger');
+import { createServer } from "http";
+import app from "../server/index.js";
+import Logger from "../utils/logger.js";
 const logger = new Logger();
 
 /**
  * Create HTTP server.
  */
-const server = http.createServer(app);
+const server = createServer(app);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -35,27 +35,27 @@ function normalizePort(val) {
 /**
  * Get port from environment and store in Express.
  */
-const port = normalizePort(process.env.DEV_APP_PORT || '8080');
-app.set('port', port);
+const port = normalizePort(process.env.DEV_APP_PORT || "8080");
+app.set("port", port);
 
 /**
  * Event listener for HTTP server "error" event.
  */
 function onError(error) {
-  if (error.syscall !== 'listen') {
+  if (error.syscall !== "listen") {
     throw error;
   }
 
-  const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
+  const bind = typeof port === "string" ? `Pipe ${port}` : `Port ${port}`;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case 'EACCES':
-      logger.log(`${bind} requires elevated privileges`, 'error');
+    case "EACCES":
+      logger.log(`${bind} requires elevated privileges`, "error");
       process.exit(1);
       break;
-    case 'EADDRINUSE':
-      logger.log(`${bind} is already in use`, 'error');
+    case "EADDRINUSE":
+      logger.log(`${bind} is already in use`, "error");
       process.exit(1);
       break;
     default:
@@ -68,34 +68,34 @@ function onError(error) {
  */
 function onListening() {
   const addr = server.address();
-  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
+  const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`;
 
-  logger.log(`[App] Server started and listening on ${bind}`, 'info');
+  logger.log(`[App] Server started and listening on ${bind}`, "info");
 }
 
 /**
  * Graceful shutdown handler
  */
 function gracefulShutdown(signal) {
-  logger.log(`[App] Received ${signal}. Shutting down gracefully...`, 'info');
+  logger.log(`[App] Received ${signal}. Shutting down gracefully...`, "info");
 
   // Close any active database connection
-  const dbConnection = app.get('db');
+  const dbConnection = app.get("db");
   if (dbConnection && dbConnection.close) {
     dbConnection.close(() => {
-      logger.log("[App] Database connection closed successfully.", 'info');
+      logger.log("[App] Database connection closed successfully.", "info");
     });
   }
 
   // Close the HTTP server
   server.close(() => {
-    logger.log("[App] HTTP server closed successfully", 'info');
+    logger.log("[App] HTTP server closed successfully", "info");
     process.exit(0);
   });
 
   // Force shutdown if server does not close in time
   setTimeout(() => {
-    logger.log("[App] Forced shutdown due to timeout", 'error');
+    logger.log("[App] Forced shutdown due to timeout", "error");
     process.exit(1);
   }, 30000); // 30 seconds timeout
 }
@@ -103,25 +103,28 @@ function gracefulShutdown(signal) {
 /**
  * Listen on provided port, on all network interfaces.
  */
-logger.log(`[App] Running in ${process.env.NODE_ENV || 'development'} mode`, 'info');
+logger.log(
+  `[App] Running in ${process.env.NODE_ENV || "development"} mode`,
+  "info"
+);
 server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.on("error", onError);
+server.on("listening", onListening);
 
 // Graceful shutdown on SIGINT and SIGTERM signals
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 
 // Handle uncaught exceptions (for debugging)
-process.on('uncaughtException', (err) => {
-  logger.log(`[App] Uncaught Exception: ${err.message}`, 'error');
-  logger.log(err.stack, 'error');
+process.on("uncaughtException", (err) => {
+  logger.log(`[App] Uncaught Exception: ${err.message}`, "error");
+  logger.log(err.stack, "error");
   process.exit(1); // Exit with failure code
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  logger.log(`[App] Unhandled Promise Rejection: ${err.message}`, 'error');
-  logger.log(err.stack, 'error');
+process.on("unhandledRejection", (err) => {
+  logger.log(`[App] Unhandled Promise Rejection: ${err.message}`, "error");
+  logger.log(err.stack, "error");
   process.exit(1); // Exit with failure code
 });

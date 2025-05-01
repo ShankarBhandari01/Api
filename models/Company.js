@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+import { Schema, model } from "mongoose";
 
 const OpeningHourSchema = new Schema({
   weekdays: { type: String, required: true },
@@ -36,7 +36,7 @@ const CompanyScheme = new Schema({
   },
   openingHours: OpeningHourSchema,
 });
-module.exports = (connection) => {
+export default (connection) => {
   return {
     CompanyModel: connection.model("Company", CompanyScheme),
   };

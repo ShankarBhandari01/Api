@@ -1,11 +1,9 @@
-const express = require("express");
-const router = express.Router();
-const { languageMiddleware } = require("../../middleware/languageMiddleware");
-const { campaignSchemaValidation } = require("../../middleware/DataValidator");
-const {
-  SubscriberController,
-} = require("../../controllers/SubscriberController");
-const auth = require("../../middleware/auth");
+import { Router } from "express";
+const router = Router();
+import { languageMiddleware } from "../../middleware/languageMiddleware.js";
+import { campaignSchemaValidation } from "../../middleware/DataValidator.js";
+import SubscriberController from "../../controllers/SubscriberController.js";
+import { isAuthenticated } from "../../middleware/auth.js";
 
 // Endpoint to subscribe user
 router.post("/subscribe", languageMiddleware, (req, res) =>
@@ -20,8 +18,8 @@ router.post("/unsubscribe", languageMiddleware, (req, res) =>
 router.post(
   "/addCampaingn",
   languageMiddleware,
-  auth.isAuthenticated,
+  isAuthenticated,
   campaignSchemaValidation,
   (req, res) => new SubscriberController(req, res).addCampaingn()
 );
-module.exports = router;
+export default router;

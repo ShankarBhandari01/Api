@@ -1,4 +1,4 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose";
 const CampaingnScheme = new Schema({
   name: {
     en: { type: String, default: "new listed" },
@@ -33,4 +33,4 @@ const CampaingnScheme = new Schema({
     default: Date.now,
   },
 });
-module.exports = (connection) => connection.model("Campaign", CampaingnScheme);
+export default (connection) => connection.model("Campaign", CampaingnScheme);

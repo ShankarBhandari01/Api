@@ -1,10 +1,10 @@
 
-const { createLogger, format, transports } = require('winston');
-const fs = require('fs');
-const DailyRotate = require('winston-daily-rotate-file');
-const config = require('../config/appconfig');
+import { createLogger, format, transports } from 'winston';
+import { existsSync, mkdirSync } from 'fs';
+import DailyRotate from 'winston-daily-rotate-file';
+import appconfig from '../config/appconfig.js';
 
-const { env } = config.app;
+const { env } = appconfig.app;
 const logDir = 'log';
 
 let infoLogger;
@@ -14,8 +14,8 @@ let allLogger;
 
 class Logger {
 	constructor() {
-		if (!fs.existsSync(logDir)) {
-			fs.mkdirSync(logDir);
+		if (!existsSync(logDir)) {
+			mkdirSync(logDir);
 		}
 
 		infoLogger = createLogger({
@@ -144,4 +144,4 @@ class Logger {
 	}
 }
 
-module.exports = Logger;
+export default Logger;

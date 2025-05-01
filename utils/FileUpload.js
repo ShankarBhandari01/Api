@@ -1,7 +1,7 @@
-const multer = require("multer");
-const path = require("path");
-const config = require("../config/appconfig");
-const fs = require('fs');
+import multer, { memoryStorage, diskStorage } from "multer";
+import { extname } from "path";
+import appconfig from "../config/appconfig.js";
+import { existsSync, mkdirSync } from 'fs';
 
 class FileUpload {
   constructor(options) {
@@ -13,22 +13,22 @@ class FileUpload {
     } = options;
 
     // Ensure the upload directory exists
-    if (!fs.existsSync(config.file.uploadDir)) {
-      fs.mkdirSync(config.file.uploadDir, { recursive: true });
+    if (!existsSync(appconfig.file.uploadDir)) {
+      mkdirSync(appconfig.file.uploadDir, { recursive: true });
     }
 
     // Choose the storage method dynamically
     this.storage =
       storageType === "memory"
-        ? multer.memoryStorage()
-        : multer.diskStorage({
+        ? memoryStorage()
+        : diskStorage({
             destination: (req, file, cb) => {
-              cb(null, config.file.uploadDir);
+              cb(null, appconfig.file.uploadDir);
             },
             filename: (req, file, cb) => {
               const uniqueSuffix =
                 Date.now() + "-" + Math.round(Math.random() * 1e9);
-              cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
+              cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
             },
           });
 
@@ -45,4 +45,4 @@ class FileUpload {
     return this.upload; // Return multer middleware
   }
 }
-module.exports = FileUpload;  //  exporting the class
+export default FileUpload;  //  exporting the class

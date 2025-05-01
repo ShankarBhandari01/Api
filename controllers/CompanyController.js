@@ -1,7 +1,7 @@
-const { CompanyService } = require("../services/CompanyService");
-const FirebasePushNotificationService = require("../services/FirebasePushNotificationService");
-const { mapToCompanyDTO } = require("../helper/CompanyDTOHelper");
-const BaseController = require("./BaseController");
+import CompanyService from "../services/CompanyService.js";
+import FirebasePushNotificationService from "../services/FirebasePushNotificationService.js";
+import { mapToCompanyDTO } from "../helper/CompanyDTOHelper.js";
+import BaseController from "./BaseController.js";
 
 class CompanyController extends BaseController {
   constructor(req, res) {
@@ -121,4 +121,4 @@ class CompanyController extends BaseController {
   };
 }
 
-module.exports = CompanyController;
+export default CompanyController;

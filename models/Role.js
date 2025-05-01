@@ -1,13 +1,13 @@
 // models/Role.js
-const mongoose = require("mongoose");
+import { Schema } from "mongoose";
 
-const RoleSchema = new mongoose.Schema({
+const RoleSchema = new Schema({
   name: { type: String, required: true, unique: true }, // role name
   description: { type: String },
   menuRights: [
     {
       menu: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "UiMenuRight",
         required: true,
       },
@@ -22,4 +22,4 @@ RoleSchema.pre("save", function (next) {
   this.updatedAt = new Date();
   next();
 });
-module.exports = (conn) => conn.model("Role", RoleSchema);
+export default (conn) => conn.model("Role", RoleSchema);

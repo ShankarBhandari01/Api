@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
+import mongoose, { Schema as _Schema } from "mongoose";
 const { Schema } = mongoose;
-const crypto = require("crypto");
+import { randomBytes } from "crypto";
 // Helper function to generate alphanumeric IDs
 function generateAlphanumericId(prefix = "") {
-  return prefix + crypto.randomBytes(4).toString("hex").toUpperCase();
+  return prefix + randomBytes(4).toString("hex").toUpperCase();
 }
 // Reservation Model (Customer)
 let CustomerModel;
 // Order Model (Table)
 let OrderModel;
-module.exports = (connection) => {
+export default (connection) => {
   if (CustomerModel && OrderModel) {
     return { CustomerModel, OrderModel };
   }
@@ -39,13 +39,13 @@ module.exports = (connection) => {
         unique: true,
       },
       customer: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: _Schema.Types.ObjectId,
         ref: "Customer",
         required: true,
       },
       items: [
         {
-          item: { type: mongoose.Schema.Types.ObjectId, ref: "Stock" },
+          item: { type: _Schema.Types.ObjectId, ref: "Stock" },
           quantity: { type: Number, required: true },
           pricePerItem: { type: Number, required: true },
           totalPrice: { type: Number, required: true },

@@ -1,6 +1,6 @@
-const BaseRepo = require("./BaseRepository");
-const Orders = require("../models/Orders");
-const Products = require("../models/Stocks");
+import BaseRepo from "./BaseRepository.js";
+import Orders from "../models/Orders.js";
+import Products from "../models/Stocks.js";
 
 class OrderRespository extends BaseRepo {
   constructor(connection) {
@@ -161,4 +161,4 @@ class OrderRespository extends BaseRepo {
     }
   };
 }
-module.exports = OrderRespository;
+export default OrderRespository;

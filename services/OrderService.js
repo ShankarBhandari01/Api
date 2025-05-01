@@ -1,6 +1,6 @@
-const BaseService = require("./BaseService");
-const OrderRespository = require("../repositories/OrderRepository");
-const OrderDTO = require("../dtos/OrderDto");
+import BaseService from "./BaseService.js";
+import OrderRespository from "../repositories/OrderRepository.js";
+import OrderDTO from "../dtos/OrderDto.js";
 
 class OrderService extends BaseService {
   constructor(connection) {
@@ -128,4 +128,4 @@ class OrderService extends BaseService {
     return response;
   };
 }
-module.exports = { OrderService };
+export default OrderService;

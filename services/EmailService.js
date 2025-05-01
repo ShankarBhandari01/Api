@@ -1,8 +1,9 @@
-const nodemailer = require("nodemailer");
-const handlebars = require("handlebars");
-const fs = require("fs");
-const config = require("../config/appconfig");
-const BaseService = require("../services/BaseService");
+import { createTransport } from "nodemailer";
+import pkg from "handlebars";
+import { readFileSync } from "fs";
+import appconfig from "../config/appconfig.js";
+import BaseService from "../services/BaseService.js";
+const { compile } = pkg;
 
 class EmailService extends BaseService {
   constructor() {
@@ -14,12 +15,12 @@ class EmailService extends BaseService {
       marketingFi: "templates/marketingFi.html",
     };
     // Transporter configuration
-    this.transporter = nodemailer.createTransport({
+    this.transporter = createTransport({
       service: "gmail",
       secure: false,
       auth: {
-        user: config.sendgrid.from_email,
-        pass: config.sendgrid.gmail_pass,
+        user: appconfig.sendgrid.from_email,
+        pass: appconfig.sendgrid.gmail_pass,
       },
     });
   }
@@ -28,16 +29,16 @@ class EmailService extends BaseService {
   loadTemplate(lang, ismarketing = false) {
     let filePath;
     if (ismarketing) {
-      if(lang=="en"){
+      if (lang == "en") {
         filePath = this.templates["marketingEn"];
-      }else{
+      } else {
         filePath = this.templates["marketingFi"];
       }
     } else {
       filePath = this.templates[lang] || this.templates["en"];
     }
-    const template = fs.readFileSync(filePath, "utf-8");
-    return handlebars.compile(template);
+    const template = readFileSync(filePath, "utf-8");
+    return compile(template);
   }
 
   // Generic method to send email notifications
@@ -52,7 +53,7 @@ class EmailService extends BaseService {
     // Prepare the email content by injecting data into the template
     const htmlContent = template(templateData);
     const mailOptions = {
-      from: config.sendgrid.from_email,
+      from: appconfig.sendgrid.from_email,
       to: customer_email,
       subject: subject,
       html: htmlContent,
@@ -60,7 +61,7 @@ class EmailService extends BaseService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      this.log(`${subject} email sent successfully`,'info');
+      this.log(`${subject} email sent successfully`, "info");
     } catch (error) {
       this.log(`Error sending email:${error}`, "error");
     }
@@ -111,7 +112,8 @@ class EmailService extends BaseService {
   //Send a push notification
   async sendPushNotification(templateData) {
     //Determine the subject based on language
-    const subject = templateData.lang === "fi" ? "Uusi Ilmoitus" : "New Notification";
+    const subject =
+      templateData.lang === "fi" ? "Uusi Ilmoitus" : "New Notification";
     //Send the push notification email using the generic method
     await this.sendEmailNotification({
       customer_email: templateData.customer_email,
@@ -123,4 +125,4 @@ class EmailService extends BaseService {
   }
 }
 
-module.exports = { EmailService };
+export default EmailService;

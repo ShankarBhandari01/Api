@@ -1,8 +1,8 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose";
 let ReservationModel;
 let TableModel;
 
-module.exports = (connection) => {
+export default (connection) => {
   if (ReservationModel && TableModel) {
     return { ReservationModel, TableModel };
   }

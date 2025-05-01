@@ -1,5 +1,5 @@
 // middlewares/CheckAccess.js
-module.exports = (menuPath, requiredPermission) => {
+export default (menuPath, requiredPermission) => {
   return async (req, res, next) => {
     const role = req.session.user.role;
     if (!role) return res.status(403).json({ message: "Role not found." });

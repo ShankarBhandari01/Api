@@ -1,5 +1,5 @@
-const BaseRepository = require("./BaseRepository");
-const Notificaition = require("../models/Notification");
+import BaseRepository from "./BaseRepository.js";
+import Notificaition from "../models/Notification.js";
 class NotificationRepository extends BaseRepository {
   constructor(connection) {
     super(connection);
@@ -27,4 +27,4 @@ class NotificationRepository extends BaseRepository {
     await this.notification.findByIdAndDelete(notificationId);
   };
 }
-module.exports = NotificationRepository;
+export default NotificationRepository;

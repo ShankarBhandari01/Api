@@ -1,15 +1,10 @@
-const {
-  loginSchema,
-  userSchema,
-  reservationValidationSchema,
-  campaignSchema,
-} = require("../utils/constants");
-const RequestHandler = require("../utils/RequestHandler");
+import constants from "../utils/constants.js";
+import RequestHandler from "../utils/RequestHandler.js";
 const requestHandler = new RequestHandler();
 
 // Validation middleware using Joi
-exports.validateUser = (req, res, next) => {
-  const { error } = userSchema.validate(req.body, { abortEarly: false });
+export function validateUser(req, res, next) {
+  const { error } = constants.userSchema.validate(req.body, { abortEarly: false });
   if (error) {
     error.details.map((err) => ({
       field: err.path[0],
@@ -19,11 +14,11 @@ exports.validateUser = (req, res, next) => {
   }
 
   next();
-};
+}
 
 // Validation middleware
-exports.validateLogin = (req, res, next) => {
-  const { error } = loginSchema.validate(req.body, { abortEarly: false });
+export function validateLogin(req, res, next) {
+  const { error } = constants.loginSchema.validate(req.body, { abortEarly: false });
   if (error) {
     error.details.map((err) => ({
       field: err.path[0],
@@ -32,10 +27,10 @@ exports.validateLogin = (req, res, next) => {
     return requestHandler.sendError(req, res, error);
   }
   next();
-};
+}
 
-exports.reservationValidationSchema = (req, res, next) => {
-  const { error } = reservationValidationSchema.validate(req.body, {
+const _reservationValidationSchema = (req, res, next) => {
+  const { error } = constants.reservationValidationSchema.validate(req.body, {
     abortEarly: false,
   });
   if (error) {
@@ -47,9 +42,10 @@ exports.reservationValidationSchema = (req, res, next) => {
   }
   next();
 };
+export { _reservationValidationSchema as reservationValidationSchema };
 
-exports.campaignSchemaValidation = (req, res, next) => {
-  const { error } = campaignSchema.validate(req.body, {
+export function campaignSchemaValidation(req, res, next) {
+  const { error } = constants.campaignSchema.validate(req.body, {
     abortEarly: false,
   });
   if (error) {
@@ -60,4 +56,4 @@ exports.campaignSchemaValidation = (req, res, next) => {
     return requestHandler.sendError(req, res, error);
   }
   next();
-};
+}

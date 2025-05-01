@@ -1,7 +1,7 @@
-const BaseController = require("../controllers/BaseController");
-const ReservationService = require("../services/ReservationService");
-const FirebasePushNotificationService = require("../services/FirebasePushNotificationService");
-const { EmailService } = require("../services/EmailService");
+import BaseController from "../controllers/BaseController.js";
+import ReservationService from "../services/ReservationService.js";
+import FirebasePushNotificationService from "../services/FirebasePushNotificationService.js";
+import EmailService from "../services/EmailService.js";
 
 class ReservationController extends BaseController {
   constructor(req, res) {
@@ -53,4 +53,4 @@ class ReservationController extends BaseController {
   };
 }
 
-module.exports = ReservationController;
+export default ReservationController;

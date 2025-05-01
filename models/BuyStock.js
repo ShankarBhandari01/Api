@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose')
+import { Schema, model } from 'mongoose';
 //creating the BuyStock scheme 
 const buyStockScheme = new Schema({
     userID: {
@@ -35,4 +35,4 @@ const buyStockScheme = new Schema({
     }
 })
 // the models of the Stock scheme
-module.exports = model('BuyStock', buyStockScheme);
+export default model('BuyStock', buyStockScheme);

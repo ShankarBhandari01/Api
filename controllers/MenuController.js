@@ -1,5 +1,5 @@
-const BaseController = require("./BaseController");
-const { MenuService } = require("../services/MenuService");
+import BaseController from "./BaseController.js";
+import MenuService from "../services/MenuService.js";
 
 class MenuController extends BaseController {
   constructor(req, res) {
@@ -67,4 +67,4 @@ class MenuController extends BaseController {
     );
   };
 }
-module.exports = MenuController;
+export default MenuController;

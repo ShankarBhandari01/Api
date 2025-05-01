@@ -1,12 +1,22 @@
-const router = require("express").Router();
-//binding of route
-router.use(require("./stockroute"));
-router.use(require("./UserRoute"));
-router.use(require("../api/videoStramingRout"));
-router.use(require("./CompanyRoute"));
-router.use(require("./ReservationRoute"));
-router.use(require("./SubscriberRoute"));
-router.use(require("./OrderRoute"));
-router.use(require("./MenuRoute"));
+import { Router } from "express";
+import stockRoute from "./stockroute.js";
+import userRoute from "./UserRoute.js";
+import videoStreamingRoute from "../api/videoStramingRout.js";
+import companyRoute from "./CompanyRoute.js";
+import reservationRoute from "./ReservationRoute.js";
+import subscriberRoute from "./SubscriberRoute.js";
+import orderRoute from "./OrderRoute.js";
+import menuRoute from "./MenuRoute.js";
 
-module.exports = router;
+const router = Router();
+// binding of route
+router.use(stockRoute);
+router.use(userRoute);
+router.use(videoStreamingRoute);
+router.use(companyRoute);
+router.use(reservationRoute);
+router.use(subscriberRoute);
+router.use(orderRoute);
+router.use(menuRoute);
+
+export default router;

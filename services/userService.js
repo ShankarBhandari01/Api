@@ -1,8 +1,9 @@
-const bcrypt = require("bcrypt");
-const lodash = require("lodash");
-const BaseService = require("./BaseService");
-const { UserRepository } = require("../repositories/UserRepository");
-const CompanyRepository = require("../repositories/CompanyRepository");
+import { hash, compare } from "bcrypt";
+import pkg from 'lodash';
+const { omit } = pkg;
+import BaseService from "./BaseService.js";
+import UserRepository  from "../repositories/UserRepository.js";
+import CompanyRepository from "../repositories/CompanyRepository.js";
 
 class UserService extends BaseService {
   constructor(connection) {
@@ -19,7 +20,7 @@ class UserService extends BaseService {
         throw new Error("Email address already used. ");
       }
       // Hash the password using bcrypt
-      const hashedPassword = await bcrypt.hash(userModel.password, 10);
+      const hashedPassword = await hash(userModel.password, 10);
       userModel.password = hashedPassword;
       // check user role
       if (!userModel.role) {
@@ -39,7 +40,7 @@ class UserService extends BaseService {
         throw new Error("Failed to add user");
       }
 
-      const sanitizedResponse = lodash.omit(addUserResponse.toObject(), [
+      const sanitizedResponse = omit(addUserResponse.toObject(), [
         "password",
         "createdDate",
       ]);
@@ -58,7 +59,7 @@ class UserService extends BaseService {
       if (user === null) {
         throw new Error("UserNotFound");
       } else {
-        const isPasswordMatch = await bcrypt.compare(
+        const isPasswordMatch = await compare(
           request.password,
           user.password
         );
@@ -74,7 +75,7 @@ class UserService extends BaseService {
         }
 
         //Remove sensitive fields
-        const sanitizedUser = lodash.omit(user, ["password", "createdDate"]);
+        const sanitizedUser = omit(user, ["password", "createdDate"]);
 
         // Add role and menuRights
         sanitizedUser.role = {
@@ -122,6 +123,4 @@ class UserService extends BaseService {
   };
 }
 
-module.exports = {
-  UserService,
-};
+export default UserService;

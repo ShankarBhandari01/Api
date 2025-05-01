@@ -1,7 +1,7 @@
-const BaseRepo = require("./BaseRepository");
-const StockModels = require("../models/Stocks");
-const MenuType = require("../models/MenuType");
-const Menu = require("../models/Menu");
+import BaseRepo from "./BaseRepository.js";
+import StockModels from "../models/Stocks.js";
+import MenuType from "../models/MenuType.js";
+import Menu from "../models/Menu.js";
 
 class MenuRepository extends BaseRepo {
   constructor(connection) {
@@ -425,4 +425,4 @@ class MenuRepository extends BaseRepo {
     }
   };
 }
-module.exports = MenuRepository;
+export default MenuRepository;

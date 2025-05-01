@@ -1,7 +1,8 @@
-const admin = require("firebase-admin");
-const serviceAccount = require("../firebase-service-account.json");
-const BaseService = require("./BaseService");
-const NotificationRepository = require("../repositories/NotificationRepository");
+import pkg from 'firebase-admin';
+const { apps, initializeApp, credential: _credential, messaging } = pkg;
+import serviceAccount from "../firebase-service-account.json" with { type: "json" };
+import BaseService from "./BaseService.js";
+import NotificationRepository from "../repositories/NotificationRepository.js";
 
 class FirebasePushNotificationService extends BaseService {
   constructor(connection) {
@@ -14,9 +15,9 @@ class FirebasePushNotificationService extends BaseService {
   // Initialize Firebase app with credentials
   initializeFirebase() {
     try {
-      if (!admin.apps.length) {
-        admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
+      if (!apps.length) {
+        initializeApp({
+          credential: _credential.cert(serviceAccount),
         });
       }
     } catch (error) {
@@ -65,7 +66,7 @@ class FirebasePushNotificationService extends BaseService {
           },
           tokens: fcmsTokens.map((fcm) => fcm.token), // Array of tokens
         };
-        const response = await admin.messaging().sendEachForMulticast(message);
+        const response = await messaging().sendEachForMulticast(message);
         this.log(
           `Multicast notification sent successfully: ${JSON.stringify(
             response
@@ -123,7 +124,7 @@ class FirebasePushNotificationService extends BaseService {
           tokens: fcmsTokens.map((fcm) => fcm.token),
         };
 
-        const response = await admin.messaging().sendEachForMulticast(message);
+        const response = await messaging().sendEachForMulticast(message);
 
         this.log(
           `Order notification sent to admins: ${JSON.stringify(response)}`,
@@ -171,4 +172,4 @@ class FirebasePushNotificationService extends BaseService {
     );
 }
 
-module.exports = FirebasePushNotificationService;
+export default FirebasePushNotificationService;

@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+import { Schema } from "mongoose";
 
-const menuSchema = new mongoose.Schema(
+const menuSchema = new Schema(
   {
     date: { type: String },
     menuType: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "MenuType",
       required: true,
     },
@@ -37,31 +37,31 @@ const menuSchema = new mongoose.Schema(
     description: { type: String, trim: true},
     starters: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Stock",
       },
     ],
     mainCourses: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Stock",
       },
     ],
     desserts: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Stock",
       },
     ],
     drinks: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Stock",
       },
     ],
     extras: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Stock",
       },
     ],
@@ -116,4 +116,4 @@ menuSchema.pre("findByIdAndUpdate", function (next) {
 
   next();
 });
-module.exports = (conn) => conn.model("Menu", menuSchema);
+export default (conn) => conn.model("Menu", menuSchema);

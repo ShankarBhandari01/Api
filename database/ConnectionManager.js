@@ -1,7 +1,12 @@
-const mongoose = require("mongoose");
-const fs = require("fs");
-const path = require("path");
-const logger = require("../utils/logger");
+import { createConnection } from "mongoose";
+import { readFileSync } from "fs";
+import logger from "../utils/logger.js";
+import { fileURLToPath } from 'url';  
+import { dirname, join } from 'path'; 
+
+const __filename = fileURLToPath(import.meta.url); 
+const __dirname = dirname(__filename);
+
 
 class MongoConnectionManager extends logger {
   constructor() {
@@ -10,8 +15,8 @@ class MongoConnectionManager extends logger {
     this.pendingConnections = {};
     this.env = process.env.NODE_ENV || "development";
 
-    const configPath = path.join(__dirname, "..", "config", "config.json");
-    this.config = JSON.parse(fs.readFileSync(configPath))[this.env];
+    const configPath = join(__dirname, "..", "config", "config.json");
+    this.config = JSON.parse(readFileSync(configPath))[this.env];
 
     this._defaultOptions = {
       autoIndex: false,
@@ -25,7 +30,7 @@ class MongoConnectionManager extends logger {
   async retryConnection(uri, options, retries = 3, delay = 2000) {
     for (let i = 0; i < retries; i++) {
       try {
-        return await mongoose.createConnection(uri, options);
+        return await createConnection(uri, options);
       } catch (err) {
         this.log(`[Mongo] Retry ${i + 1} failed: ${err.message}`, "warn");
         if (i < retries - 1) await new Promise((res) => setTimeout(res, delay));
@@ -134,4 +139,4 @@ class MongoConnectionManager extends logger {
   }
 }
 
-module.exports = new MongoConnectionManager();
+export default new MongoConnectionManager();

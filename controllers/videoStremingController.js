@@ -1,16 +1,16 @@
-const { StreamingService } = require('../services/sreamingService');
+import { StreamingService } from '../services/sreamingService';
 const streamingService = new StreamingService();
 
-const util = require('util');
-const fs = require('fs');
-const statAsync = util.promisify(fs.stat);
-const createReadStreamAsync = util.promisify(fs.createReadStream);
+import { promisify } from 'util';
+import { stat, createReadStream, statSync } from 'fs';
+const statAsync = promisify(stat);
+const createReadStreamAsync = promisify(createReadStream);
 
 const videoPath = streamingService.getVideoPath(); 
 
-exports.StartStreaming = async (req, res, next) => {
+export async function StartStreaming(req, res, next) {
     try {
-        const videoSize = fs.statSync(videoPath);
+        const videoSize = statSync(videoPath);
         const range = req.headers.range || 'bytes=0-';
 
         const positions = range.replace(/bytes=/, '').split('-');
@@ -28,7 +28,7 @@ exports.StartStreaming = async (req, res, next) => {
         res.writeHead(206, headers);
 
         // Create a readable stream and use pipe to efficiently stream chunks
-        const videoStream = fs.createReadStream(videoPath, { start, end });
+        const videoStream = createReadStream(videoPath, { start, end });
 
         videoStream.on('open', function () {
             videoStream.pipe(res);
@@ -42,5 +42,5 @@ exports.StartStreaming = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+}
 

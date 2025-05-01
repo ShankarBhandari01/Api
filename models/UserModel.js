@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+import { Schema, model } from "mongoose";
 //creating the user scheme
 const userSchema = new Schema({
   profilePic: {
@@ -36,4 +36,4 @@ const userSchema = new Schema({
 
 userSchema.index({ profilePic: 1 });
 // the models of the user scheme
-module.exports = (connection) => connection.model("User", userSchema);
+export default (connection) => connection.model("User", userSchema);

@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+import { Schema, model } from "mongoose";
 
 const userlogSchema = new Schema({
   requestData: {
@@ -37,5 +37,5 @@ const userlogSchema = new Schema({
 userlogSchema.index({ email: 1 });
 userlogSchema.index({ timestamp: -1 });
 // the models of the UserLoginLog scheme
-module.exports = (connection) =>
+export default (connection) =>
   connection.model("UserLoginLog", userlogSchema);

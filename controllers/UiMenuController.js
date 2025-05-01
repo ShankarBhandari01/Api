@@ -1,7 +1,7 @@
-const RequestHandler = require("../utils/RequestHandler");
+import RequestHandler from "../utils/RequestHandler";
 const requestHandler = new RequestHandler();
 
-exports.getAllSetting = () => {
+export function getAllSetting() {
 
   
-};
+}

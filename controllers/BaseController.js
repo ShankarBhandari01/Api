@@ -1,5 +1,5 @@
-const RequestHandler = require("../utils/RequestHandler");
-const mongoManager = require("../database/ConnectionManager");
+import RequestHandler from "../utils/RequestHandler.js";
+import mongoManager from "../database/ConnectionManager.js";
 class BaseController extends RequestHandler {
   constructor(req, res) {
     super();
@@ -53,4 +53,4 @@ class BaseController extends RequestHandler {
   }
 }
 
-module.exports = BaseController;
+export default BaseController;

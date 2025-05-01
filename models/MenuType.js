@@ -1,6 +1,6 @@
 // models/MenuType.js
-const mongoose = require("mongoose");
-const menuTypeSchema = new mongoose.Schema(
+import { Schema } from "mongoose";
+const menuTypeSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     code: { type: String, required: true, unique: true, trim: true },
@@ -9,4 +9,4 @@ const menuTypeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 menuTypeSchema.index({ name: 1 });
-module.exports = (conn) => conn.model("MenuType", menuTypeSchema);
+export default (conn) => conn.model("MenuType", menuTypeSchema);

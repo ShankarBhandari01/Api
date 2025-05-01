@@ -1,8 +1,10 @@
-const jwt = require("jsonwebtoken");
-const config = require("../config/appconfig");
-const BaseRepo = require("../repositories/BaseRepository");
-const lodash = require("lodash");
-const resources = require("../utils/constants");
+import jsonweb from "jsonwebtoken";
+import appconfig from "../config/appconfig.js";
+import BaseRepo from "../repositories/BaseRepository.js";
+import pkg from "lodash";
+import { customResourceResponse } from "../utils/constants.js";
+const { omit } = pkg;
+const { sign } = jsonweb;
 
 class BaseService extends BaseRepo {
   constructor(connection) {
@@ -10,7 +12,7 @@ class BaseService extends BaseRepo {
     this.connection = connection;
 
     this.options = {
-      expiresIn: config.auth.jwt_expiresin,
+      expiresIn: appconfig.auth.jwt_expiresin,
       algorithm: "HS256",
       issuer: "restaurant-pos-api",
       subject: "access token",
@@ -28,8 +30,8 @@ class BaseService extends BaseRepo {
 
   // Helper function to create JWT token
   generateToken(sessionUser, secret, options) {
-    return jwt.sign(
-      { sanitizedSession: lodash.omit(sessionUser, ["profile"]) },
+    return sign(
+      { sanitizedSession: omit(sessionUser, ["profile"]) },
       secret,
       options
     );
@@ -43,14 +45,14 @@ class BaseService extends BaseRepo {
       // Generate tokens
       const token = this.generateToken(
         updatedUser,
-        config.auth.jwt_secret,
+        appconfig.auth.jwt_secret,
         this.options
       );
       const refreshToken = this.generateToken(
         updatedUser,
-        config.auth.refresh_token_secret,
+        appconfig.auth.refresh_token_secret,
         {
-          expiresIn: config.auth.refresh_token_expiresin,
+          expiresIn: appconfig.auth.refresh_token_expiresin,
         }
       );
 
@@ -110,11 +112,11 @@ class BaseService extends BaseRepo {
     const response = {
       rsType: type,
       message: data
-        ? resources.customResourceResponse.success.message
-        : resources.customResourceResponse.recordNotFound.message,
+        ? customResourceResponse.success.message
+        : customResourceResponse.recordNotFound.message,
       statusCode: data
-        ? resources.customResourceResponse.success.statusCode
-        : resources.customResourceResponse.recordNotFound.statusCode,
+        ? customResourceResponse.success.statusCode
+        : customResourceResponse.recordNotFound.statusCode,
       data: data || null,
     };
     return response;
@@ -143,4 +145,4 @@ class BaseService extends BaseRepo {
   };
 }
 
-module.exports = BaseService;
+export default BaseService;

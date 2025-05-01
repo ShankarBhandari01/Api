@@ -1,7 +1,7 @@
-const BaseRepo = require("./BaseRepository");
-const StockModels = require("../models/Stocks");
-const MenuType = require("../models/MenuType");
-const mongoose = require("mongoose");
+import BaseRepo from "./BaseRepository.js";
+import StockModels from "../models/Stocks.js";
+import MenuType from "../models/MenuType.js";
+import { Types } from "mongoose";
 
 class StockRepository extends BaseRepo {
   constructor(connection) {
@@ -199,7 +199,7 @@ class StockRepository extends BaseRepo {
         $match: {
           isDeleted: false,
           isActive: true,
-          category: mongoose.Types.ObjectId(categoryId),
+          category: Types.ObjectId(categoryId),
         },
       },
       { $count: "totalCount" },
@@ -329,4 +329,4 @@ class StockRepository extends BaseRepo {
   };
 }
 
-module.exports = StockRepository;
+export default StockRepository;

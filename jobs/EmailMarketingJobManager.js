@@ -1,7 +1,7 @@
 // jobs/EmailMarketingJob.js
-const AgendaService = require("../services/AgendaService");
-const databaseManager = require("../database/ConnectionManager");
-const Logger = require("../utils/logger");
+import AgendaService from "../services/AgendaService.js";
+import ConnectionManager  from "../database/ConnectionManager.js";
+import Logger from "../utils/logger.js";
 
 class EmailMarketingJobManager extends Logger {
   constructor() {
@@ -15,7 +15,7 @@ class EmailMarketingJobManager extends Logger {
 
   async _startJob() {
     try {
-      const dbConnection = await databaseManager.getConnection("Mydatabase");
+      const dbConnection = await ConnectionManager.getConnection("Mydatabase");
       if (!dbConnection) {
         throw new Error("Database connection failed. Job cannot be started.");
       }
@@ -57,4 +57,4 @@ class EmailMarketingJobManager extends Logger {
   }
 }
 
-module.exports = EmailMarketingJobManager;
+export default EmailMarketingJobManager;

@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+import { Schema, model } from "mongoose";
 //creating the Stock scheme
 const stockSchema = new Schema(
   {
@@ -89,7 +89,7 @@ stockSchema.index({ stockName: 1 });
 categorySchema.index({ name: 1 });
 
 // Export models for use
-module.exports = (connection) => {
+export default (connection) => {
   const Category = connection.model("Category", categorySchema);
   const Stock = connection.model("Stock", stockSchema);
   return { Category, Stock };

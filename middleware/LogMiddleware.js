@@ -1,13 +1,14 @@
-const UserloginLog = require("../models/UserloginLog");
-const BaseService = require("../services/BaseService");
-const Logger = require("../utils/logger");
-const lodash = require("lodash");
-const dbConnection = require("../database/ConnectionManager");
-const config = require("../config/config.json");
+import UserloginLog from "../models/UserloginLog.js";
+import BaseService from "../services/BaseService.js";
+import Logger from "../utils/logger.js";
+import pkg from "lodash";
+const { omit } = pkg;
+import ConnectionManager from "../database/ConnectionManager.js";
+import config from '../config/config.json' with { type: 'json' };
 
 const logger = new Logger();
 let responseData = {};
-exports.loggingMiddleware = (req, res, next) => {
+export function loggingMiddleware(req, res, next) {
   const start = Date.now();
   const originalSend = res.send;
   res.send = (body) => {
@@ -27,12 +28,12 @@ exports.loggingMiddleware = (req, res, next) => {
           : postData;
 
       // Omit sensitive fields like password and any other sensitive data
-      const sanitizedResponse = lodash.omit(plainPostData, ["password"]);
+      const sanitizedResponse = omit(plainPostData, ["password"]);
 
       // database name
       const env = config[process.env.NODE_ENV || "development"];
       // log database connection string
-      const connection = await dbConnection.getConnection("ApiLogDatabase");
+      const connection = await ConnectionManager.getConnection("ApiLogDatabase");
       const userlogModel = UserloginLog(connection);
 
       const baseService = new BaseService();
@@ -62,4 +63,4 @@ exports.loggingMiddleware = (req, res, next) => {
   // Ensure finish function is executed on response finish
   res.on("finish", finish);
   next();
-};
+}
