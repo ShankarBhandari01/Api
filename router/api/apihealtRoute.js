@@ -1,6 +1,7 @@
 import { Router } from "express";
 import mongoManager from "../../database/ConnectionManager.js";
 import { formatMemoryUsage, analyzeDbStatus } from "../../utils/healthUtils.js";
+import metricsRegistry from "../../utils/metrics.js";
 
 const router = Router();
 
@@ -22,6 +23,15 @@ router.get("/health", async (req, res) => {
       message: "Health check failed",
       error: error.message,
     });
+  }
+});
+
+router.get("/metrics", async (req, res) => {
+  try {
+    res.set("Content-Type", metricsRegistry.contentType);
+    res.end(await metricsRegistry.metrics());
+  } catch (err) {
+    res.status(500).end(err.message);
   }
 });
 

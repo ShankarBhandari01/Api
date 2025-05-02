@@ -16,6 +16,7 @@ import requestLogger from "../middleware/RequestLogger.js";
 import { loggingMiddleware } from "../middleware/LogMiddleware.js";
 import { languageMiddleware } from "../middleware/languageMiddleware.js";
 import {apiLimiter} from "../middleware/RequestRateLimiter.js";
+import { metricsMiddleware } from '../middleware/metricsMiddleware.js';
 import {
   csrfTokenMiddleware,
   csrfProtection,
@@ -64,6 +65,7 @@ app.use(requestLogger);
 app.use(languageMiddleware);
 app.use(loggingMiddleware);
 app.use(apiLimiter);
+//app.use(metricsMiddleware);
 
 // === Static Assets ===
 app.use(
@@ -88,7 +90,6 @@ app.use((req, res) => {
 
 // === Email Marketing Job ===
 //job.init();
-
 
 //=== Memory Monitoring ===
 if (process.env.NODE_ENV !== "production") {
