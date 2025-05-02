@@ -165,8 +165,8 @@ class MenuRepository extends BaseRepo {
       { $unwind: "$menuTypeInfo" },
       {
         $match: {
-          isActive: true,
-          isDeleted: { $ne: true },
+        //  isActive: true,
+       //   isDeleted: { $ne: true },
           ...(type ? { "menuTypeInfo.code": type } : {}),
         },
       },
