@@ -1,9 +1,11 @@
 import { Router } from "express";
-const router = Router();
+
 import { isAuthenticated } from "../../middleware/auth.js";
 import { languageMiddleware } from "../../middleware/languageMiddleware.js";
 import checkAccess from "../../middleware/CheckAccess.js";
 import MenuController from "../../controllers/MenuController.js";
+
+const router = Router();
 
 // POST menu Types
 router.post("/menuType", languageMiddleware, isAuthenticated, (req, res) =>

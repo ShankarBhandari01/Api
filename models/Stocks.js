@@ -60,8 +60,8 @@ const categorySchema = new Schema({
     fi: { type: String, required: true, unique: true, trim: true },
   },
   description: {
-    en: { type: String, required: true, unique: false, trim: true },
-    fi: { type: String, required: true, unique: false, trim: true },
+    en: { type: String, required: false, unique: false, trim: true },
+    fi: { type: String, required: false, unique: false, trim: true },
   },
   created_at: {
     type: Date,

@@ -1,29 +1,39 @@
 import { Router } from "express";
-const router = Router();
-import { saveStock, addCategory, getAllStock, getAllCategory } from "../../controllers/StockController.js"; //controller for adding stock
-import { stockvalidator } from "../../middleware/StockValidator.js"; //middleware for stock validator
-import { isAuthenticated } from "../../middleware/auth.js"; //middleware for varifying user
-// middleware for image upload
 import fileupload from "../../middleware/fileUploadMiddleware.js";
+import { stockvalidator } from "../../middleware/StockValidator.js";
+import { isAuthenticated } from "../../middleware/auth.js";
 import { languageMiddleware } from "../../middleware/languageMiddleware.js";
+import StockController from "../../controllers/StockController.js";
 
-
-//add stock route
+const router = Router();
+// Add stock route
 router.post(
   "/addStock",
   languageMiddleware,
   fileupload.uploadStock,
   stockvalidator,
   isAuthenticated,
-  saveStock
+  (req, res) => new StockController(req, res).saveStock()
 );
-router.get("/getallstock", languageMiddleware, getAllStock);
-router.post(
-  "/addCategory",
-  languageMiddleware,
-  isAuthenticated,
-  addCategory
+
+// Get all stock
+router.get("/getallstock", languageMiddleware, (req, res) =>
+  new StockController(req, res).getAllStock()
 );
-router.get("/getAllCategory", languageMiddleware, getAllCategory);
+
+// Add category
+router.post("/addCategory", languageMiddleware, isAuthenticated, (req, res) =>
+  new StockController(req, res).addCategory()
+);
+
+// Get all categories
+router.get("/getAllCategory", languageMiddleware, (req, res) =>
+  new StockController(req, res).getAllCategory()
+);
+
+// Search category
+router.get("/searchCategory", languageMiddleware, (req, res) =>
+  new StockController(req, res).searchCategory()
+);
 
 export default router;

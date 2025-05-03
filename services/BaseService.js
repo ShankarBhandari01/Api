@@ -94,7 +94,6 @@ class BaseService extends BaseRepo {
     }
   }
 
-  // Simplified logout handling
   async logout(userId) {
     try {
       return await super.logout(userId);
