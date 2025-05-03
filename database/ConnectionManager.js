@@ -11,6 +11,7 @@ class MongoConnectionManager extends logger {
   constructor() {
     super();
     this.connections = {};
+    this.connectionString = null;
     this.pendingConnections = {};
     this.env = process.env.NODE_ENV || "development";
 
@@ -52,16 +53,8 @@ class MongoConnectionManager extends logger {
         `[Mongo] Attempting to connect to database: "${dbName}"`,
         "info"
       );
-      let uri;
-      if (this.env === "development" || this.env === "test") {
-        uri = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
-      } else {
-        const baseUri = `mongodb://${this.config.username}:${this.config.password}@${this.config.host}:${this.config.port}`;
-        const params = `replicaSet=rs0&authSource=admin&serverSelectionTimeoutMS=2000&directConnection=true`;
-        uri = `${baseUri}/${dbName}?${params}`;
-      }
       this.pendingConnections[dbName] = this.retryConnection(
-        uri,
+        this.getConnectionString(dbName),
         this._defaultOptions
       );
       const conn = await this.pendingConnections[dbName];
@@ -113,6 +106,16 @@ class MongoConnectionManager extends logger {
     }
   }
 
+  getConnectionString(dbName) {
+    if (this.env === "development" || this.env === "test") {
+      this.connectionString = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
+    } else {
+      const baseUri = `mongodb://${this.config.username}:${this.config.password}@${this.config.host}:${this.config.port}`;
+      const params = `replicaSet=rs0&authSource=admin&serverSelectionTimeoutMS=2000&directConnection=true`;
+      this.connectionString = `${baseUri}/${dbName}?${params}`;
+    }
+    return this.connectionString;
+  }
   getAllConnections() {
     return this.connections;
   }
