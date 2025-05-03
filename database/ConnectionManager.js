@@ -1,12 +1,11 @@
 import { createConnection } from "mongoose";
 import { readFileSync } from "fs";
 import logger from "../utils/logger.js";
-import { fileURLToPath } from 'url';  
-import { dirname, join } from 'path'; 
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-const __filename = fileURLToPath(import.meta.url); 
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
 
 class MongoConnectionManager extends logger {
   constructor() {
@@ -57,9 +56,10 @@ class MongoConnectionManager extends logger {
       if (this.env === "development" || this.env === "test") {
         uri = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
       } else {
-        uri = `mongodb://${this.config.username}:${this.config.password}@127.0.0.1:27017/${dbName}?eplicaSet=rs0?authSource=admin&serverSelectionTimeoutMS=2000&?directConnection=true`;
+        const baseUri = `mongodb://${this.config.username}:${this.config.password}@${this.config.host}:${this.config.port}`;
+        const params = `replicaSet=rs0&authSource=admin&serverSelectionTimeoutMS=2000&directConnection=true`;
+        uri = `${baseUri}/${dbName}?${params}`;
       }
-
       this.pendingConnections[dbName] = this.retryConnection(
         uri,
         this._defaultOptions
