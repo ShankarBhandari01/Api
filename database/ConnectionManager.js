@@ -57,7 +57,7 @@ class MongoConnectionManager extends logger {
       if (this.env === "development" || this.env === "test") {
         uri = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
       } else {
-        uri = `mongodb://${this.config.username}:${this.config.password}@127.0.0.1:27017/${dbName}?authSource=admin&serverSelectionTimeoutMS=2000&?directConnection=true`;
+        uri = `mongodb://${this.config.username}:${this.config.password}@127.0.0.1:27017/${dbName}?eplicaSet=rs0?authSource=admin&serverSelectionTimeoutMS=2000&?directConnection=true`;
       }
 
       this.pendingConnections[dbName] = this.retryConnection(
