@@ -34,7 +34,8 @@ const stockSchema = new Schema(
       required: true,
       min: 0,
     },
-    isBuffet: { type: Boolean, default: false },
+    isGlutenFree: { type: Boolean, default: false },
+    isLactoseFree: { type: Boolean, default: false },
     currency: { type: String, default: "€" },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
@@ -46,7 +47,7 @@ const stockSchema = new Schema(
     },
     isSpicy: { type: Boolean, require: false, default: false },
     spiceLevel: { type: Number, default: 0 },
-    isVagen: { type: Boolean, require: false, default: false },
+    isVegan: { type: Boolean, require: false, default: false },
     isVegetarian: { type: Boolean, require: false, default: false },
   },
   { timestamps: { createdAt: "createdDate", updatedAt: "updated_ts" } }

@@ -15,10 +15,11 @@ class StockDTO {
     this.dayOfWeek = stock.dayOfWeek;
     this.nameOfWeek = this.parseLangField(stock.nameOfWeek);
     this.isSpicy = stock.isSpicy;
-    this.isVagen = stock.isVagen;
+    this.isVegan = stock.isVegan;
     this.isVegetarian = stock.isVegetarian;
     this.spiceLevel = stock.spiceLevel; // 1-3
-    this.isBuffet = stock.isBuffet;
+    this.isGlutenFree = stock.isGlutenFree;
+    this.isLactoseFree = stock.isLactoseFree;
   }
 
   // stringified JSON fields
