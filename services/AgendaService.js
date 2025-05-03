@@ -16,18 +16,9 @@ class AgendaService extends EmailService {
     this.agenda = null;
     this.subscriberRepository = new SubscriberRepository(connection);
   }
-  getConnectionString = () => {
-    const configPath = join(__dirname, "..", "config", "config.json");
-    const config = JSON.parse(readFileSync(configPath))[
-      process.env.NODE_ENV || "development"
-    ];
-    const uri = `mongodb+srv://${config.username}:${config.password}@${config.host}/${config.database}?retryWrites=true&w=majority&appName=Cluster0`;
-    return uri;
-  };
   // Initialize Agenda
-  async initializeAgenda() {
+  async initializeAgenda(connectionString) {
     try {
-      const connectionString = this.getConnectionString();
       this.agenda = new Agenda({
         db: {
           address: connectionString,
@@ -130,7 +121,7 @@ class AgendaService extends EmailService {
       async () => {
         try {
           this.log("Automatic expire of old campaigns...", "info");
-          await this.subscriberRepository.updateCampaignForJob();
+          await this.subscriberRepository.updateAutomaticCampaignForJob();
         } catch (error) {
           this.log(
             `Error in expire old campaigns job: ${error.message}`,

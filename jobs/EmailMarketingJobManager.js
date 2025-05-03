@@ -1,6 +1,6 @@
 // jobs/EmailMarketingJob.js
 import AgendaService from "../services/AgendaService.js";
-import ConnectionManager  from "../database/ConnectionManager.js";
+import ConnectionManager from "../database/ConnectionManager.js";
 import Logger from "../utils/logger.js";
 
 class EmailMarketingJobManager extends Logger {
@@ -21,10 +21,12 @@ class EmailMarketingJobManager extends Logger {
       }
       this.agendaService = new AgendaService(dbConnection);
       // Initialize Agenda service and start jobs
-      await this.agendaService.initializeAgenda();
+      await this.agendaService.initializeAgenda(
+        ConnectionManager.getConnectionString("Mydatabase")
+      );
     } catch (error) {
       this.log(`Error in EmailMarketingJob: ${error.message}`, "error");
-      return; 
+      return;
     }
   }
 
