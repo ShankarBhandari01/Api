@@ -15,8 +15,8 @@ import corsMiddleware from "../middleware/CorsMiddleware.js";
 import requestLogger from "../middleware/RequestLogger.js";
 import { loggingMiddleware } from "../middleware/LogMiddleware.js";
 import { languageMiddleware } from "../middleware/languageMiddleware.js";
-import {apiLimiter} from "../middleware/RequestRateLimiter.js";
-import { metricsMiddleware } from '../middleware/metricsMiddleware.js';
+import { apiLimiter } from "../middleware/RequestRateLimiter.js";
+import { metricsMiddleware } from "../middleware/metricsMiddleware.js";
 import {
   csrfTokenMiddleware,
   csrfProtection,
@@ -42,7 +42,9 @@ app.use(helmet());
 
 // === Middleware ===
 app.use(cookieParser());
-app.use(csrfProtection);
+if (process.env.NODE_ENV === "production") {
+ // app.use(csrfProtection);
+}
 app.use(
   session({
     secret: config.auth.jwt_secret,
@@ -89,7 +91,7 @@ app.use((req, res) => {
 });
 
 // === Email Marketing Job ===
-//job.init();
+job.init();
 
 //=== Memory Monitoring ===
 if (process.env.NODE_ENV !== "production") {

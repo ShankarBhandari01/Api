@@ -20,7 +20,7 @@ router.post("/signup", fileupload.uploadImage, validateUser, (req, res) =>
 router.post("/login", validateLogin, authLimiter, (req, res) =>
   new UserController(req, res).login()
 );
-// User Profile route
+// User Refresh Token route
 router.post(
   "/token/refresh",
   languageMiddleware,

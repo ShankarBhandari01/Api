@@ -20,7 +20,7 @@ const menuSchema = new Schema(
           "Saturday",
           "Sunday",
         ],
-        required: true,
+        required: false,
       },
       fi: {
         type: String,
