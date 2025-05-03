@@ -51,7 +51,7 @@ export async function getAllCategory(req, res) {
     const lang = req.session.lang || "en"; // Default to English
     // Get pagination parameters from query
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 99;
     // Validate the limit to avoid too many results
     if (limit > 100) {
       const message = "Limit must be less than 100";
