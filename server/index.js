@@ -91,7 +91,7 @@ app.use((req, res) => {
 });
 
 // === Email Marketing Job ===
-job.init();
+//job.init();
 
 //=== Memory Monitoring ===
 if (process.env.NODE_ENV !== "production") {
