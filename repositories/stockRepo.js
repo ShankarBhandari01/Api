@@ -70,13 +70,6 @@ class StockRepository extends BaseRepo {
     try {
       return await this.stockModel.aggregate([
         {
-          $match: {
-            isDeleted: false,
-            isActive: true,
-            categoryID: { $ne: null, $ne: "" },
-          },
-        },
-        {
           $lookup: {
             from: "categories",
             localField: "categoryID",
@@ -84,7 +77,21 @@ class StockRepository extends BaseRepo {
             as: "categoryDetails",
           },
         },
-        { $unwind: "$categoryDetails" },
+        {
+          $unwind: {
+            path: "$categoryDetails",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            isDeleted: false,
+            isActive: true,
+            categoryID: { $exists: true, $ne: "" },
+            "categoryDetails.isDeleted": false,
+            "categoryDetails.isActive": true,
+          },
+        },
         {
           $group: {
             _id: "$categoryDetails._id",
@@ -95,12 +102,15 @@ class StockRepository extends BaseRepo {
         },
         {
           $project: {
-            _id: 0,
+            _id: 1,
             categoryName: {
               category: { en: "$categoryEn", fi: "$categoryFi" },
               items: { $ifNull: ["$items", []] },
             },
           },
+        },
+        {
+          $sort: { "categoryName.category.en": 1 },
         },
       ]);
     } catch (error) {
@@ -179,10 +189,32 @@ class StockRepository extends BaseRepo {
           isActive: true,
         });
       }
-      return await this.stockModel.countDocuments({
-        isDeleted: false,
-        isActive: true,
-      });
+      const result = await this.stockModel.aggregate([
+        {
+          $lookup: {
+            from: "categories",
+            localField: "categoryID", // Field in the stock document
+            foreignField: "_id", // Field in the category document
+            as: "category",
+          },
+        },
+        {
+          $unwind: "$category",
+        },
+        {
+          $match: {
+            isDeleted: false,
+            isActive: true,
+            "category.isDeleted": false, // Ensure the category is not deleted
+          },
+        },
+        {
+          $count: "totalCount", // Count the matching documents
+        },
+      ]);
+      const count = result.length > 0 ? result[0].totalCount : 0;
+
+      return count;
     } catch (err) {
       this.logAndThrowError(err.message, err);
     }
