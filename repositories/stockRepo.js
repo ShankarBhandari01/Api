@@ -26,22 +26,24 @@ class StockRepository extends BaseRepo {
   };
 
   // Function to sort stocks based on numeric value extracted from stockName
-  sortStocksByNumericValue = (stocks, datatype = "", sort = "asc") => {
+  sortStocksByNumericValue = (stocks, sort = "asc") => {
     try {
-      return stocks.sort((a, b) => {
+      // Clone the stocks array to avoid in-place mutation
+      const stocksCopy = [...stocks];
+      return stocksCopy.sort((a, b) => {
+        // Extract the first numeric part of stockName.en
         const numA = a.stockName.en.split(".")[0];
         const numB = b.stockName.en.split(".")[0];
-
+        // Convert to numeric values, treating non-numeric as Infinity
         const numericA = isNaN(numA) ? Infinity : parseInt(numA, 10);
         const numericB = isNaN(numB) ? Infinity : parseInt(numB, 10);
-
+        // Sort based on the specified order
         return sort === "asc" ? numericA - numericB : numericB - numericA;
       });
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
   };
-
   /**
    * Retrieves all active, non-deleted stock items with pagination and sorting.
    * @param {number} skip - The number of items to skip (for pagination).
@@ -132,25 +134,46 @@ class StockRepository extends BaseRepo {
         },
       ]);
 
-      const sortedStocks = stocks.map((group) => {
-        const sortedItems = group.categoryName.items.sort((a, b) => {
-          const numA = a.stockName.en.split(".")[0];
-          const numB = b.stockName.en.split(".")[0];
+      const sortedStocks = stocks
+        // Step 1: Sort categories based on the minimum numeric value of their items
+        .map((group) => {
+          const itemsCopy = [...group.categoryName.items];
 
-          const numericA = isNaN(numA) ? Infinity : parseInt(numA, 10);
-          const numericB = isNaN(numB) ? Infinity : parseInt(numB, 10);
+          const minNumericValue = itemsCopy.reduce((min, item) => {
+            const num = parseInt(item.stockName.en.split(".")[0], 10);
+            return isNaN(num) ? min : Math.min(min, num);
+          }, Infinity);
 
-          return numericA - numericB; // Ascending order
+          return {
+            ...group,
+            minNumericValue,
+            items: itemsCopy,
+          };
+        })
+        // Step 2: Sort categories based on the minimum numeric value
+        .sort((a, b) => a.minNumericValue - b.minNumericValue)
+        // Step 3: Sort items within each category
+        .map((group) => {
+          const sortedItems = group.items.sort((a, b) => {
+            const numA = parseInt(a.stockName.en.split(".")[0], 10);
+            const numB = parseInt(b.stockName.en.split(".")[0], 10);
+
+            // Primary sorting by numeric part ascending
+            if (numA < numB) return -1;
+            if (numA > numB) return 1;
+
+            // If numeric parts are equal, sort by full stockName.en lexicographically
+            return a.stockName.en.localeCompare(b.stockName.en);
+          });
+
+          return {
+            ...group,
+            categoryName: {
+              ...group.categoryName,
+              items: sortedItems,
+            },
+          };
         });
-
-        return {
-          ...group,
-          categoryName: {
-            ...group.categoryName,
-            items: sortedItems,
-          },
-        };
-      });
 
       return sortedStocks;
     } catch (error) {
