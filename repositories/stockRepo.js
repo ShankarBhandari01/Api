@@ -26,16 +26,20 @@ class StockRepository extends BaseRepo {
   };
 
   // Function to sort stocks based on numeric value extracted from stockName
-  sortStocksByNumericValue = (stocks, sort = "asc") => {
-    return stocks.sort((a, b) => {
-      const numA = a.stockName.en.split(".")[0]; // Get the part before the dot
-      const numB = b.stockName.en.split(".")[0];
+  sortStocksByNumericValue = (stocks, datatype = "", sort = "asc") => {
+    try {
+      return stocks.sort((a, b) => {
+        const numA = a.stockName.en.split(".")[0];
+        const numB = b.stockName.en.split(".")[0];
 
-      const numericA = isNaN(numA) ? Infinity : parseInt(numA, 10); // If not a number, use Infinity
-      const numericB = isNaN(numB) ? Infinity : parseInt(numB, 10); // If not a number, use Infinity
+        const numericA = isNaN(numA) ? Infinity : parseInt(numA, 10);
+        const numericB = isNaN(numB) ? Infinity : parseInt(numB, 10);
 
-      return sort === "asc" ? numericA - numericB : numericB - numericA; // Ascending or Descending sort
-    });
+        return sort === "asc" ? numericA - numericB : numericB - numericA;
+      });
+    } catch (error) {
+      this.logAndThrowError(error.message, error);
+    }
   };
 
   /**
@@ -69,7 +73,8 @@ class StockRepository extends BaseRepo {
       const stocks = await this.stockModel
         .find({ categoryID, isDeleted: false, isActive: true })
         .populate("categoryID")
-        .sort({ "categoryID.categoryName": 1, "stockName.en": 1 }).lean()
+        .sort({ "categoryID.categoryName": 1, "stockName.en": 1 })
+        .lean()
         .exec();
 
       return this.sortStocksByNumericValue(stocks);
@@ -125,12 +130,29 @@ class StockRepository extends BaseRepo {
             },
           },
         },
-        {
-          $sort: { "categoryName.category.en": 1 },
-        },
-      ]).lean();
+      ]);
 
-      return this.sortStocksByNumericValue(stocks);
+      const sortedStocks = stocks.map((group) => {
+        const sortedItems = group.categoryName.items.sort((a, b) => {
+          const numA = a.stockName.en.split(".")[0];
+          const numB = b.stockName.en.split(".")[0];
+
+          const numericA = isNaN(numA) ? Infinity : parseInt(numA, 10);
+          const numericB = isNaN(numB) ? Infinity : parseInt(numB, 10);
+
+          return numericA - numericB; // Ascending order
+        });
+
+        return {
+          ...group,
+          categoryName: {
+            ...group.categoryName,
+            items: sortedItems,
+          },
+        };
+      });
+
+      return sortedStocks;
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }

@@ -30,7 +30,7 @@ class StockController extends BaseController {
       this.res.statusCode = response.statusCode;
       return this.res.json(response);
     } catch (err) {
-      return this.requestHandler.sendError(this.req, this.res, err);
+      return this.sendError(err);
     }
   }
 
@@ -47,7 +47,7 @@ class StockController extends BaseController {
       this.res.statusCode = response.statusCode;
       return this.res.json(response);
     } catch (err) {
-      return this.sendError(this.req, this.res, err);
+      return this.sendError( err);
     }
   }
 
@@ -70,7 +70,7 @@ class StockController extends BaseController {
       this.res.statusCode = response.statusCode;
       return this.res.json(response);
     } catch (err) {
-      return this.sendError(this.req, this.res, err);
+      return this.sendError(err);
     }
   }
 
@@ -137,7 +137,7 @@ class StockController extends BaseController {
       this.res.statusCode = response.statusCode;
       return this.res.json(response);
     } catch (err) {
-      return this.sendError(this.req, this.res, err);
+      return this.sendError(err);
     }
   }
 
