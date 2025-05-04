@@ -107,13 +107,9 @@ class MongoConnectionManager extends logger {
   }
 
   getConnectionString(dbName) {
-    if (this.env === "development" || this.env === "test") {
-      this.connectionString = `mongodb+srv://${this.config.username}:${this.config.password}@${this.config.host}/${dbName}?retryWrites=true&w=majority&appName=Cluster0`;
-    } else {
-      const baseUri = `mongodb://${this.config.username}:${this.config.password}@${this.config.host}:${this.config.port}`;
-      const params = `replicaSet=rs0&authSource=admin&serverSelectionTimeoutMS=2000&directConnection=true`;
-      this.connectionString = `${baseUri}/${dbName}?${params}`;
-    }
+    const params = `replicaSet=rs0&authSource=admin&serverSelectionTimeoutMS=2000&directConnection=true`;
+    const baseUri = `mongodb://${this.config.username}:${this.config.password}@${this.config.host}:${this.config.port}`;
+    this.connectionString = `${baseUri}/${dbName}?${params}`;
     return this.connectionString;
   }
   getAllConnections() {

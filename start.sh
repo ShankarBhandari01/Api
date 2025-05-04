@@ -32,12 +32,10 @@ npm start &
 
 APP_PID=$!
 
-# Give app a moment to initialize (adjust if needed)
+# Give app a moment to initialize
 sleep 10
 
 # Log memory usage after app starts
 echo "Logging memory usage after starting the app..."
 log_memory_usage "Memory after starting app (PID: $APP_PID):"
 
-#  wait for app to finish (or remove if app runs as a service)
-wait $APP_PID
