@@ -39,3 +39,5 @@ sleep 10
 echo "Logging memory usage after starting the app..."
 log_memory_usage "Memory after starting app (PID: $APP_PID):"
 
+#  wait for app to finish
+wait $APP_PID
