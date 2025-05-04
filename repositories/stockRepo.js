@@ -69,7 +69,7 @@ class StockRepository extends BaseRepo {
       const stocks = await this.stockModel
         .find({ categoryID, isDeleted: false, isActive: true })
         .populate("categoryID")
-        .sort({ "categoryID.categoryName": 1, "stockName.en": 1 })
+        .sort({ "categoryID.categoryName": 1, "stockName.en": 1 }).lean()
         .exec();
 
       return this.sortStocksByNumericValue(stocks);
@@ -128,7 +128,7 @@ class StockRepository extends BaseRepo {
         {
           $sort: { "categoryName.category.en": 1 },
         },
-      ]);
+      ]).lean();
 
       return this.sortStocksByNumericValue(stocks);
     } catch (error) {
