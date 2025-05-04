@@ -39,6 +39,7 @@ router.get("/getAllUsers", languageMiddleware, isAuthenticated, (req, res) =>
 router.get(
   "/getUserById/:id",
   languageMiddleware,
+  isAuthenticated,
   (req, res) => new UserController(req, res).getUserById()
 );
 // update user
