@@ -33,4 +33,21 @@ router.post("/logout", languageMiddleware, isAuthenticated, (req, res) =>
   new UserController(req, res).logout()
 );
 
+router.get("/getAllUsers", languageMiddleware, isAuthenticated, (req, res) =>
+  new UserController(req, res).getAllUsers()
+);
+router.get(
+  "/getUserById/:id",
+  languageMiddleware,
+  (req, res) => new UserController(req, res).getUserById()
+);
+// update user
+router.put(
+  "/updateUser/:id",
+  languageMiddleware,
+  isAuthenticated,
+  fileupload.uploadImage,
+  (req, res) => new UserController(req, res).updateUser()
+);
+
 export default router;

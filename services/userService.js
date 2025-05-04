@@ -1,8 +1,8 @@
 import { hash, compare } from "bcrypt";
-import pkg from 'lodash';
+import pkg from "lodash";
 const { omit } = pkg;
 import BaseService from "./BaseService.js";
-import UserRepository  from "../repositories/UserRepository.js";
+import UserRepository from "../repositories/UserRepository.js";
 import CompanyRepository from "../repositories/CompanyRepository.js";
 
 class UserService extends BaseService {
@@ -59,10 +59,7 @@ class UserService extends BaseService {
       if (user === null) {
         throw new Error("UserNotFound");
       } else {
-        const isPasswordMatch = await compare(
-          request.password,
-          user.password
-        );
+        const isPasswordMatch = await compare(request.password, user.password);
 
         if (!isPasswordMatch) {
           // Password does not match
@@ -113,10 +110,62 @@ class UserService extends BaseService {
   // get user details
   getUser = async (request) =>
     await this.userRepo.getUserByUsername(request.email);
+  // get user by id
+  getUserById = async (id) => await this.userRepo.getUserById(id);
 
   logout = async (userId) => {
     try {
       return await super.logout(userId);
+    } catch (err) {
+      throw { message: err.message };
+    }
+  };
+  // update user
+  updateUser = async (userModel, image, userId) => {
+    try {
+      // check if email address is already used
+      var email = await this.getUser(userModel);
+      if (email && email._id != userId) {
+        throw new Error("Email address already used. ");
+      }
+      // check user role
+      if (!userModel.role) {
+        throw new Error("User role is required.");
+      }
+      // check if user role is valid
+      const roleExists = await this.companyRepository.findRoleById(
+        userModel.role
+      );
+      if (!roleExists) {
+        throw new Error("Invalid role. Role does not exist.");
+      }
+      // Attempt to update user using userRepo
+      const updateUserResponse = await this.userRepo.updateUser(
+        userModel,
+        image,
+        userId
+      );
+      // Handle updateUserResponse based on result
+      if (!updateUserResponse) {
+        throw new Error("Failed to update user");
+      }
+
+      const sanitizedResponse = omit(updateUserResponse.toObject(), [
+        "password",
+        "createdDate",
+        "updatedDate",
+        "__v",
+      ]);
+      // Prepare success response
+      return super.prepareResponse(sanitizedResponse);
+    } catch (err) {
+      throw { message: err.message };
+    }
+  };
+  getAllUsers = async () => {
+    try {
+      const users = await this.userRepo.getAllUsers();
+      return super.prepareResponse(users);
     } catch (err) {
       throw { message: err.message };
     }
