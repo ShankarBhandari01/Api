@@ -1,8 +1,9 @@
 import { Router } from "express";
-const router = Router();
 import { languageMiddleware } from "../../middleware/languageMiddleware.js";
 import OrderController from "../../controllers/OrderController.js";
 import { isAuthenticated } from "../../middleware/auth.js"; //middleware for varifying user
+
+const router = Router();
 
 router.post("/saveOrder", languageMiddleware, (req, res) =>
   new OrderController(req, res).saveOrder()

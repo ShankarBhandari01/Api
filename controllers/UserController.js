@@ -40,6 +40,40 @@ class UserController extends BaseController {
       "User Logged In"
     );
   };
+  // Get all users method
+  getAllUsers = async () => {
+    await this.runServiceMethod(
+      UserService,
+      async (service) => {
+        return await service.getAllUsers();
+      },
+      "All Users Fetched"
+    );
+  };
+
+  updateUser = async () => {
+    await this.runServiceMethod(
+      UserService,
+      async (service) => {
+        const bodyData = this.req.body;
+        const image = this.req.files?.image || null;
+        const userId = this.req.params.id;
+        return await service.updateUser(bodyData, image, userId);
+      },
+      "User Updated"
+    );
+  }
+
+  getUserById = async () => {
+    await this.runServiceMethod(
+      UserService,
+      async (service) => {
+        const userId = this.req.params.id;
+        return await service.getUserById(userId);
+      },
+      "User Fetched"
+    );
+  }
 
   // Logout method
   logout = async () => {

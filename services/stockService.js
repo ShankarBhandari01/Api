@@ -1,6 +1,7 @@
 import StockRepository from "../repositories/stockRepo.js";
 import BaseService from "./BaseService.js";
 import StockModels from "../models/Stocks.js";
+import escapeStringRegexp from "escape-string-regexp";
 
 class StockService extends BaseService {
   constructor(connection) {
@@ -206,6 +207,37 @@ class StockService extends BaseService {
       return response;
     } catch (err) {
       throw { message: err.message };
+    }
+  };
+
+  searchCategory = async (searchTerm, page = 1, limit = 10, lang = "en") => {
+    try {
+      if (!["en", "fi"].includes(lang)) {
+        throw new Error('Unsupported language. Use "en" or "fi".');
+      }
+
+      const safeSearchTerm = escapeStringRegexp(searchTerm?.trim?.() || "");
+      const skip = this.getSkipNumber(page, limit);
+
+      // Call your repo layer with sanitized inputs
+      const [results, totalCount] = await Promise.all([
+        this.stockRepo.searchCategory(safeSearchTerm, skip, limit, lang),
+        this.stockRepo.countSearchCategory(safeSearchTerm, lang),
+      ]);
+
+      const response = super.prepareResponse(results);
+
+      if (Array.isArray(results) && results.length > 0) {
+        response.pagination = {
+          currentPage: page,
+          totalPages: Math.ceil(totalCount / limit),
+          totalCount,
+        };
+      }
+
+      return response;
+    } catch (err) {
+      this.logAndThrowError(err.message, err);
     }
   };
 }

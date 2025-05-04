@@ -1,148 +1,170 @@
 import StockDTO from "../dtos/StockDTO.js";
 import CategoryDTO from "../dtos/CategoryDTO.js";
-import RequestHandler from "../utils/RequestHandler.js";
 import dbConnection from "../database/ConnectionManager.js";
-import StockService  from "../services/stockService.js";
-const requestHandler = new RequestHandler();
+import StockService from "../services/stockService.js";
+import BaseController from "./BaseController.js";
 
-//add menus items
-export async function saveStock(req, res) {
-  try {
-    const lang = req.session.lang || "en"; // Default to English
-    //create Dto
-    const StockDto = new StockDTO(req.body, req.files, lang);
-
-    // database connection
-    const connection = await dbConnection.getConnection(
-      req.session.envConfig.database
-    );
-
-    const stockService = new StockService(connection);
-    // call service layer
-    const response = await stockService.addStock(StockDto);
-    // return response
-    res.statusCode = response.statusCode;
-    return res.json(response);
-  } catch (err) {
-    return requestHandler.sendError(req, res, err);
+class StockController extends BaseController {
+  constructor(req, res) {
+    super(req, res);
   }
-}
-
-export async function addCategory(req, res) {
-  try {
-    const lang = req.session.lang || "en"; // Default to English
-    // creating dto
-    const categoryDto = new CategoryDTO(req.body);
-    // database connection
-    const connection = await dbConnection.getConnection(
-      req.session.envConfig.database
-    );
-    const stockService = new StockService(connection);
-    const response = await stockService.addCategory(categoryDto, lang);
-    res.statusCode = response.statusCode;
-    return res.json(response);
-  } catch (err) {
-    return requestHandler.sendError(req, res, err);
-  }
-}
-
-export async function getAllCategory(req, res) {
-  try {
-    const lang = req.session.lang || "en"; // Default to English
-    // Get pagination parameters from query
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 99;
-    // Validate the limit to avoid too many results
-    if (limit > 100) {
-      const message = "Limit must be less than 100";
-      throw { message: message };
-    }
-    // database connection
-    const connection = await dbConnection.getConnection(
-      req.session.envConfig.database
-    );
-    const stockService = new StockService(connection);
-    const response = await stockService.getAllCategory(page, limit);
-    res.statusCode = response.statusCode;
-    return res.json(response);
-  } catch (err) {
-    return requestHandler.sendError(req, res, err);
-  } // end try catch
-}
-// get all the menus items
-export async function getAllStock(req, res) {
-  try {
-    // Set the language from query or default to 'en'
-    const lang = req.session.lang || "en"; // Default to English
-
-    const searchText = req.query.search || "";
-    const type = req.query.searchType || "";
-    const filterType = req.query.filterType || "";
-    const categoryId = req.query.categoryId || "";
-    const sort = req.query.sort || "";
-    const sortBy = req.query.sortBy || "";
-
-    let response;
-    // Get pagination parameters from query
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-
-    const searchFilters = {
-      searchText,
-      type,
-      page,
-      limit,
-      filterType,
-      categoryId,
-      lang,
-      sortBy,
-      sort,
+  updateImageUrl(item, req) {
+    return {
+      ...item,
+      image: item.image
+        ? `${req.protocol}://${req.get("host")}/public/${item.image}`
+        : null,
     };
-    // Validate the limit to avoid too many results
-    if (limit >= 100) {
-      const message = "Limit must be less than 100";
-      throw { message: message };
+  }
+
+  async saveStock() {
+    try {
+      const lang = this.req.session.lang || "en";
+      const stockDto = new StockDTO(this.req.body, this.req.files, lang);
+      const connection = await dbConnection.getConnection(
+        this.req.session.envConfig.database
+      );
+      const stockService = new StockService(connection);
+      const response = await stockService.addStock(stockDto);
+
+      this.res.statusCode = response.statusCode;
+      return this.res.json(response);
+    } catch (err) {
+      return this.requestHandler.sendError(this.req, this.res, err);
     }
+  }
 
-    // database connection
-    const connection = await dbConnection.getConnection(
-      req.session.envConfig.database
-    );
-    const stockService = new StockService(connection);
+  async addCategory() {
+    try {
+      const lang = this.req.session.lang || "en";
+      const categoryDto = new CategoryDTO(this.req.body);
+      const connection = await dbConnection.getConnection(
+        this.req.session.envConfig.database
+      );
+      const stockService = new StockService(connection);
+      const response = await stockService.addCategory(categoryDto, lang);
 
-    response = await stockService.getAllStock(searchFilters);
-    // Process response data
-    if (response.statusCode === 200) {
-      if (response.rsType === "Allstock" && response.data.length > 0) {
-        response.data = response.data.map((item) => updateImageUrl(item, req));
-      } else if (
-        (response.rsType === "categoryWise" ||
-          response.rsType === "nameOfWeekWise") &&
-        response.data.length > 0
-      ) {
-        response.data = response.data.map((category) => ({
-          ...category,
-          categoryName: {
-            ...category.categoryName,
-            items: category.categoryName.items.map((item) =>
-              updateImageUrl(item, req)
-            ),
-          },
-        }));
+      this.res.statusCode = response.statusCode;
+      return this.res.json(response);
+    } catch (err) {
+      return this.sendError(this.req, this.res, err);
+    }
+  }
+
+  async getAllCategory() {
+    try {
+      const lang = this.req.session.lang || "en";
+      const page = parseInt(this.req.query.page) || 1;
+      const limit = parseInt(this.req.query.limit) || 99;
+
+      if (limit > 100) {
+        throw { message: "Limit must be less than 100" };
       }
-    }
 
-    // Set the response status and send the response
-    res.statusCode = response.statusCode;
-    return res.json(response);
-  } catch (err) {
-    return requestHandler.sendError(req, res, err);
+      const connection = await dbConnection.getConnection(
+        this.req.session.envConfig.database
+      );
+      const stockService = new StockService(connection);
+      const response = await stockService.getAllCategory(page, limit);
+
+      this.res.statusCode = response.statusCode;
+      return this.res.json(response);
+    } catch (err) {
+      return this.sendError(this.req, this.res, err);
+    }
+  }
+
+  async getAllStock() {
+    try {
+      const lang = this.req.session.lang || "en";
+
+      const {
+        search = "",
+        searchType = "",
+        filterType = "",
+        categoryId = "",
+        sort = "",
+        sortBy = "",
+      } = this.req.query;
+
+      const page = parseInt(this.req.query.page) || 1;
+      const limit = parseInt(this.req.query.limit) || 10;
+
+      if (limit >= 100) {
+        throw { message: "Limit must be less than 100" };
+      }
+
+      const searchFilters = {
+        searchText: search,
+        type: searchType,
+        filterType,
+        categoryId,
+        sort,
+        sortBy,
+        page,
+        limit,
+        lang,
+      };
+
+      const connection = await dbConnection.getConnection(
+        this.req.session.envConfig.database
+      );
+      const stockService = new StockService(connection);
+      const response = await stockService.getAllStock(searchFilters);
+
+      if (response.statusCode === 200) {
+        if (response.rsType === "Allstock" && response.data.length > 0) {
+          response.data = response.data.map((item) =>
+            this.updateImageUrl(item, this.req)
+          );
+        } else if (
+          (response.rsType === "categoryWise" ||
+            response.rsType === "nameOfWeekWise") &&
+          response.data.length > 0
+        ) {
+          response.data = response.data.map((category) => ({
+            ...category,
+            categoryName: {
+              ...category.categoryName,
+              items: category.categoryName.items.map((item) =>
+                this.updateImageUrl(item, this.req)
+              ),
+            },
+          }));
+        }
+      }
+
+      this.res.statusCode = response.statusCode;
+      return this.res.json(response);
+    } catch (err) {
+      return this.sendError(this.req, this.res, err);
+    }
+  }
+
+  async searchCategory() {
+    try {
+      const {
+        searchTerm = "",
+        page = 1,
+        limit = 10,
+        lang = "en",
+      } = this.req.query;
+      await this.runServiceMethod(
+        StockService,
+        async (service) => {
+          return await service.searchCategory(
+            searchTerm,
+            parseInt(page),
+            parseInt(limit),
+            lang
+          );
+        },
+        "Categories fetched successfully"
+      );
+    } catch (err) {
+      this.sendError(err);
+    }
   }
 }
 
-const updateImageUrl = (item, req) => ({
-  ...item,
-  image: item.image
-    ? `${req.protocol}://${req.get("host")}/public/${item.image}`
-    : null, // If no image, set to null
-});
+export default StockController;

@@ -1,9 +1,11 @@
 import { Router } from "express";
-const router = Router();
+
 import { languageMiddleware } from "../../middleware/languageMiddleware.js";
 import { campaignSchemaValidation } from "../../middleware/DataValidator.js";
 import SubscriberController from "../../controllers/SubscriberController.js";
 import { isAuthenticated } from "../../middleware/auth.js";
+
+const router = Router();
 
 // Endpoint to subscribe user
 router.post("/subscribe", languageMiddleware, (req, res) =>

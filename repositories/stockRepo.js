@@ -3,6 +3,7 @@ import StockModels from "../models/Stocks.js";
 import MenuType from "../models/MenuType.js";
 import { Types } from "mongoose";
 
+
 class StockRepository extends BaseRepo {
   constructor(connection) {
     super(connection);
@@ -358,6 +359,30 @@ class StockRepository extends BaseRepo {
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
+  };
+
+  searchCategory = async (searchTerm, skip, limit, lang = "en") => {
+    const query = {
+      isDeleted: false,
+    };
+
+    if (searchTerm) {
+      query[`name.${lang}`] = { $regex: searchTerm, $options: "i" };
+    }
+
+    return this.Category.find(query).skip(skip).limit(limit).lean();
+  };
+
+  countSearchCategory = async (searchTerm, lang = "en") => {
+    const query = {
+      isDeleted: false,
+    };
+
+    if (searchTerm) {
+      query[`name.${lang}`] = { $regex: searchTerm, $options: "i" };
+    }
+
+    return this.Category.countDocuments(query);
   };
 }
 
