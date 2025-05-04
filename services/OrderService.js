@@ -121,7 +121,7 @@ class OrderService extends BaseService {
       response.pagination = {
         currentPage: filter.page,
         totalPages: Math.ceil(total / filter.limit),
-        total,
+        totalCount:total,
       };
     }
 
