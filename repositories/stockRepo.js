@@ -72,7 +72,7 @@ class StockRepository extends BaseRepo {
         .sort({ "categoryID.categoryName": 1, "stockName.en": 1 })
         .exec();
 
-      return this.sortStocksByNumericValue(stocks, sort);
+      return this.sortStocksByNumericValue(stocks);
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
@@ -130,7 +130,7 @@ class StockRepository extends BaseRepo {
         },
       ]);
 
-      return this.sortStocksByNumericValue(stocks, sort);
+      return this.sortStocksByNumericValue(stocks);
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
