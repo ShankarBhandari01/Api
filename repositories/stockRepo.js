@@ -3,7 +3,6 @@ import StockModels from "../models/Stocks.js";
 import MenuType from "../models/MenuType.js";
 import { Types } from "mongoose";
 
-
 class StockRepository extends BaseRepo {
   constructor(connection) {
     super(connection);
@@ -33,14 +32,26 @@ class StockRepository extends BaseRepo {
    * @param {Object} sort - The sorting options (e.g., by price, name).
    * @returns {Promise<Array>} The list of stock items.
    */
-  getAllStock = async (skip, limit, sort) => {
+  getAllStock = async (skip, limit, sort = "asc") => {
     try {
-      return await this.stockModel
+      const stocks = await this.stockModel
         .find({ isDeleted: false, isActive: true })
         .skip(skip)
         .limit(limit)
-        .sort(sort)
         .lean();
+
+      // Sort stocks by numeric value extracted from the stockName
+      stocks.sort((a, b) => {
+        const numA = a.stockName.en.split(".")[0]; // Get the part before the dot
+        const numB = b.stockName.en.split(".")[0];
+
+        const numericA = isNaN(numA) ? Infinity : parseInt(numA, 10); // If not a number, use Infinity
+        const numericB = isNaN(numB) ? Infinity : parseInt(numB, 10); // If not a number, use Infinity
+
+        return sort === "asc" ? numericA - numericB : numericB - numericA; // Ascending or Descending sort
+      });
+
+      return stocks;
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
