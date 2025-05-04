@@ -25,6 +25,19 @@ class StockRepository extends BaseRepo {
     }
   };
 
+  // Function to sort stocks based on numeric value extracted from stockName
+  sortStocksByNumericValue = (stocks, sort = "asc") => {
+    return stocks.sort((a, b) => {
+      const numA = a.stockName.en.split(".")[0]; // Get the part before the dot
+      const numB = b.stockName.en.split(".")[0];
+
+      const numericA = isNaN(numA) ? Infinity : parseInt(numA, 10); // If not a number, use Infinity
+      const numericB = isNaN(numB) ? Infinity : parseInt(numB, 10); // If not a number, use Infinity
+
+      return sort === "asc" ? numericA - numericB : numericB - numericA; // Ascending or Descending sort
+    });
+  };
+
   /**
    * Retrieves all active, non-deleted stock items with pagination and sorting.
    * @param {number} skip - The number of items to skip (for pagination).
@@ -40,18 +53,7 @@ class StockRepository extends BaseRepo {
         .limit(limit)
         .lean();
 
-      // Sort stocks by numeric value extracted from the stockName
-      stocks.sort((a, b) => {
-        const numA = a.stockName.en.split(".")[0]; // Get the part before the dot
-        const numB = b.stockName.en.split(".")[0];
-
-        const numericA = isNaN(numA) ? Infinity : parseInt(numA, 10); // If not a number, use Infinity
-        const numericB = isNaN(numB) ? Infinity : parseInt(numB, 10); // If not a number, use Infinity
-
-        return sort === "asc" ? numericA - numericB : numericB - numericA; // Ascending or Descending sort
-      });
-
-      return stocks;
+      return this.sortStocksByNumericValue(stocks, sort);
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
@@ -64,11 +66,13 @@ class StockRepository extends BaseRepo {
    */
   getCategoryWiseStock = async (categoryID) => {
     try {
-      return await this.stockModel
+      const stocks = await this.stockModel
         .find({ categoryID, isDeleted: false, isActive: true })
         .populate("categoryID")
         .sort({ "categoryID.categoryName": 1, "stockName.en": 1 })
         .exec();
+
+      return this.sortStocksByNumericValue(stocks, sort);
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
@@ -80,7 +84,7 @@ class StockRepository extends BaseRepo {
    */
   getGroupByCategory = async () => {
     try {
-      return await this.stockModel.aggregate([
+      const stocks = await this.stockModel.aggregate([
         {
           $lookup: {
             from: "categories",
@@ -125,6 +129,8 @@ class StockRepository extends BaseRepo {
           $sort: { "categoryName.category.en": 1 },
         },
       ]);
+
+      return this.sortStocksByNumericValue(stocks, sort);
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
