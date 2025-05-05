@@ -12,9 +12,8 @@ export function monitorMemory(thresholds = { rss: 150, heapUsed: 100 }) {
     external: Number(MB(usage.external)),
   };
   // Log the memory report
-  if (process.env.NODE_ENV === "test") {
-    console.log(
-      `
+  console.log(
+    `
       [Memory Report] 
       ==== Memory Usage ===
       RSS: ${memoryReport.rss} MB, 
@@ -22,8 +21,8 @@ export function monitorMemory(thresholds = { rss: 150, heapUsed: 100 }) {
       heapTotal: ${memoryReport.heapTotal} MB, 
       external: ${memoryReport.external} MB
       ==== Memory Usage ===`
-    );
-  }
+  );
+
   if (memoryReport.rss > thresholds.rss) {
     logger.log(
       `[Memory Alert] RSS exceeds ${thresholds.rss} MB: ${memoryReport.rss} MB`,
