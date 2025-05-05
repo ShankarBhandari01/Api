@@ -1,12 +1,13 @@
-import rateLimit from 'express-rate-limit';
-
+import rateLimit from "express-rate-limit";
+import Logger from "../utils/logger.js";
+const logger = new Logger();
 // Base options
 const baseOptions = {
   windowMs: 15 * 60 * 1000, // 15 mins
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res, next, options) => {
-    console.warn(`[RateLimit] Blocked IP: ${req.ip}`);
+    logger.log(`[RateLimit] Blocked IP: ${req.ip}`, "info");
     res.status(options.statusCode).json(options.message);
   },
 };
@@ -14,10 +15,10 @@ const baseOptions = {
 // General API limiter
 export const apiLimiter = rateLimit({
   ...baseOptions,
-  max: 100,
+  max: 1000,
   message: {
     status: 429,
-    error: 'Too many requests. Please try again later.',
+    error: "Too many requests. Please try again later.",
   },
 });
 
@@ -28,7 +29,7 @@ export const authLimiter = rateLimit({
   max: 5,
   message: {
     status: 429,
-    error: 'Too many login attempts. Try again in a few minutes.',
+    error: "Too many login attempts. Try again in a few minutes.",
   },
 });
 
@@ -38,6 +39,6 @@ export const adminLimiter = rateLimit({
   max: 50,
   message: {
     status: 429,
-    error: 'Too many requests to admin API. Try again later.',
+    error: "Too many requests to admin API. Try again later.",
   },
 });
