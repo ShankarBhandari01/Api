@@ -174,6 +174,9 @@ class StockRepository extends BaseRepo {
             },
           };
         });
+        
+      // Step 4: Filter out categories with "lunch iteam" in their name
+      // Note: This assumes "lunch iteam" is a category name, not a stock name
       const filteredStocks = sortedStocks.filter(
         (group) =>
           group.categoryName.category.en.toLowerCase() !== "lunch iteam"

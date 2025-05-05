@@ -70,7 +70,9 @@ function onError(error) {
 function onListening() {
   const addr = server.address();
   const networkInterfaces = os.networkInterfaces();
-  const ipAddress = networkInterfaces['eth0'] ? networkInterfaces['eth0'][0].address : 'localhost';
+  const ipAddress = networkInterfaces["eth0"]
+    ? networkInterfaces["eth0"][0].address
+    : "localhost";
 
   const bind =
     typeof addr === "string"
@@ -78,6 +80,14 @@ function onListening() {
       : `http://${ipAddress}:${addr.port}`;
 
   logger.log(`[App] Server started and listening on ${bind}`, "info");
+}
+/**
+ * Event listener for HTTP server "connection" event.
+ * This event is emitted when a new connection is made to the server.
+ * It can be used to log connection details or perform other actions.
+ */
+function onConnection() {
+  logger.log(`[App] New connection established ${sock.remoteAddress}`, "info");
 }
 
 /**
@@ -117,6 +127,7 @@ logger.log(
 server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
+server.on("connection", onConnection);
 
 // Graceful shutdown on SIGINT and SIGTERM signals
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
