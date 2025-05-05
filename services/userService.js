@@ -1,4 +1,4 @@
-import { hash, compare } from "bcrypt";
+import { hash, compare } from "bcryptjs";
 import pkg from "lodash";
 const { omit } = pkg;
 import BaseService from "./BaseService.js";
@@ -12,109 +12,104 @@ class UserService extends BaseService {
     this.companyRepository = new CompanyRepository(connection);
   }
 
+  // New helper method to check for duplicate email and role existence
+  async validateUser(userModel, userId = null) {
+    // Check if email address is already used
+    const existingUser = await this.getUser(userModel);
+    if (existingUser && existingUser._id !== userId) {
+      throw new Error("Email address already used.");
+    }
+
+    // Check user role
+    if (!userModel.role) {
+      throw new Error("User role is required.");
+    }
+
+    // Check if user role is valid
+    const roleExists = await this.companyRepository.findRoleById(
+      userModel.role
+    );
+    if (!roleExists) {
+      throw new Error("Invalid role. Role does not exist.");
+    }
+  }
+
   doSignUp = async (userModel, image) => {
     try {
-      // check if email address is already used
-      var email = await this.getUser(userModel);
-      if (email) {
-        throw new Error("Email address already used. ");
-      }
+      // Validate email and role
+      await this.validateUser(userModel);
+
       // Hash the password using bcrypt
       const hashedPassword = await hash(userModel.password, 10);
       userModel.password = hashedPassword;
-      // check user role
-      if (!userModel.role) {
-        throw new Error("User role is required.");
-      }
-      // check if user role is valid
-      const roleExists = await this.companyRepository.findRoleById(
-        userModel.role
-      );
-      if (!roleExists) {
-        throw new Error("Invalid role. Role does not exist.");
-      }
-      // Attempt to add user using userRepo
+
+    
       const addUserResponse = await this.userRepo.addUser(userModel, image);
-      // Handle addUserResponse based on result
       if (!addUserResponse) {
         throw new Error("Failed to add user");
       }
 
+      // Remove sensitive data from the response
       const sanitizedResponse = omit(addUserResponse.toObject(), [
         "password",
         "createdDate",
       ]);
-      // Prepare success response
-      const response = { data: sanitizedResponse };
-      return response;
+      return { data: sanitizedResponse };
     } catch (err) {
-      // Handle errors
       throw { message: err.message };
     }
   };
-  // admin login only for now
+
   doLogin = async (request, session) => {
     try {
-      var user = await this.getUser(request);
-      if (user === null) {
-        throw new Error("UserNotFound");
-      } else {
-        // check if user is active
-        if (!user.isActive) {
-          throw new Error("User is not active");
-        }
-        // check if password is correct
-        const isPasswordMatch = await compare(request.password, user.password);
-        if (!isPasswordMatch) {
-          // Password does not match
-          throw new Error("InvalidCredentials");
-        }
-        // check user role
-        const roleWithMenus = await this.getUserRole(user.role);
-        if (!roleWithMenus) {
-          throw new Error("Invalid role. Role does not exist.");
-        }
+      const user = await this.getUser(request);
+      if (!user) throw new Error("UserNotFound");
 
-        //Remove sensitive fields
-        const sanitizedUser = omit(user, ["password", "createdDate"]);
+      // Check if user is active
+      if (!user.isActive) throw new Error("User is not active");
 
-        // Add role and menuRights
-        sanitizedUser.role = {
-          name: roleWithMenus.name,
-          description: roleWithMenus.description,
-          menuRights: roleWithMenus.menuRights
-            .filter((mr) => mr.menu !== null)
-            .map((mr) => ({
-              menu: mr.menu,
-              permissions: mr.permissions,
-            })),
-        };
+      // Check if password is correct
+      const isPasswordMatch = await compare(request.password, user.password);
+      if (!isPasswordMatch) throw new Error("InvalidCredentials");
 
-        session.user = sanitizedUser; // save user
-        // firebase token
-        const firebaseToken = {
-          fcmToken: request.fcmToken,
-          deviceInfo: request.deviceInfo,
-        };
-        session.firebaseToken = firebaseToken; // save forebase token
+      // Check user role
+      const roleWithMenus = await this.getUserRole(user.role);
+      if (!roleWithMenus) throw new Error("Invalid role. Role does not exist.");
 
-        //save token in database
-        const token = await super.assignToken(session);
-        // return session with token
-        return { session: token, user: session.user };
-      }
+      // Sanitize user data
+      const sanitizedUser = omit(user, ["password", "createdDate"]);
+
+      // Add role and menu rights
+      sanitizedUser.role = {
+        name: roleWithMenus.name,
+        description: roleWithMenus.description,
+        menuRights: roleWithMenus.menuRights
+          .filter((mr) => mr.menu !== null)
+          .map((mr) => ({
+            menu: mr.menu,
+            permissions: mr.permissions,
+          })),
+      };
+
+      session.user = sanitizedUser;
+      session.firebaseToken = {
+        fcmToken: request.fcmToken,
+        deviceInfo: request.deviceInfo,
+      };
+
+      // Save token and return session data
+      const token = await super.assignToken(session);
+      return { session: token, user: session.user };
     } catch (err) {
-      throw { message: err.message }; // Propagate the error to the controller
+      throw { message: err.message };
     }
   };
 
-  // get user roles
-  getUserRole = async (roldId) =>
-    await this.companyRepository.findRoleById(roldId);
-  // get user details
+  // Helper methods
+  getUserRole = async (roleId) =>
+    await this.companyRepository.findRoleById(roleId);
   getUser = async (request) =>
     await this.userRepo.getUserByUsername(request.email);
-  // get user by id
   getUserById = async (id) => await this.userRepo.getUserById(id);
 
   logout = async (userId) => {
@@ -124,32 +119,18 @@ class UserService extends BaseService {
       throw { message: err.message };
     }
   };
-  // update user
+
   updateUser = async (userModel, image, userId) => {
     try {
-      // check if email address is already used
-      var email = await this.getUser(userModel);
-      if (email && email._id != userId) {
-        throw new Error("Email address already used. ");
-      }
-      // check user role
-      if (!userModel.role) {
-        throw new Error("User role is required.");
-      }
-      // check if user role is valid
-      const roleExists = await this.companyRepository.findRoleById(
-        userModel.role
-      );
-      if (!roleExists) {
-        throw new Error("Invalid role. Role does not exist.");
-      }
+      // Validate email and role
+      await this.validateUser(userModel, userId);
+
       // Attempt to update user using userRepo
       const updateUserResponse = await this.userRepo.updateUser(
         userModel,
         image,
         userId
       );
-      // Handle updateUserResponse based on result
       if (!updateUserResponse) {
         throw new Error("Failed to update user");
       }
@@ -160,12 +141,12 @@ class UserService extends BaseService {
         "updatedDate",
         "__v",
       ]);
-      // Prepare success response
       return super.prepareResponse(sanitizedResponse);
     } catch (err) {
       throw { message: err.message };
     }
   };
+
   getAllUsers = async () => {
     try {
       const users = await this.userRepo.getAllUsers();
