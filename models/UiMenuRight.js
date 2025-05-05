@@ -4,7 +4,7 @@ import { Schema } from "mongoose";
 const MenuSchema = new Schema({
   name: { type: String, required: true }, // e.g., "Campaigns"
   path: { type: String, required: true }, // e.g., "/campaigns"
-  parent: { type: Schema.Types.ObjectId, ref: "UiMenuRight", default: null },
+  parent: { type: Schema.Types.ObjectId, ref: "UiMenuRight", default: null }, // for submenus
   icon: { type: String },
   order: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
