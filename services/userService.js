@@ -59,8 +59,12 @@ class UserService extends BaseService {
       if (user === null) {
         throw new Error("UserNotFound");
       } else {
+        // check if user is active
+        if (!user.isActive) {
+          throw new Error("User is not active");
+        }
+        // check if password is correct
         const isPasswordMatch = await compare(request.password, user.password);
-
         if (!isPasswordMatch) {
           // Password does not match
           throw new Error("InvalidCredentials");

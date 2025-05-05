@@ -6,14 +6,14 @@ const ImageSchema = new Schema({
     required: function () {
       return !this.imageData;
     },
-  }, // Required if no imageData
-  filename: { type: String, required: true, index: true }, // Original file name
-  contentType: { type: String, required: true }, // Image MIME type (e.g., image/png)
+  },
+  filename: { type: String, required: true, index: true }, 
+  contentType: { type: String, required: true }, 
   imageData: {
     type: Buffer,
     required: function () {
       return !this.url;
-    }, // Required only if url is missing
+    }, 
     required: true,
   }, // Binary image data
   uploadedAt: { type: Date, default: Date.now, index: true }, // Timestamp

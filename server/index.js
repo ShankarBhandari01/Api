@@ -94,7 +94,7 @@ app.use((req, res) => {
 job.init();
 
 //=== Memory Monitoring ===
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV !== "production") {
   setInterval(() => {
     logger.log("Memory usage check", "info");
     monitorMemory({ rss: 150, heapUsed: 120 });
