@@ -86,7 +86,7 @@ function onListening() {
  * This event is emitted when a new connection is made to the server.
  * It can be used to log connection details or perform other actions.
  */
-function onConnection() {
+function onConnection(sock) {
   logger.log(`[App] New connection established ${sock.remoteAddress}`, "info");
 }
 
