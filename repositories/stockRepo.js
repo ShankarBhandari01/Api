@@ -174,8 +174,11 @@ class StockRepository extends BaseRepo {
             },
           };
         });
-
-      return sortedStocks;
+      const filteredStocks = sortedStocks.filter(
+        (group) =>
+          group.categoryName.category.en.toLowerCase() !== "lunch iteam"
+      );
+      return filteredStocks;
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
