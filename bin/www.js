@@ -87,7 +87,11 @@ function onListening() {
  * It can be used to log connection details or perform other actions.
  */
 function onConnection(sock) {
-  logger.log(`[App] New connection established ${sock.remoteAddress}`, "info");
+  const maskedIP = sock.remoteAddress?.replace(
+    /\d+(\.\d+){3}/,
+    "xxx.xxx.xxx.xxx"
+  );
+  logger.log(`[App] New connection from ${maskedIP}`, "info");
 }
 
 /**
