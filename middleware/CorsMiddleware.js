@@ -6,7 +6,7 @@ const whitelist = appconfig.app.corsPolicies?.split(',') || [];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (process.env.NODE_ENV === "test") {
+    if (process.env.NODE_ENV === "test"|| process.env.NODE_ENV === "production") {
       callback(null, true); // Allow all origins in test environment
     } else {
       if (!origin || whitelist.includes(origin)) {
