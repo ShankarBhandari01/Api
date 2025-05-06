@@ -25,6 +25,9 @@ import { monitorMemory } from "../utils/memoryMonitor.js";
 import helmet from "helmet";
 import memorystore from "memorystore";
 
+import container from "../containers/Containers.js";
+import { createTenantScope } from "../middleware/CreateTenantScope.js";
+
 const MemoryStore = memorystore(session);
 
 const app = express();
@@ -66,6 +69,7 @@ app.use(urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(languageMiddleware);
 app.use(loggingMiddleware);
+app.use(createTenantScope(container));
 app.use(apiLimiter);
 //app.use(metricsMiddleware);
 
@@ -91,7 +95,7 @@ app.use((req, res) => {
 });
 
 // === Email Marketing Job ===
-job.init();
+//job.init();
 
 //=== Memory Monitoring ===
 if (process.env.NODE_ENV === "production") {

@@ -10,7 +10,7 @@ import _ from "lodash";
 const logger = new Logger();
 
 class UserRepository extends BaseRepo {
-  constructor(connection) {
+  constructor({ connection }) {
     super(connection);
     this.connection = connection;
     this.userModel = userTable(connection);

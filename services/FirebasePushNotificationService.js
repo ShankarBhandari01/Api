@@ -2,13 +2,13 @@ import pkg from 'firebase-admin';
 const { apps, initializeApp, credential: _credential, messaging } = pkg;
 import serviceAccount from "../firebase-service-account.json" with { type: "json" };
 import BaseService from "./BaseService.js";
-import NotificationRepository from "../repositories/NotificationRepository.js";
+
 
 class FirebasePushNotificationService extends BaseService {
-  constructor(connection) {
+  constructor({connection,notificationRepository}) {
     super(connection);
     this.connection = connection;
-    this.notificationRepository = new NotificationRepository(connection);
+    this.notificationRepository = notificationRepository;
     this.initializeFirebase();
   }
 

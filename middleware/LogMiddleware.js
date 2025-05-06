@@ -1,10 +1,9 @@
 import UserloginLog from "../models/UserloginLog.js";
 import BaseService from "../services/BaseService.js";
 import Logger from "../utils/logger.js";
+import container from "../containers/Containers.js";
 import pkg from "lodash";
 const { omit } = pkg;
-import ConnectionManager from "../database/ConnectionManager.js";
-import config from '../config/config.json' with { type: 'json' };
 
 const logger = new Logger();
 let responseData = {};
@@ -30,10 +29,13 @@ export function loggingMiddleware(req, res, next) {
       // Omit sensitive fields like password and any other sensitive data
       const sanitizedResponse = omit(plainPostData, ["password"]);
 
-      // database name
-      const env = config[process.env.NODE_ENV || "development"];
       // log database connection string
-      const connection = await ConnectionManager.getConnection("ApiLogDatabase");
+      const mongoConnectionManager = container.resolve(
+        "mongoConnectionManager"
+      );
+      const connection = await mongoConnectionManager.getConnection(
+        "ApiLogDatabase"
+      );
       const userlogModel = UserloginLog(connection);
 
       const baseService = new BaseService();

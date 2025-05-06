@@ -6,7 +6,7 @@ import pkg from 'lodash';
 const { escapeRegExp } = pkg;
 
 class MenuRepository extends BaseRepo {
-  constructor(connection) {
+  constructor({connection}) {
     super(connection);
     this.connection = connection;
     this.stockModel = StockModels(connection).Stock;

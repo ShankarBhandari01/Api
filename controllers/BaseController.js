@@ -1,5 +1,4 @@
 import RequestHandler from "../utils/RequestHandler.js";
-import mongoManager from "../database/ConnectionManager.js";
 class BaseController extends RequestHandler {
   constructor(req, res) {
     super();
@@ -16,9 +15,10 @@ class BaseController extends RequestHandler {
   };
 
   async getDbConnection() {
-    const dbName = this.req?.session?.envConfig?.database; // for multi database we can change this
+    const dbName = this.req?.session?.envConfig?.database;
     if (!dbName) throw new Error("Database name not found in session");
-    const connection = await mongoManager.getConnection(dbName);
+    // Use the connection from the request's scope
+    const connection = this.req.scope.resolve("connection");
     return connection;
   }
 
@@ -36,9 +36,7 @@ class BaseController extends RequestHandler {
     sendResult = true
   ) {
     try {
-      const connection = await this.getDbConnection();
-      const service = new ServiceClass(connection);
-      const result = await actionFn(service);
+      const result = await actionFn(ServiceClass);
 
       if (sendResult) {
         this.sendResponse(result, successMessage);

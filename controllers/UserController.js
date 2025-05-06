@@ -2,14 +2,15 @@ import UserService from "../services/userService.js";
 import BaseController from "./BaseController.js";
 
 class UserController extends BaseController {
-  constructor(req, res) {
+  constructor({ req, res, userService }) {
     super(req, res);
+    this.userService = userService;
   }
 
   // Signup method
   signup = async () => {
     await this.runServiceMethod(
-      UserService,
+      this.userService,
       async (service) => {
         const bodyData = this.req.body;
         const image = this.req.files?.image || null;
@@ -22,7 +23,7 @@ class UserController extends BaseController {
   // Refresh Token method
   refreshToken = async () => {
     await this.runServiceMethod(
-      UserService,
+      this.userService,
       async (service) => {
         return await service.assignToken(this.req.session);
       },
@@ -33,7 +34,7 @@ class UserController extends BaseController {
   // Login method
   login = async () => {
     await this.runServiceMethod(
-      UserService,
+      this.userService,
       async (service) => {
         return await service.doLogin(this.req.body, this.req.session);
       },
@@ -62,7 +63,7 @@ class UserController extends BaseController {
       },
       "User Updated"
     );
-  }
+  };
 
   getUserById = async () => {
     await this.runServiceMethod(
@@ -73,7 +74,7 @@ class UserController extends BaseController {
       },
       "User Fetched"
     );
-  }
+  };
 
   // Logout method
   logout = async () => {

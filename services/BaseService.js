@@ -9,8 +9,6 @@ const { sign } = jsonweb;
 class BaseService extends BaseRepo {
   constructor(connection) {
     super(connection);
-    this.connection = connection;
-
     this.options = {
       expiresIn: appconfig.auth.jwt_expiresin,
       algorithm: "HS256",

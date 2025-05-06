@@ -4,7 +4,7 @@ import MenuType from "../models/MenuType.js";
 import { Types } from "mongoose";
 
 class StockRepository extends BaseRepo {
-  constructor(connection) {
+  constructor({connection}) {
     super(connection);
     this.connection = connection;
     this.stockModel = StockModels(connection).Stock;

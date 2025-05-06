@@ -3,7 +3,7 @@ import { DatabaseError } from "../utils/errors.js";
 import Reservation from "../models/Reservation.js";
 
 class ReservationRepository extends BaseRepo {
-  constructor(connection) {
+  constructor({connection}) {
     super(connection);
     this.connection = connection;
     this.reservationModel = Reservation(connection).ReservationModel;

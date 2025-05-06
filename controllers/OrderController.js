@@ -1,20 +1,20 @@
 import BaseController from "./BaseController.js";
-import OrderService  from "../services/OrderService.js";
-import FirebasePushNotificationService from "../services/FirebasePushNotificationService.js";
 
 class OrderController extends BaseController {
-  constructor(req, res) {
+  constructor({ req, res, orderService, firebasePushNotificationService }) {
     super(req, res);
+    this.orderService = orderService;
+    this.firebasePushNotificationService = firebasePushNotificationService;
   }
 
   saveOrder = async () => {
     await this.runServiceMethod(
-      OrderService,
+      this.orderService,
       async (service) => {
         const response = await service.saveOrders(this.req.body, this.lang);
-        await new FirebasePushNotificationService(
-          await this.getDbConnection()
-        ).sendPushNotificationToAdminsOnNewOrder(response.data);
+        await this.firebasePushNotificationService.sendPushNotificationToAdminsOnNewOrder(
+          response.data
+        );
 
         return response;
       },
@@ -24,7 +24,7 @@ class OrderController extends BaseController {
   getOrderStatus = async () => {
     const { orderId } = this.req.params;
     await this.runServiceMethod(
-      OrderService,
+      this.orderService,
       async (service) => {
         const response = await service.getOrderStatus(orderId);
         return response;
@@ -35,7 +35,7 @@ class OrderController extends BaseController {
 
   getOrdersBystatus = async (status) => {
     await this.runServiceMethod(
-      OrderService,
+      this.orderService,
       async (service) => {
         const response = await service.getOrdersByStatus(status, this.lang);
         return response;
@@ -47,7 +47,7 @@ class OrderController extends BaseController {
   updateStatus = async () => {
     const { orderId, status } = this.req.params;
     await this.runServiceMethod(
-      OrderService,
+      this.orderService,
       async (service) => {
         const response = await service.updateOrderStatus(orderId, status);
         // TODO send message to user about status of orders
@@ -76,7 +76,7 @@ class OrderController extends BaseController {
     };
 
     await this.runServiceMethod(
-      OrderService,
+      this.orderService,
       async (service) => {
         const response = await service.getOrderByStatusOrAll(filters);
         return response;

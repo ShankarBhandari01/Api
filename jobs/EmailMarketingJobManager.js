@@ -1,6 +1,7 @@
 // jobs/EmailMarketingJob.js
 import AgendaService from "../services/AgendaService.js";
 import ConnectionManager from "../database/ConnectionManager.js";
+import SubscriberRepository from "../repositories/SubscriberRepository.js";
 import Logger from "../utils/logger.js";
 
 class EmailMarketingJobManager extends Logger {
@@ -19,7 +20,13 @@ class EmailMarketingJobManager extends Logger {
       if (!dbConnection) {
         throw new Error("Database connection failed. Job cannot be started.");
       }
-      this.agendaService = new AgendaService(dbConnection);
+      // Initialize SubscriberRepository and AgendaService
+      // Use the same connection for both
+      const subscriberRepository = new SubscriberRepository(dbConnection);
+      this.agendaService = new AgendaService(
+        dbConnection,
+        subscriberRepository
+      );
       // Initialize Agenda service and start jobs
       await this.agendaService.initializeAgenda(
         ConnectionManager.getConnectionString("Mydatabase")

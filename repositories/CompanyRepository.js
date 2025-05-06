@@ -6,8 +6,8 @@ import Menu from "../models/UiMenuRight.js";
 import Role from "../models/Role.js";
 
 class CompanyRepository extends BaseRepo {
-  constructor(connection) {
-    super(connection);
+  constructor({ connection }) {
+    super();
     this.company = CompanyModel(connection).CompanyModel;
     this.imageModel = ImageSchema(connection);
     this.menu = Menu(connection);

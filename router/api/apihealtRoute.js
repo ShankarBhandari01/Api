@@ -7,7 +7,7 @@ const router = Router();
 
 router.get("/health", async (req, res) => {
   try {
-    const connections = mongoManager.getConnectionStatus();
+    const connections = new mongoManager().getConnectionStatus();
     const { isDbUp, dbStatus } = analyzeDbStatus(connections);
     const memoryUsage = formatMemoryUsage(process.memoryUsage());
 

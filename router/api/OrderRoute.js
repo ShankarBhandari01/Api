@@ -1,22 +1,45 @@
 import { Router } from "express";
-import OrderController from "../../controllers/OrderController.js";
-import { isAuthenticated } from "../../middleware/auth.js"; //middleware for varifying user
+import { isAuthenticated } from "../../middleware/auth.js";
 
 const router = Router();
 
-router.post("/saveOrder", (req, res) =>
-  new OrderController(req, res).saveOrder()
-);
+router.post("/saveOrder", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("orderController");
+    await controller.saveOrder();
+  } catch (error) {
+    next(error);
+  }
+});
 
-router.get("/status/:orderId", (req, res) =>
-  new OrderController(req, res).getOrderStatus()
-);
+router.get("/status/:orderId", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("orderController");
+    await controller.getOrderStatus();
+  } catch (error) {
+    next(error);
+  }
+});
 
-router.put("/orders/:orderId/:status", isAuthenticated, (req, res) =>
-  new OrderController(req, res).updateStatus()
+router.put(
+  "/orders/:orderId/:status",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("orderController");
+      await controller.updateStatus();
+    } catch (error) {
+      next(error);
+    }
+  }
 );
-router.get("/AllOrders", isAuthenticated, (req, res) =>
-  new OrderController(req, res).getOrderByStatusOrAll()
-);
+router.get("/AllOrders", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("orderController");
+    await controller.getOrderByStatusOrAll();
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;
