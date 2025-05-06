@@ -13,16 +13,14 @@ router.get("/getCompanyInfo", languageMiddleware, (req, res) => {
 // POST company info
 router.post(
   "/addCompanyInfo",
-  languageMiddleware,
   fileupload.uploadImage,
- // auth.isAuthenticated,
+  // auth.isAuthenticated,
   //checkAccess("/addCompanyInfo", "write"),
   (req, res) => new CompanyController(req, res).addCompanyInfo()
 );
 // POST add table
 router.post(
   "/addTable",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/addTable", "write"),
   (req, res) => new CompanyController(req, res).addTable()
@@ -30,7 +28,6 @@ router.post(
 // POST Menu
 router.post(
   "/routeMenu",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/addMenu", "write"),
   (req, res) => new CompanyController(req, res).addMenu()
@@ -38,14 +35,12 @@ router.post(
 // GET Menu
 router.get(
   "/routeMenu",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/menus", "read"),
   (req, res) => new CompanyController(req, res).getMenus()
 );
 router.put(
   "/routeMenu/:id",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/menus", "update"),
   (req, res) => new CompanyController(req, res).updateMenu()
@@ -53,7 +48,6 @@ router.put(
 // DELETE Menu
 router.delete(
   "/routeMenu/:id",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/menus", "delete"),
   (req, res) => new CompanyController(req, res).deleteMenu()
@@ -61,7 +55,6 @@ router.delete(
 // POST Role
 router.post(
   "/addRole",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/addRole", "write"),
   (req, res) => new CompanyController(req, res).addRole()
@@ -69,7 +62,6 @@ router.post(
 // GET Roles
 router.get(
   "/roles",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/roles", "read"),
   (req, res) => new CompanyController(req, res).getRoles()
@@ -77,7 +69,6 @@ router.get(
 // PUT Role
 router.put(
   "/roles/:id",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/roles", "update"),
   (req, res) => new CompanyController(req, res).updateRole()
@@ -85,7 +76,6 @@ router.put(
 // DELETE Role
 router.delete(
   "/roles/:id",
-  languageMiddleware,
   isAuthenticated,
   checkAccess("/roles", "detele"),
   (req, res) => new CompanyController(req, res).deleteRole()
@@ -93,25 +83,16 @@ router.delete(
 
 // notification apis
 // GET notification
-router.get(
-  "/notification",
-  languageMiddleware,
-  isAuthenticated,
-  (req, res) => new CompanyController(req, res).getNotifications()
+router.get("/notification", isAuthenticated, (req, res) =>
+  new CompanyController(req, res).getNotifications()
 );
 // PUT notification
-router.put(
-  "/notification/:id",
-  languageMiddleware,
-  isAuthenticated,
-  (req, res) => new CompanyController(req, res).updateNotification()
+router.put("/notification/:id", isAuthenticated, (req, res) =>
+  new CompanyController(req, res).updateNotification()
 );
 // DELETE notification
-router.delete(
-  "/notification/:id",
-  languageMiddleware,
-  isAuthenticated,
-  (req, res) => new CompanyController(req, res).deleteNotification()
+router.delete("/notification/:id", isAuthenticated, (req, res) =>
+  new CompanyController(req, res).deleteNotification()
 );
 
 export default router;

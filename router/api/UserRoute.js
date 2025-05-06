@@ -6,7 +6,6 @@ import {
   isAuthenticated,
 } from "../../middleware/auth.js";
 import fileupload from "../../middleware/fileUploadMiddleware.js";
-import { languageMiddleware } from "../../middleware/languageMiddleware.js";
 import { authLimiter } from "../../middleware/RequestRateLimiter.js";
 
 const router = Router();
@@ -21,31 +20,24 @@ router.post("/login", validateLogin, authLimiter, (req, res) =>
   new UserController(req, res).login()
 );
 // User Refresh Token route
-router.post(
-  "/token/refresh",
-  languageMiddleware,
-  isRefreshTokenAuthenticated,
-  (req, res) => new UserController(req, res).refreshToken()
+router.post("/token/refresh", isRefreshTokenAuthenticated, (req, res) =>
+  new UserController(req, res).refreshToken()
 );
 
 // User Logout route
-router.post("/logout", languageMiddleware, isAuthenticated, (req, res) =>
+router.post("/logout", isAuthenticated, (req, res) =>
   new UserController(req, res).logout()
 );
 
-router.get("/getAllUsers", languageMiddleware, isAuthenticated, (req, res) =>
+router.get("/getAllUsers", isAuthenticated, (req, res) =>
   new UserController(req, res).getAllUsers()
 );
-router.get(
-  "/getUserById/:id",
-  languageMiddleware,
-  isAuthenticated,
-  (req, res) => new UserController(req, res).getUserById()
+router.get("/getUserById/:id", isAuthenticated, (req, res) =>
+  new UserController(req, res).getUserById()
 );
 // update user
 router.put(
   "/updateUser/:id",
-  languageMiddleware,
   isAuthenticated,
   fileupload.uploadImage,
   (req, res) => new UserController(req, res).updateUser()
