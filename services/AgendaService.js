@@ -3,11 +3,11 @@ import EmailService from "./EmailService.js";
 import appconfig from "../config/appconfig.js";
 
 class AgendaService extends EmailService {
-  constructor(connection, { SubscriberRepository }) {
+  constructor({ connection, subscriberRepository }) {
     super();
     this.connection = connection;
     this.agenda = null;
-    this.subscriberRepository = SubscriberRepository;
+    this.subscriberRepository = subscriberRepository;
   }
   // Initialize Agenda
   async initializeAgenda(connectionString) {

@@ -3,7 +3,7 @@ import Orders from "../models/Orders.js";
 import Products from "../models/Stocks.js";
 
 class OrderRespository extends BaseRepo {
-  constructor(connection) {
+  constructor({ connection }) {
     super(connection);
     // registering models in connection
     this.order = Orders(connection).OrderModel;

@@ -1,18 +1,16 @@
 import UserService from "../services/userService.js";
 import BaseController from "./BaseController.js";
-import UserRepository from "../repositories/UserRepository.js";
-import CompanyRepository from "../repositories/CompanyRepository.js";
 
 class UserController extends BaseController {
-  constructor(req, res) {
+  constructor({ req, res, userService }) {
     super(req, res);
+    this.userService = userService;
   }
 
   // Signup method
   signup = async () => {
     await this.runServiceMethod(
-      UserService,
-      { UserRepository: UserRepository, CompanyRepository: CompanyRepository },
+      this.userService,
       async (service) => {
         const bodyData = this.req.body;
         const image = this.req.files?.image || null;
@@ -25,8 +23,7 @@ class UserController extends BaseController {
   // Refresh Token method
   refreshToken = async () => {
     await this.runServiceMethod(
-      UserService,
-      { UserRepository: UserRepository, CompanyRepository: CompanyRepository },
+      this.userService,
       async (service) => {
         return await service.assignToken(this.req.session);
       },
@@ -37,8 +34,7 @@ class UserController extends BaseController {
   // Login method
   login = async () => {
     await this.runServiceMethod(
-      UserService,
-      { UserRepository: UserRepository, CompanyRepository: CompanyRepository },
+      this.userService,
       async (service) => {
         return await service.doLogin(this.req.body, this.req.session);
       },
@@ -49,7 +45,6 @@ class UserController extends BaseController {
   getAllUsers = async () => {
     await this.runServiceMethod(
       UserService,
-      { UserRepository: UserRepository, CompanyRepository: CompanyRepository },
       async (service) => {
         return await service.getAllUsers();
       },
@@ -60,7 +55,6 @@ class UserController extends BaseController {
   updateUser = async () => {
     await this.runServiceMethod(
       UserService,
-      { UserRepository: UserRepository, CompanyRepository: CompanyRepository },
       async (service) => {
         const bodyData = this.req.body;
         const image = this.req.files?.image || null;
@@ -74,7 +68,6 @@ class UserController extends BaseController {
   getUserById = async () => {
     await this.runServiceMethod(
       UserService,
-      { UserRepository: UserRepository, CompanyRepository: CompanyRepository },
       async (service) => {
         const userId = this.req.params.id;
         return await service.getUserById(userId);
@@ -87,7 +80,6 @@ class UserController extends BaseController {
   logout = async () => {
     await this.runServiceMethod(
       UserService,
-      { UserRepository: UserRepository, CompanyRepository: CompanyRepository },
       async (service) => {
         const user = this.req.session.user;
         if (!user || !user._id) {

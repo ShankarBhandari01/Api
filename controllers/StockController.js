@@ -1,13 +1,11 @@
 import StockDTO from "../dtos/StockDTO.js";
 import CategoryDTO from "../dtos/CategoryDTO.js";
-import dbConnection from "../database/ConnectionManager.js";
-import StockService from "../services/stockService.js";
 import BaseController from "./BaseController.js";
-import StockRepository from "../repositories/stockRepo.js";
 
 class StockController extends BaseController {
-  constructor(req, res) {
+  constructor({ req, res, stockService }) {
     super(req, res);
+    this.stockService = stockService;
   }
   updateImageUrl(item, req) {
     return {
@@ -22,15 +20,7 @@ class StockController extends BaseController {
     try {
       const lang = this.req.session.lang || "en";
       const stockDto = new StockDTO(this.req.body, this.req.files, lang);
-      const connection = await dbConnection.getConnection(
-        this.req.session.envConfig.database
-      );
-      const stockRepo = new StockRepository(connection);
-      const stockService = new StockService(connection, {
-        StockRepository: stockRepo,
-      });
-      const response = await stockService.addStock(stockDto);
-
+      const response = await this.stockService.addStock(stockDto);
       this.res.statusCode = response.statusCode;
       return this.res.json(response);
     } catch (err) {
@@ -42,14 +32,7 @@ class StockController extends BaseController {
     try {
       const lang = this.req.session.lang || "en";
       const categoryDto = new CategoryDTO(this.req.body);
-      const connection = await dbConnection.getConnection(
-        this.req.session.envConfig.database
-      );
-      const stockRepo = new StockRepository(connection);
-      const stockService = new StockService(connection, {
-        StockRepository: stockRepo,
-      });
-      const response = await stockService.addCategory(categoryDto, lang);
+      const response = await this.stockService.addCategory(categoryDto, lang);
 
       this.res.statusCode = response.statusCode;
       return this.res.json(response);
@@ -68,14 +51,7 @@ class StockController extends BaseController {
         throw { message: "Limit must be less than 100" };
       }
 
-      const connection = await dbConnection.getConnection(
-        this.req.session.envConfig.database
-      );
-      const stockRepo = new StockRepository(connection);
-      const stockService = new StockService(connection, {
-        StockRepository: stockRepo,
-      });
-      const response = await stockService.getAllCategory(page, limit);
+      const response = await this.stockService.getAllCategory(page, limit);
 
       this.res.statusCode = response.statusCode;
       return this.res.json(response);
@@ -116,14 +92,7 @@ class StockController extends BaseController {
         lang,
       };
 
-      const connection = await dbConnection.getConnection(
-        this.req.session.envConfig.database
-      );
-      const stockRepo = new StockRepository(connection);
-      const stockService = new StockService(connection, {
-        StockRepository: stockRepo,
-      });
-      const response = await stockService.getAllStock(searchFilters);
+      const response = await this.stockService.getAllStock(searchFilters);
 
       if (response.statusCode === 200) {
         if (response.rsType === "Allstock" && response.data.length > 0) {
@@ -163,8 +132,7 @@ class StockController extends BaseController {
         lang = "en",
       } = this.req.query;
       await this.runServiceMethod(
-        StockService,
-        { StockRepository: StockRepository },
+        this.stockService,
         async (service) => {
           return await service.searchCategory(
             searchTerm,

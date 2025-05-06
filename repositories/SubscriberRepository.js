@@ -3,7 +3,7 @@ import Subscriber from "../models/SubscriberModel.js";
 import Campaign from "../models/CampaignModel.js";
 
 class SubscriberRepository extends BaseRepository {
-  constructor(connection) {
+  constructor({ connection }) {
     super(connection);
     this.model = Subscriber(connection);
     this.CampaignModel = Campaign(connection);

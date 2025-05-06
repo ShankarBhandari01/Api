@@ -1,10 +1,10 @@
-import pkg from 'jsonwebtoken';
+import pkg from "jsonwebtoken";
 const { verify } = pkg;
 import _ from "lodash";
 import appconfig from "../config/appconfig.js";
 import RequestHandler from "../utils/RequestHandler.js";
 import BaseService from "../services/BaseService.js";
-import ConnectionManager from "../database/ConnectionManager.js";
+
 
 const requestHandler = new RequestHandler();
 
@@ -28,10 +28,8 @@ function handleAuthorizationError(res) {
   )();
 }
 
-async function verifyTokenInDatabase(req,token) {
-  const connection = await ConnectionManager.getConnection(
-    req.session.envConfig.database
-  );
+async function verifyTokenInDatabase(req, token) {
+  const connection = req.scope.resolve("connection");
   const baseService = new BaseService(connection);
 
   const storedToken = await baseService.getCurrentUserToken(token);

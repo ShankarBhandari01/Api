@@ -1,10 +1,9 @@
 import BaseService from "./BaseService.js";
 
-
 class CompanyService extends BaseService {
-  constructor(connection, {CompanyRepository}) {
+  constructor({ connection, companyRepository }) {
     super(connection);
-    this.companyRepository = CompanyRepository;
+    this.companyRepository = companyRepository;
   }
   deleteRole = async (id) =>
     await this.handleRepositoryCall(this.companyRepository.deleteRole, id);

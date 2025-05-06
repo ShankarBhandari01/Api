@@ -2,10 +2,10 @@ import BaseService from "./BaseService.js";
 import OrderDTO from "../dtos/OrderDto.js";
 
 class OrderService extends BaseService {
-  constructor(connection, {OrderRespository}) {
+  constructor({ connection, orderRepository }) {
     super(connection);
     this.connection = connection;
-    this.orderRespository = OrderRespository;
+    this.orderRespository = orderRepository;
   }
 
   saveOrders = async (orders, lang) => {

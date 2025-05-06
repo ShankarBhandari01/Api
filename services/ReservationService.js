@@ -1,10 +1,10 @@
 import BaseService from "./BaseService.js";
 
 class ReservationService extends BaseService {
-  constructor(connection, {ReservationRepository}) {
+  constructor({ connection, reservationRepository }) {
     super(connection);
     this.connection = connection;
-    this.reservationRepository = ReservationRepository;
+    this.reservationRepository = reservationRepository;
   }
 
   addReservation = async (newReservation) => {

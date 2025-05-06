@@ -1,21 +1,20 @@
-import { createContainer, asClass, asValue, asFunction } from "awilix";
-import SubscriberController from "../controllers/SubscriberController.js";
+import { createContainer, asClass } from "awilix";
 import MongoConnectionManager from "../database/ConnectionManager.js";
-import SubscriberService from "../services/SubscriberService.js";
-import SubscriberRepository from "../repositories/SubscriberRepository.js";
+
+import registerRepositories from "./registerRepositories.js";
+import registerServices from "./registerServices.js";
+import registerControllers from "./registerControllers.js";
 
 const container = createContainer();
 
-// Register services, repositories, and controllers
-container.register({
-  subscriberController: asClass(SubscriberController).singleton(),
-  subscriberRepository: asClass(SubscriberRepository).singleton(),
-  subscriberService: asClass(SubscriberService).singleton(), // No inject here, dependencies go in constructor
-});
-
-// Register the MongoDB connection manager
+// Global singleton
 container.register({
   mongoConnectionManager: asClass(MongoConnectionManager).singleton(),
 });
+
+// Modular per-request scoped registrations
+registerRepositories(container);
+registerServices(container);
+registerControllers(container);
 
 export default container;

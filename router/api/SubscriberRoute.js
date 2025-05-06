@@ -1,26 +1,40 @@
 import { Router } from "express";
 import { campaignSchemaValidation } from "../../middleware/DataValidator.js";
-//import SubscriberController from "../../controllers/SubscriberController.js";
 import { isAuthenticated } from "../../middleware/auth.js";
-import container from "../../containers/Containers.js";
 
 const router = Router();
-// Resolve the controller using the container
-const subscriberController = container.resolve("subscriberController");
+
 // Endpoint to subscribe user
-router.post("/subscribe", (req, res) =>
-  subscriberController.subscribe(req, res)
-);
+router.post("/subscribe", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("subscriberController");
+    await controller.subscribe();
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Endpoint to unsubscribe user
-router.post("/unsubscribe", (req, res) =>
-  subscriberController.unsubscribe(req, res)
-);
+router.post("/unsubscribe", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("subscriberController");
+    await controller.unsubscribe()();
+  } catch (err) {
+    next(err);
+  }
+});
 // Endpoint to add Campaingn to all subscribers
 router.post(
   "/addCampaingn",
   isAuthenticated,
   campaignSchemaValidation,
-  (req, res) => subscriberController.addCampaingn(req, res)
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("subscriberController");
+      await controller.addCampaingn()();
+    } catch (err) {
+      next(err);
+    }
+  }
 );
 export default router;

@@ -3,96 +3,196 @@ import { isAuthenticated } from "../../middleware/auth.js";
 import { languageMiddleware } from "../../middleware/languageMiddleware.js";
 import checkAccess from "../../middleware/CheckAccess.js";
 import fileupload from "../../middleware/fileUploadMiddleware.js";
-import CompanyController from "../../controllers/CompanyController.js";
 
 const router = Router();
+
 // GET company info
-router.get("/getCompanyInfo", languageMiddleware, (req, res) => {
-  new CompanyController(req, res).getCompanyInfo();
+router.get("/getCompanyInfo", languageMiddleware, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("companyController");
+    await controller.getCompanyInfo();
+  } catch (e) {
+    next(e);
+  }
 });
+
 // POST company info
 router.post(
   "/addCompanyInfo",
   fileupload.uploadImage,
-  // auth.isAuthenticated,
-  //checkAccess("/addCompanyInfo", "write"),
-  (req, res) => new CompanyController(req, res).addCompanyInfo()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.addCompanyInfo();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
 // POST add table
 router.post(
   "/addTable",
   isAuthenticated,
   checkAccess("/addTable", "write"),
-  (req, res) => new CompanyController(req, res).addTable()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.addTable();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
 // POST Menu
 router.post(
   "/routeMenu",
   isAuthenticated,
   checkAccess("/addMenu", "write"),
-  (req, res) => new CompanyController(req, res).addMenu()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.addMenu();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
 // GET Menu
 router.get(
   "/routeMenu",
   isAuthenticated,
   checkAccess("/menus", "read"),
-  (req, res) => new CompanyController(req, res).getMenus()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.getMenus();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
+// PUT Menu
 router.put(
   "/routeMenu/:id",
   isAuthenticated,
   checkAccess("/menus", "update"),
-  (req, res) => new CompanyController(req, res).updateMenu()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.updateMenu();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
 // DELETE Menu
 router.delete(
   "/routeMenu/:id",
   isAuthenticated,
   checkAccess("/menus", "delete"),
-  (req, res) => new CompanyController(req, res).deleteMenu()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.deleteMenu();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
 // POST Role
 router.post(
   "/addRole",
   isAuthenticated,
   checkAccess("/addRole", "write"),
-  (req, res) => new CompanyController(req, res).addRole()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.addRole();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
 // GET Roles
 router.get(
   "/roles",
   isAuthenticated,
   checkAccess("/roles", "read"),
-  (req, res) => new CompanyController(req, res).getRoles()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.getRoles();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
 // PUT Role
 router.put(
   "/roles/:id",
   isAuthenticated,
   checkAccess("/roles", "update"),
-  (req, res) => new CompanyController(req, res).updateRole()
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.updateRole();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
+
 // DELETE Role
 router.delete(
   "/roles/:id",
   isAuthenticated,
-  checkAccess("/roles", "detele"),
-  (req, res) => new CompanyController(req, res).deleteRole()
+  checkAccess("/roles", "delete"),
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.deleteRole();
+    } catch (e) {
+      next(e);
+    }
+  }
 );
 
-// notification apis
 // GET notification
-router.get("/notification", isAuthenticated, (req, res) =>
-  new CompanyController(req, res).getNotifications()
-);
+router.get("/notification", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("companyController");
+    await controller.getNotifications();
+  } catch (e) {
+    next(e);
+  }
+});
+
 // PUT notification
-router.put("/notification/:id", isAuthenticated, (req, res) =>
-  new CompanyController(req, res).updateNotification()
-);
+router.put("/notification/:id", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("companyController");
+    await controller.updateNotification();
+  } catch (e) {
+    next(e);
+  }
+});
+
 // DELETE notification
-router.delete("/notification/:id", isAuthenticated, (req, res) =>
-  new CompanyController(req, res).deleteNotification()
-);
+router.delete("/notification/:id", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("companyController");
+    await controller.deleteNotification();
+  } catch (e) {
+    next(e);
+  }
+});
 
 export default router;

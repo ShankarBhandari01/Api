@@ -1,39 +1,83 @@
 import { Router } from "express";
 import { isAuthenticated } from "../../middleware/auth.js";
-import checkAccess from "../../middleware/CheckAccess.js";
-import MenuController from "../../controllers/MenuController.js";
 
 const router = Router();
 
 // POST menu Types
-router.post("/menuType", isAuthenticated, (req, res) =>
-  new MenuController(req, res).addMenuTypes()
-);
+router.post("/menuType", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("menuController");
+    await controller.addMenuTypes();
+  } catch (error) {
+    next(error);
+  }
+});
 // POST add menu
-router.post("/addMenu", isAuthenticated, (req, res) =>
-  new MenuController(req, res).addMenu()
-);
-router.get("/menuType", (req, res) =>
-  new MenuController(req, res).getMenuTypes()
-);
+router.post("/addMenu", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("menuController");
+    await controller.addMenu();
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/menuType", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("menuController");
+    await controller.getMenuTypes();
+  } catch (error) {
+    next(error);
+  }
+});
 
-// GET menu
-router.get("/allMenus", (req, res) =>
-  new MenuController(req, res).getAllMenus()
-);
+/// GET all menus
+router.get("/allMenus", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("menuController");
+    await controller.getAllMenus();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET menu by ID
-router.get("/menus/:id", (req, res) => new MenuController(req, res).getMenu());
+router.get("/menus/:id", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("menuController");
+    await controller.getMenu();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // PUT update menu
-router.put("/menus/:id", isAuthenticated, (req, res) =>
-  new MenuController(req, res).updateMenu()
-);
+router.put("/menus/:id", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("menuController");
+    await controller.updateMenu();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // DELETE menu
-router.delete("/menus/:id", isAuthenticated, (req, res) =>
-  new MenuController(req, res).deleteMenu()
-);
+router.delete("/menus/:id", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("menuController");
+    await controller.deleteMenu();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // DELETE menu type
-router.delete("/menuType/:id", isAuthenticated, (req, res) =>
-  new MenuController(req, res).deleteMenuType()
-);
+router.delete("/menuType/:id", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("menuController");
+    await controller.deleteMenuType();
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

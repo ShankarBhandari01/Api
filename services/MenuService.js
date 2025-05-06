@@ -1,9 +1,9 @@
 import BaseService from "./BaseService.js";
 
 class MenuService extends BaseService {
-  constructor(connection, {MenuRepository}) {
+  constructor({ connection, menuRepository }) {
     super(connection);
-    this.menuRepository = MenuRepository;
+    this.menuRepository = menuRepository;
   }
 
   addMenuType = async (menuTypes) => {

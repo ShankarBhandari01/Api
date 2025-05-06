@@ -1,7 +1,7 @@
 import BaseRepository from "./BaseRepository.js";
 import Notificaition from "../models/Notification.js";
 class NotificationRepository extends BaseRepository {
-  constructor(connection) {
+  constructor({connection}) {
     super(connection);
     this.connection = connection;
     this.notification = Notificaition(connection);

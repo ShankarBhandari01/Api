@@ -3,12 +3,11 @@ import pkg from "lodash";
 const { omit } = pkg;
 import BaseService from "./BaseService.js";
 
-
 class UserService extends BaseService {
-  constructor(connection, { UserRepository, CompanyRepository }) {
+  constructor({ connection, userRepository, companyRepository }) {
     super(connection);
-    this.userRepo = UserRepository;
-    this.companyRepository = CompanyRepository;
+    this.userRepo = userRepository;
+    this.companyRepository = companyRepository;
   }
 
   // New helper method to check for duplicate email and role existence

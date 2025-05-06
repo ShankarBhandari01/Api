@@ -5,10 +5,10 @@ import BaseService from "./BaseService.js";
 
 
 class FirebasePushNotificationService extends BaseService {
-  constructor(connection,{NotificationRepository}) {
+  constructor({connection,notificationRepository}) {
     super(connection);
     this.connection = connection;
-    this.notificationRepository = NotificationRepository;
+    this.notificationRepository = notificationRepository;
     this.initializeFirebase();
   }
 
