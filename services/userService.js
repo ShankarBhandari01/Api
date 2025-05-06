@@ -2,14 +2,13 @@ import { hash, compare } from "bcryptjs";
 import pkg from "lodash";
 const { omit } = pkg;
 import BaseService from "./BaseService.js";
-import UserRepository from "../repositories/UserRepository.js";
-import CompanyRepository from "../repositories/CompanyRepository.js";
+
 
 class UserService extends BaseService {
-  constructor(connection) {
+  constructor(connection, { UserRepository, CompanyRepository }) {
     super(connection);
-    this.userRepo = new UserRepository(connection);
-    this.companyRepository = new CompanyRepository(connection);
+    this.userRepo = UserRepository;
+    this.companyRepository = CompanyRepository;
   }
 
   // New helper method to check for duplicate email and role existence
@@ -43,7 +42,6 @@ class UserService extends BaseService {
       const hashedPassword = await hash(userModel.password, 10);
       userModel.password = hashedPassword;
 
-    
       const addUserResponse = await this.userRepo.addUser(userModel, image);
       if (!addUserResponse) {
         throw new Error("Failed to add user");

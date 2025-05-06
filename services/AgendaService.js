@@ -1,20 +1,13 @@
 import Agenda from "agenda";
 import EmailService from "./EmailService.js";
-import SubscriberRepository from "../repositories/SubscriberRepository.js";
 import appconfig from "../config/appconfig.js";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-import { readFileSync } from "fs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 class AgendaService extends EmailService {
-  constructor(connection) {
+  constructor(connection, { SubscriberRepository }) {
     super();
     this.connection = connection;
     this.agenda = null;
-    this.subscriberRepository = new SubscriberRepository(connection);
+    this.subscriberRepository = SubscriberRepository;
   }
   // Initialize Agenda
   async initializeAgenda(connectionString) {

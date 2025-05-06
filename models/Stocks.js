@@ -75,6 +75,10 @@ const categorySchema = new Schema({
     en: { type: String, default: "new listed" },
     fi: { type: String, default: "uusi listattu" },
   },
+  isLunchCategory: {
+    type: Boolean,
+    default: false,
+  },
   isActive: {
     type: Boolean,
     default: true,

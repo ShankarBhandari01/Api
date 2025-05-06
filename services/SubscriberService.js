@@ -1,10 +1,11 @@
 import BaseService from "./BaseService.js";
-import SubscriberRepository from "../repositories/SubscriberRepository.js";
+
 
 class SubscriberService extends BaseService {
-  constructor({ subscriberRepository }) {
+  constructor(connection, {SubscriberRepository}) {
     super(connection);
-    this.repository = subscriberRepository;
+    this.connection = connection;
+    this.repository = SubscriberRepository;
   }
 
   subscribe = async (subscribers) => {

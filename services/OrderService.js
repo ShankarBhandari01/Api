@@ -1,12 +1,11 @@
 import BaseService from "./BaseService.js";
-import OrderRespository from "../repositories/OrderRepository.js";
 import OrderDTO from "../dtos/OrderDto.js";
 
 class OrderService extends BaseService {
-  constructor(connection) {
+  constructor(connection, {OrderRespository}) {
     super(connection);
     this.connection = connection;
-    this.orderRespository = new OrderRespository(connection);
+    this.orderRespository = OrderRespository;
   }
 
   saveOrders = async (orders, lang) => {
@@ -121,7 +120,7 @@ class OrderService extends BaseService {
       response.pagination = {
         currentPage: filter.page,
         totalPages: Math.ceil(total / filter.limit),
-        totalCount:total,
+        totalCount: total,
       };
     }
 

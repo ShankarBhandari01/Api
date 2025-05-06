@@ -1,5 +1,6 @@
 import BaseController from "./BaseController.js";
 import MenuService from "../services/MenuService.js";
+import MenuRepository from "../repositories/MenuRepository.js";
 
 class MenuController extends BaseController {
   constructor(req, res) {
@@ -9,6 +10,7 @@ class MenuController extends BaseController {
   addMenuTypes = async () => {
     await this.runServiceMethod(
       MenuService,
+      { MenuRepository: MenuRepository },
       (service) => service.addMenuType(this.req.body),
       "Menu types added successfully"
     );
@@ -17,6 +19,7 @@ class MenuController extends BaseController {
   getMenuTypes = async () => {
     await this.runServiceMethod(
       MenuService,
+      { MenuRepository: MenuRepository },
       (service) => service.getMenuTypes(),
       "Menu types fetched successfully"
     );
@@ -24,6 +27,7 @@ class MenuController extends BaseController {
   addMenu = async () => {
     await this.runServiceMethod(
       MenuService,
+      { MenuRepository: MenuRepository },
       (service) => service.addMenu(this.req.body),
       "Menu added successfully"
     );
@@ -32,6 +36,7 @@ class MenuController extends BaseController {
   getMenu = async () => {
     await this.runServiceMethod(
       MenuService,
+      { MenuRepository: MenuRepository },
       (service) => service.getMenu(this.req.params.id),
       "Menu fetched successfully"
     );
@@ -40,6 +45,7 @@ class MenuController extends BaseController {
     const type = this.req.query.type || "";
     await this.runServiceMethod(
       MenuService,
+      { MenuRepository: MenuRepository },
       (service) => service.getAllMenus(this.lang, type),
       "Menus fetched successfully"
     );
@@ -47,6 +53,7 @@ class MenuController extends BaseController {
   updateMenu = async () => {
     await this.runServiceMethod(
       MenuService,
+      { MenuRepository: MenuRepository },
       (service) => service.updateMenu(this.req.params.id, this.req.body),
       "Menu updated successfully"
     );
@@ -54,6 +61,7 @@ class MenuController extends BaseController {
   deleteMenu = async () => {
     await this.runServiceMethod(
       MenuService,
+      { MenuRepository: MenuRepository },
       (service) => service.deleteMenu(this.req.params.id),
       "Menu deleted successfully"
     );
@@ -62,6 +70,7 @@ class MenuController extends BaseController {
   deleteMenuType = async () => {
     await this.runServiceMethod(
       MenuService,
+      { MenuRepository: MenuRepository },
       (service) => service.deleteMenuType(this.req.params.id),
       "Menu type deleted successfully"
     );

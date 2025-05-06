@@ -1,5 +1,6 @@
 import BaseController from "./BaseController.js";
 import SubscriberService from "../services/SubscriberService.js";
+import SubscriberRepository from "../repositories/SubscriberRepository.js";
 
 class SubscriberController extends BaseController {
   constructor({ subscriberService }) {
@@ -11,6 +12,7 @@ class SubscriberController extends BaseController {
   subscribe = async (req, res) => {
     await this.runServiceMethod(
       SubscriberService,
+      { SubscriberRepository: SubscriberRepository },
       async (service) => {
         return await service.subscribe(req.body);
       },
@@ -22,6 +24,7 @@ class SubscriberController extends BaseController {
   unsubscribe = async (req, res) => {
     await this.runServiceMethod(
       SubscriberService,
+      { SubscriberRepository: SubscriberRepository },
       async (service) => {
         return await service.unsubscribe(req.body.email);
       },
@@ -32,6 +35,7 @@ class SubscriberController extends BaseController {
   addCampaingn = async (req, res) => {
     await this.runServiceMethod(
       SubscriberService,
+      { SubscriberRepository: SubscriberRepository },
       async (service) => {
         return await service.addCampaingn(req.body);
       },
