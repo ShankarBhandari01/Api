@@ -1,38 +1,39 @@
 import BaseController from "./BaseController.js";
-import SubscriberService  from "../services/SubscriberService.js";
+import SubscriberService from "../services/SubscriberService.js";
 
 class SubscriberController extends BaseController {
-  constructor(req, res) {
+  constructor({ subscriberService }) {
     super(req, res);
+    this.subscriberService = subscriberService;
   }
 
   // Subscribe
-  subscribe = async () => {
+  subscribe = async (req, res) => {
     await this.runServiceMethod(
       SubscriberService,
       async (service) => {
-        return await service.subscribe(this.req.body);
+        return await service.subscribe(req.body);
       },
       "Subscription successful"
     );
   };
 
   // Unsubscribe
-  unsubscribe = async () => {
+  unsubscribe = async (req, res) => {
     await this.runServiceMethod(
       SubscriberService,
       async (service) => {
-        return await service.unsubscribe(this.req.body.email);
+        return await service.unsubscribe(req.body.email);
       },
       "Unsubscription successful"
     );
   };
 
-  addCampaingn = async () => {
+  addCampaingn = async (req, res) => {
     await this.runServiceMethod(
       SubscriberService,
       async (service) => {
-        return await service.addCampaingn(this.req.body);
+        return await service.addCampaingn(req.body);
       },
       "Campain added successfully"
     );

@@ -2,10 +2,9 @@ import BaseService from "./BaseService.js";
 import SubscriberRepository from "../repositories/SubscriberRepository.js";
 
 class SubscriberService extends BaseService {
-  constructor(connection) {
+  constructor({ subscriberRepository }) {
     super(connection);
-    this.connection = connection;
-    this.repository = new SubscriberRepository(connection);
+    this.repository = subscriberRepository;
   }
 
   subscribe = async (subscribers) => {
@@ -40,8 +39,8 @@ class SubscriberService extends BaseService {
   addCampaingn = async (campaign) => {
     return await this.handleRepositoryCall(
       this.repository.addCampaingn,
-      campaign 
-    );   
+      campaign
+    );
   };
 }
 

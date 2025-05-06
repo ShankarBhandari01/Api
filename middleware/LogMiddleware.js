@@ -30,10 +30,8 @@ export function loggingMiddleware(req, res, next) {
       // Omit sensitive fields like password and any other sensitive data
       const sanitizedResponse = omit(plainPostData, ["password"]);
 
-      // database name
-      const env = config[process.env.NODE_ENV || "development"];
       // log database connection string
-      const connection = await ConnectionManager.getConnection("ApiLogDatabase");
+      const connection = await new ConnectionManager.getConnection("ApiLogDatabase");
       const userlogModel = UserloginLog(connection);
 
       const baseService = new BaseService();

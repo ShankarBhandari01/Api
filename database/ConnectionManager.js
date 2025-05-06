@@ -139,4 +139,4 @@ class MongoConnectionManager extends logger {
   }
 }
 
-export default new MongoConnectionManager();
+export default MongoConnectionManager;

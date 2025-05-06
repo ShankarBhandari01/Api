@@ -7,6 +7,7 @@
   "dependencies": {
     "@types/compression": "^1.7.5",
     "agenda": "^5.0.0",
+    "awilix": "^12.0.5",
     "bcryptjs": "^3.0.2",
     "bignumber.js": "^9.3.0",
     "class-transformer": "^0.5.1",
