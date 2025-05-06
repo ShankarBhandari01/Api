@@ -25,20 +25,28 @@ class BaseController extends RequestHandler {
   /**
    * Generic executor for *any* service method
    * @param {Function} ServiceClass - pass the service class (e.g. CompanyService)
+   * @param {Function} RepositoryClass - pass the objects of Repositories class with key value (e.g. {MenuRepository: MenuRepository})
    * @param {Function} actionFn - function that receives the service instance and returns a Promise
    * @param {String} successMessage - success response message
    * @param {Boolean} sendResult - send response
    */
   async runServiceMethod(
     ServiceClass,
+    Repositories,
     actionFn,
     successMessage = "Success",
     sendResult = true
   ) {
     try {
       const connection = await this.getDbConnection();
-      const service = new ServiceClass(connection);
-      const result = await actionFn(service);
+      // Instantiate all repositories from the map
+      const repositoryInstances = {};
+      for (const [key, RepoClass] of Object.entries(Repositories)) {
+        repositoryInstances[key] = new RepoClass(connection);
+      }
+      // Pass the repository object to the service
+      const service = new ServiceClass(connection, repositoryInstances);
+      const result = await actionFn(service, repositoryInstances, connection);
 
       if (sendResult) {
         this.sendResponse(result, successMessage);

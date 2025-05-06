@@ -2,6 +2,8 @@ import BaseController from "../controllers/BaseController.js";
 import ReservationService from "../services/ReservationService.js";
 import FirebasePushNotificationService from "../services/FirebasePushNotificationService.js";
 import EmailService from "../services/EmailService.js";
+import NotificationRepository from "../repositories/NotificationRepository.js";
+import ReservationRepository from "../repositories/ReservationRepository.js";
 
 class ReservationController extends BaseController {
   constructor(req, res) {
@@ -12,13 +14,14 @@ class ReservationController extends BaseController {
   addReservation = async () => {
     await this.runServiceMethod(
       ReservationService,
-      async (service) => {
+      { ReservationRepository: ReservationRepository },
+      async (service, connection) => {
         const response = await service.addReservation(this.req.body);
         // After successful reservation, send booking confirmation and push notification
         await new EmailService().sendBookingConfirmation(response.data);
-        await new FirebasePushNotificationService(
-          await this.getDbConnection()
-        ).sendPushNotificationToAll(response.data);
+        await new FirebasePushNotificationService(connection, {
+          NotificationRepository: new NotificationRepository(connection),
+        }).sendPushNotificationToAll(response.data);
         return response;
       },
       "Reservation added successfully"
@@ -42,6 +45,7 @@ class ReservationController extends BaseController {
 
       await this.runServiceMethod(
         ReservationService,
+        { ReservationRepository: ReservationRepository },
         async (service) => {
           return await service.getAllReservation(searchFilters);
         },

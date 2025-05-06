@@ -3,6 +3,7 @@ import CategoryDTO from "../dtos/CategoryDTO.js";
 import dbConnection from "../database/ConnectionManager.js";
 import StockService from "../services/stockService.js";
 import BaseController from "./BaseController.js";
+import StockRepository from "../repositories/stockRepo.js";
 
 class StockController extends BaseController {
   constructor(req, res) {
@@ -24,7 +25,10 @@ class StockController extends BaseController {
       const connection = await dbConnection.getConnection(
         this.req.session.envConfig.database
       );
-      const stockService = new StockService(connection);
+      const stockRepo = new StockRepository(connection);
+      const stockService = new StockService(connection, {
+        StockRepository: stockRepo,
+      });
       const response = await stockService.addStock(stockDto);
 
       this.res.statusCode = response.statusCode;
@@ -41,13 +45,16 @@ class StockController extends BaseController {
       const connection = await dbConnection.getConnection(
         this.req.session.envConfig.database
       );
-      const stockService = new StockService(connection);
+      const stockRepo = new StockRepository(connection);
+      const stockService = new StockService(connection, {
+        StockRepository: stockRepo,
+      });
       const response = await stockService.addCategory(categoryDto, lang);
 
       this.res.statusCode = response.statusCode;
       return this.res.json(response);
     } catch (err) {
-      return this.sendError( err);
+      return this.sendError(err);
     }
   }
 
@@ -64,7 +71,10 @@ class StockController extends BaseController {
       const connection = await dbConnection.getConnection(
         this.req.session.envConfig.database
       );
-      const stockService = new StockService(connection);
+      const stockRepo = new StockRepository(connection);
+      const stockService = new StockService(connection, {
+        StockRepository: stockRepo,
+      });
       const response = await stockService.getAllCategory(page, limit);
 
       this.res.statusCode = response.statusCode;
@@ -109,7 +119,10 @@ class StockController extends BaseController {
       const connection = await dbConnection.getConnection(
         this.req.session.envConfig.database
       );
-      const stockService = new StockService(connection);
+      const stockRepo = new StockRepository(connection);
+      const stockService = new StockService(connection, {
+        StockRepository: stockRepo,
+      });
       const response = await stockService.getAllStock(searchFilters);
 
       if (response.statusCode === 200) {
@@ -151,6 +164,7 @@ class StockController extends BaseController {
       } = this.req.query;
       await this.runServiceMethod(
         StockService,
+        { StockRepository: StockRepository },
         async (service) => {
           return await service.searchCategory(
             searchTerm,

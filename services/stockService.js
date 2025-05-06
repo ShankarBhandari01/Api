@@ -1,15 +1,14 @@
-import StockRepository from "../repositories/stockRepo.js";
 import BaseService from "./BaseService.js";
 import StockModels from "../models/Stocks.js";
 import escapeStringRegexp from "escape-string-regexp";
 
 class StockService extends BaseService {
-  constructor(connection) {
+  constructor(connection, {StockRepository}) {
     super(connection);
     this.connection = connection;
     this.Stock = StockModels(this.connection).Stock;
     this.Category = StockModels(this.connection).Category;
-    this.stockRepo = new StockRepository(connection);
+    this.stockRepo = StockRepository;
   }
 
   addStock = async (StockDto) => {

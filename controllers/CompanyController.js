@@ -2,6 +2,8 @@ import CompanyService from "../services/CompanyService.js";
 import FirebasePushNotificationService from "../services/FirebasePushNotificationService.js";
 import { mapToCompanyDTO } from "../helper/CompanyDTOHelper.js";
 import BaseController from "./BaseController.js";
+import CompanyRepository from "../repositories/CompanyRepository.js";
+import NotificationRepository from "../repositories/NotificationRepository.js";
 
 class CompanyController extends BaseController {
   constructor(req, res) {
@@ -11,6 +13,7 @@ class CompanyController extends BaseController {
     const { id } = this.req.params;
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.deleteRole(id),
       "Role deleted successfully"
     );
@@ -19,6 +22,7 @@ class CompanyController extends BaseController {
     const { id } = this.req.params;
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.updateRole(id, this.req.body),
       "Role updated successfully"
     );
@@ -26,6 +30,7 @@ class CompanyController extends BaseController {
   addRole = async () =>
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.addRoleWithMenuRights(this.req.body, this.lang),
       "Role info added"
     );
@@ -33,6 +38,7 @@ class CompanyController extends BaseController {
   getRoles = async () =>
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.getRoles(this.lang),
       "Roles fetched successfully"
     );
@@ -41,6 +47,7 @@ class CompanyController extends BaseController {
     const { id } = this.req.params;
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.updateMenu(id, this.req.body),
       "Menu updated successfully"
     );
@@ -49,6 +56,7 @@ class CompanyController extends BaseController {
     const { id } = this.req.params;
     this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.deleteMenu(id),
       "Mennu deleted successfully"
     );
@@ -57,6 +65,7 @@ class CompanyController extends BaseController {
   getMenus = async () =>
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.getMenus(this.lang),
       "Menus fetched successfully"
     );
@@ -64,6 +73,7 @@ class CompanyController extends BaseController {
   async addMenu() {
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.addMenus(this.req.body, this.lang),
       "Menu info added"
     );
@@ -71,6 +81,7 @@ class CompanyController extends BaseController {
   async getCompanyInfo() {
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.getCompanyInfo(this.lang),
       "Company info fetched"
     );
@@ -78,6 +89,7 @@ class CompanyController extends BaseController {
   async addCompanyInfo() {
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => {
         const dto = mapToCompanyDTO(this.req);
         return service.addCompanyInfo(dto, this.lang);
@@ -89,6 +101,7 @@ class CompanyController extends BaseController {
   async addTable() {
     await this.runServiceMethod(
       CompanyService,
+      { CompanyRepository: CompanyRepository },
       (service) => service.addTable(this.req.body, this.lang),
       "Table added"
     );
@@ -98,6 +111,7 @@ class CompanyController extends BaseController {
   async getNotifications() {
     await this.runServiceMethod(
       FirebasePushNotificationService,
+      { NotificationRepository: NotificationRepository },
       (service) => service.getNotifications(),
       "Notifications fetched"
     );
@@ -107,6 +121,7 @@ class CompanyController extends BaseController {
     const { id } = this.req.params;
     await this.runServiceMethod(
       FirebasePushNotificationService,
+      { NotificationRepository: NotificationRepository },
       (service) => service.updateNotification(id),
       "Notification updated successfully"
     );
@@ -115,6 +130,7 @@ class CompanyController extends BaseController {
     const { id } = this.req.params;
     await this.runServiceMethod(
       FirebasePushNotificationService,
+      { NotificationRepository: NotificationRepository },
       (service) => service.deleteNotification(id),
       "Notification deleted successfully"
     );

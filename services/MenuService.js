@@ -1,10 +1,9 @@
 import BaseService from "./BaseService.js";
-import MenuRepository from "../repositories/MenuRepository.js";
 
 class MenuService extends BaseService {
-  constructor(connection) {
+  constructor(connection, {MenuRepository}) {
     super(connection);
-    this.menuRepository = new MenuRepository(connection);
+    this.menuRepository = MenuRepository;
   }
 
   addMenuType = async (menuTypes) => {
@@ -63,4 +62,4 @@ class MenuService extends BaseService {
     await this.handleRepositoryCall(this.menuRepository.deleteMenuType, id);
 }
 
-export default  MenuService;
+export default MenuService;
