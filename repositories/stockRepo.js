@@ -120,6 +120,7 @@ class StockRepository extends BaseRepo {
             _id: "$categoryDetails._id",
             categoryEn: { $first: "$categoryDetails.name.en" },
             categoryFi: { $first: "$categoryDetails.name.fi" },
+            isLunchCategory: { $first: "$categoryDetails.isLunchCategory" },
             items: { $push: "$$ROOT" },
           },
         },
@@ -128,6 +129,7 @@ class StockRepository extends BaseRepo {
             _id: 1,
             categoryName: {
               category: { en: "$categoryEn", fi: "$categoryFi" },
+              isLunchCategory: "$isLunchCategory",
               items: { $ifNull: ["$items", []] },
             },
           },
@@ -174,12 +176,9 @@ class StockRepository extends BaseRepo {
             },
           };
         });
-        
-      // Step 4: Filter out categories with "lunch iteam" in their name
-      // Note: This assumes "lunch iteam" is a category name, not a stock name
+
       const filteredStocks = sortedStocks.filter(
-        (group) =>
-          group.categoryName.category.en.toLowerCase() !== "lunch iteam"
+        (group) => group.categoryName.isLunchCategory === false
       );
       return filteredStocks;
     } catch (error) {

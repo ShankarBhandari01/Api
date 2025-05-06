@@ -13,6 +13,9 @@ class CategoryDTO {
     this.created_at = data.created_at || new Date();
     this.updated_at = data.updated_at || new Date();
     this.mode = data.mode || "new";
+    this.isActive = data.isActive || true;
+    this.isDeleted = data.isDeleted || false;
+    this.isLunchCategory = data.isLunchCategory || false;
     this.id=data.id
   }
 
