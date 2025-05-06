@@ -1,11 +1,9 @@
-import pkg from 'firebase-admin';
-const { apps, initializeApp, credential: _credential, messaging } = pkg;
+import firebase from 'firebase-admin';
 import serviceAccount from "../firebase-service-account.json" with { type: "json" };
 import BaseService from "./BaseService.js";
 
-
 class FirebasePushNotificationService extends BaseService {
-  constructor({connection,notificationRepository}) {
+  constructor({ connection, notificationRepository }) {
     super(connection);
     this.connection = connection;
     this.notificationRepository = notificationRepository;
@@ -15,9 +13,9 @@ class FirebasePushNotificationService extends BaseService {
   // Initialize Firebase app with credentials
   initializeFirebase() {
     try {
-      if (!apps.length) {
-        initializeApp({
-          credential: _credential.cert(serviceAccount),
+      if (!firebase.apps.length) {
+        firebase.initializeApp({
+          credential: firebase.credential.cert(serviceAccount),
         });
       }
     } catch (error) {
@@ -49,30 +47,18 @@ class FirebasePushNotificationService extends BaseService {
           ? ` Special request: "${data.special_requests}".`
           : "");
 
-      const notification = {
-        title,
-        body,
-      };
+      const notification = { title, body };
 
       const fcmsTokens = await this.getFcmToken();
-      // Save notification to the database
       await this.savenotification(notification, null, "reservation");
-      // Send notification to all tokens
-      if (fcmsTokens !== "" && fcmsTokens.length > 0) {
+
+      if (fcmsTokens && fcmsTokens.length > 0) {
         const message = {
-          notification: {
-            title: notification.title,
-            body: notification.body,
-          },
-          tokens: fcmsTokens.map((fcm) => fcm.token), // Array of tokens
+          notification,
+          tokens: fcmsTokens.map((fcm) => fcm.token),
         };
-        const response = await messaging().sendEachForMulticast(message);
-        this.log(
-          `Multicast notification sent successfully: ${JSON.stringify(
-            response
-          )}`,
-          "info"
-        );
+        const response = await firebase.messaging().sendEachForMulticast(message);
+        this.log(`Multicast notification sent successfully: ${JSON.stringify(response)}`, "info");
       } else {
         this.log("No FCM tokens found", "error");
       }
@@ -80,6 +66,7 @@ class FirebasePushNotificationService extends BaseService {
       this.log(`Error sending notification: ${error}`, "error");
     }
   };
+
   // Send push notification to admins on new order
   sendPushNotificationToAdminsOnNewOrder = async (orderData) => {
     try {
@@ -102,34 +89,23 @@ class FirebasePushNotificationService extends BaseService {
         .join(", ");
 
       const title = `New Order Received`;
-
       const body =
-        `${customer?.name || "A customer"} placed an order of ${
-          items.length
-        } item(s) on ${orderDate} at ${orderTime}.\n` +
+        `${customer?.name || "A customer"} placed an order of ${items.length} item(s) on ${orderDate} at ${orderTime}.\n` +
         `Items: ${itemSummary}\nTotal: €${totalAmount}`;
 
-      const notification = {
-        title,
-        body,
-      };
-      // get all admin tokens
+      const notification = { title, body };
       const fcmsTokens = await this.getFcmToken();
-      // Save notification to the database
+
       await this.savenotification(notification, customer, "order");
-      // Send notification to admins
+
       if (Array.isArray(fcmsTokens) && fcmsTokens.length > 0) {
         const message = {
           notification,
           tokens: fcmsTokens.map((fcm) => fcm.token),
         };
 
-        const response = await messaging().sendEachForMulticast(message);
-
-        this.log(
-          `Order notification sent to admins: ${JSON.stringify(response)}`,
-          "info"
-        );
+        const response = await firebase.messaging().sendEachForMulticast(message);
+        this.log(`Order notification sent to admins: ${JSON.stringify(response)}`, "info");
       } else {
         this.log("No admin FCM tokens found", "warn");
       }
@@ -137,14 +113,15 @@ class FirebasePushNotificationService extends BaseService {
       this.log(`Error sending order notification: ${error}`, "error");
     }
   };
-  // Save notification to the database
+
   savenotification = async (notificationData, customer, type) => {
     try {
-      let notification = {};
-      notification.title = notificationData.title;
-      notification.message = notificationData.body;
-      notification.type = type;
-      notification.customerId = customer ? customer._id : null;
+      const notification = {
+        title: notificationData.title,
+        message: notificationData.body,
+        type,
+        customerId: customer ? customer._id : null,
+      };
 
       return await this.handleRepositoryCall(
         this.notificationRepository.saveNotification,
@@ -154,22 +131,15 @@ class FirebasePushNotificationService extends BaseService {
       this.log(`Error saving notification: ${error}`, "error");
     }
   };
+
   getNotifications = async () =>
-    await this.handleRepositoryCall(
-      this.notificationRepository.getNotifications
-    );
+    await this.handleRepositoryCall(this.notificationRepository.getNotifications);
 
   updateNotification = async (id) =>
-    await this.handleRepositoryCall(
-      this.notificationRepository.updateSeenStatus,
-      id
-    );
+    await this.handleRepositoryCall(this.notificationRepository.updateSeenStatus, id);
 
   deleteNotification = async (id) =>
-    await this.handleRepositoryCall(
-      this.notificationRepository.deleteNotification,
-      id
-    );
+    await this.handleRepositoryCall(this.notificationRepository.deleteNotification, id);
 }
 
 export default FirebasePushNotificationService;

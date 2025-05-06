@@ -1,13 +1,12 @@
 import { Router } from "express";
 import { isAuthenticated } from "../../middleware/auth.js";
-import { languageMiddleware } from "../../middleware/languageMiddleware.js";
 import checkAccess from "../../middleware/CheckAccess.js";
 import fileupload from "../../middleware/fileUploadMiddleware.js";
 
 const router = Router();
 
 // GET company info
-router.get("/getCompanyInfo", languageMiddleware, async (req, res, next) => {
+router.get("/getCompanyInfo", async (req, res, next) => {
   try {
     const controller = req.scope.resolve("companyController");
     await controller.getCompanyInfo();
