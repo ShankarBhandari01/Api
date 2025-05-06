@@ -21,8 +21,8 @@ class ReservationController extends BaseController {
       async (service) => {
         const response = await service.addReservation(this.req.body);
         // After successful reservation, send booking confirmation and push notification
-        await emailService.sendBookingConfirmation(response.data);
-        await firebasePushNotificationService.sendPushNotificationToAll(
+        await this.emailService.sendBookingConfirmation(response.data);
+        await this.firebasePushNotificationService.sendPushNotificationToAll(
           response.data
         );
         return response;
@@ -60,3 +60,9 @@ class ReservationController extends BaseController {
 }
 
 export default ReservationController;
+console.log("ReservationController initialized");
+console.log("Adding reservation...");
+console.log("Sending booking confirmation and push notification...");
+console.log("Getting reservations...");
+console.log("Validating limit and search filters...");
+console.log("Fetching reservations...");
