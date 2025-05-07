@@ -3,7 +3,7 @@ import { DatabaseError } from "../utils/errors.js";
 import Reservation from "../models/Reservation.js";
 
 class ReservationRepository extends BaseRepo {
-  constructor({connection}) {
+  constructor({ connection }) {
     super(connection);
     this.connection = connection;
     this.reservationModel = Reservation(connection).ReservationModel;
@@ -29,34 +29,70 @@ class ReservationRepository extends BaseRepo {
     }
   };
 
-  getReservations = async (skip = 0, limit = 10, filterToday = false) => {
+  getReservations = async ({
+    skip = 0,
+    limit = 10,
+    filterToday = false,
+    filterUpcoming = false,
+    filterPast = false,
+  } = {}) => {
     try {
+      const now = new Date();
+      const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+
       let query = {};
 
       if (filterToday) {
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0); // Start of today
-
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999); // End of today
-
         query = {
-          reservation_date: {
-            $gte: startOfDay,
-            $lt: endOfDay,
-          },
+          reservation_date: { $gte: startOfDay, $lt: endOfDay },
+        };
+      } else if (filterUpcoming) {
+        query = {
+          reservation_date: { $gt: endOfDay },
+        };
+      } else if (filterPast) {
+        query = {
+          reservation_date: { $lt: startOfDay },
         };
       }
 
-      return await this.reservationModel
-        .find(query)
-        .populate("table_id")
-        .sort({ reservation_date: -1 }) // Sort by reservation date
-        .skip(skip)
-        .limit(limit)
-        .lean();
+      if (filterToday || filterUpcoming || filterPast) {
+        return await this.reservationModel
+          .find(query)
+          .populate("table_id")
+          .sort({ reservation_date: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean();
+      }
+
+      // Default: mixed list with today's first
+      const results = await this.reservationModel.aggregate([
+        {
+          $addFields: {
+            isToday: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ["$reservation_date", startOfDay] },
+                    { $lt: ["$reservation_date", endOfDay] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+        { $sort: { isToday: -1, reservation_date: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+      ]);
+
+      return results;
     } catch (error) {
-      this.logAndThrowError(error.message, error);
+      this.logAndThrowError("Failed to fetch reservations", error);
     }
   };
 
