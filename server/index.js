@@ -3,8 +3,6 @@ import session from "express-session";
 import methodOverride from "method-override";
 import compression from "compression";
 import cookieParser from "cookie-parser";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
 
 import config from "../config/appconfig.js";
 import Logger from "../utils/logger.js";
@@ -21,6 +19,7 @@ import {
   csrfTokenMiddleware,
   csrfProtection,
 } from "../middleware/csrfMiddleware.js";
+import serveStaticFiles from "../middleware/staticFiles.js";
 import { monitorMemory } from "../utils/memoryMonitor.js";
 import helmet from "helmet";
 import memorystore from "memorystore";
@@ -33,8 +32,7 @@ const MemoryStore = memorystore(session);
 const app = express();
 const logger = new Logger();
 const job = new EmailMarketingJobManager();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+
 
 // === System Settings ===
 app.set("trust proxy", 1);
@@ -74,21 +72,7 @@ app.use(apiLimiter);
 //app.use(metricsMiddleware);
 
 // === Static Assets ===
-app.use(
-  "/public",
-  expressStatic(join(__dirname, "../public/images"), {
-    dotfiles: "ignore",
-    etag: false,
-  })
-);
-app.use(
-  "/logo",
-  expressStatic(join(__dirname, "../public/logos"), {
-    dotfiles: "ignore",
-    etag: false,
-  })
-);
-
+serveStaticFiles(app);
 // === Routes ===
 app.use(indexRoutes);
 // CSRF Token Middleware to expose token
