@@ -16,6 +16,16 @@ class SubscriberController extends BaseController {
       "Subscription successful"
     );
   };
+  // get all list
+  getAllSubscribe = async () => {
+    await this.runServiceMethod(
+      this.subscriberService,
+      async (service) => {
+        return await service.getAllSubscribe();
+      },
+      "All Subscribe list  successful"
+    );
+  };
 
   // Unsubscribe
   unsubscribe = async () => {

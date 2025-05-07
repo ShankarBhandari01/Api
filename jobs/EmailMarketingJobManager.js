@@ -1,13 +1,10 @@
 // jobs/EmailMarketingJob.js
-import AgendaService from "../services/AgendaService.js";
-import ConnectionManager from "../database/ConnectionManager.js";
-import SubscriberRepository from "../repositories/SubscriberRepository.js";
 import Logger from "../utils/logger.js";
-
 class EmailMarketingJobManager extends Logger {
-  constructor() {
+  constructor({ agendaService, mongoConnectionManager }) {
     super();
-    this.agendaService = null;
+    this.agendaService = agendaService;
+    this.mongoConnectionManager = mongoConnectionManager;
   }
 
   async init() {
@@ -16,20 +13,8 @@ class EmailMarketingJobManager extends Logger {
 
   async _startJob() {
     try {
-      const dbConnection = await ConnectionManager.getConnection("Mydatabase");
-      if (!dbConnection) {
-        throw new Error("Database connection failed. Job cannot be started.");
-      }
-      // Initialize SubscriberRepository and AgendaService
-      // Use the same connection for both
-      const subscriberRepository = new SubscriberRepository(dbConnection);
-      this.agendaService = new AgendaService(
-        dbConnection,
-        subscriberRepository
-      );
-      // Initialize Agenda service and start jobs
       await this.agendaService.initializeAgenda(
-        ConnectionManager.getConnectionString("Mydatabase")
+        this.mongoConnectionManager.getConnectionString("Mydatabase")
       );
     } catch (error) {
       this.log(`Error in EmailMarketingJob: ${error.message}`, "error");

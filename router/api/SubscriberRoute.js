@@ -14,6 +14,16 @@ router.post("/subscribe", async (req, res, next) => {
   }
 });
 
+router.get("/subscribe"),
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("subscriberController");
+      await controller.getAllSubscribe();
+    } catch (err) {
+      next(err);
+    }
+  };
+
 // Endpoint to unsubscribe user
 router.post("/unsubscribe", async (req, res, next) => {
   try {

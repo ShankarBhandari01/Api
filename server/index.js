@@ -6,7 +6,6 @@ import cookieParser from "cookie-parser";
 
 import config from "../config/appconfig.js";
 import Logger from "../utils/logger.js";
-import EmailMarketingJobManager from "../jobs/EmailMarketingJobManager.js";
 
 import indexRoutes from "../router/index.js";
 import corsMiddleware from "../middleware/CorsMiddleware.js";
@@ -26,12 +25,11 @@ import memorystore from "memorystore";
 
 import container from "../containers/Containers.js";
 import { createTenantScope } from "../middleware/CreateTenantScope.js";
-
+import { initNotificationQueue } from "../jobs/Notification.job.js";
 const MemoryStore = memorystore(session);
 
 const app = express();
 const logger = new Logger();
-const job = new EmailMarketingJobManager();
 
 
 // === System Settings ===
@@ -86,8 +84,11 @@ app.use((req, res) => {
 });
 
 // === Email Marketing Job ===
-//job.init();
+const marketingjob = container.resolve("emailMarketingJobManager");
+marketingjob.init();
 
+//Bull queue processor
+initNotificationQueue();
 //=== Memory Monitoring ===
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {
