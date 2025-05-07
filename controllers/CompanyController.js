@@ -96,9 +96,12 @@ class CompanyController extends BaseController {
 
   // notification
   async getNotifications() {
+    // Get pagination parameters from query
+    const page = parseInt(this.req.query.page) || 1;
+    const limit = parseInt(this.req.query.limit) || 20;
     await this.runServiceMethod(
       this.firebasePushNotificationService,
-      (service) => service.getNotifications(),
+      (service) => service.getNotifications(page, limit),
       "Notifications fetched"
     );
   }

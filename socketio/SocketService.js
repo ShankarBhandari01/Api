@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
 import registerNotificationGateway from "./notification.gateway.js";
+import config from "../config/appconfig.js";
 
 class SocketService {
   io = null;
@@ -17,7 +18,7 @@ class SocketService {
     });
 
     this.pubClient = createClient({
-      url: options.redisUrl || "redis://localhost:6379",
+      url: options.redisUrl || config.redis.host || "redis://localhost:6379",
     });
     this.subClient = this.pubClient.duplicate();
 

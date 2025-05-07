@@ -45,7 +45,7 @@ class SubscriberRepository extends BaseRepository {
     const now = new Date();
     await this.Campaign.updateMany(
       { endDate: { $lt: now }, status: { $ne: "expired" } },
-      { $set: { status: "expired", updated_at: now } }
+      { $set: { status: "expired" } }
     );
   };
 
@@ -77,7 +77,29 @@ class SubscriberRepository extends BaseRepository {
     }).lean();
     return campaigns;
   };
+  // api
+  updateCampaign = async (campaignId, updateData) => {
+    try {
+      const updatedCampaign = await this.CampaignModel.findByIdAndUpdate(
+        campaignId,
+        updateData,
+        {
+          new: true, // return the updated document
+          runValidators: true, // enforce schema validations
+        }
+      );
 
+      if (!updatedCampaign) {
+        throw new Error(`Campaign with ID ${campaignId} not found.`);
+      }
+
+      return updatedCampaign;
+    } catch (error) {
+      throw new Error(`Failed to update campaign: ${error.message}`);
+    }
+  };
+
+  // job
   updateCampaignAfterJob = async (
     campaignId,
     error = {},
@@ -87,7 +109,6 @@ class SubscriberRepository extends BaseRepository {
       campaignId,
       {
         status: status,
-        updated_at: new Date(),
         issueMessage: error,
       },
       { new: true }

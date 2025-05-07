@@ -16,7 +16,7 @@ const CampaingnScheme = new Schema({
   },
   status: {
     type: String,
-    enum: ["Active", "Completed", "Expired", "Issue"],
+    enum: ["Active", "Completed", "Expired", "Issue",'Disable'],
     default: "Active",
   },
   issueMessage: { type: Object },
@@ -33,4 +33,14 @@ const CampaingnScheme = new Schema({
     default: Date.now,
   },
 });
+// Add pre hooks to auto-update `updated_at` before updates
+const autoUpdateTimestamp = function (next) {
+  this.set({ updated_at: new Date() });
+  next();
+};
+
+CampaingnScheme.pre("findOneAndUpdate", autoUpdateTimestamp);
+CampaingnScheme.pre("updateOne", autoUpdateTimestamp);
+CampaingnScheme.pre("updateMany", autoUpdateTimestamp);
+
 export default (connection) => connection.model("Campaign", CampaingnScheme);
