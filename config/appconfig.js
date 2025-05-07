@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { fileURLToPath } from 'url';  
-import { dirname, join } from 'path'; 
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-const __filename = fileURLToPath(import.meta.url); 
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = {
@@ -24,6 +24,9 @@ const db = {
   host: process.env.DB_HOST,
   dialect: "mongodb",
   logging: true,
+};
+const redis = {
+  host: process.env.REDIS_HOST || "redis://localhost:6379",
 };
 const winiston = {
   logpath: "/myapp/logs/",
@@ -49,4 +52,4 @@ const file = {
 };
 
 // Export the entire config as a default export
-export default { app, agenda, db, winiston, auth, sendgrid, file };
+export default { app, agenda, db, winiston, auth, sendgrid, file, redis };
