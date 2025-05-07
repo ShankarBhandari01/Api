@@ -60,9 +60,3 @@ class ReservationController extends BaseController {
 }
 
 export default ReservationController;
-console.log("ReservationController initialized");
-console.log("Adding reservation...");
-console.log("Sending booking confirmation and push notification...");
-console.log("Getting reservations...");
-console.log("Validating limit and search filters...");
-console.log("Fetching reservations...");

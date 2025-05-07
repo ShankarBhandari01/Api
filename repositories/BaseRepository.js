@@ -134,7 +134,7 @@ class BaseRepository extends Logger {
 
   // Utility function to log and throw errors
   logAndThrowError = (message, err) => {
-    this.log(`[Api] ${message}`, "error");
+    this.log(`[Api] ${message.message}`, "error");
     throw new DatabaseError(`${message}: ${err.message}`);
   };
 }
