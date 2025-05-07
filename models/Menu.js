@@ -19,6 +19,7 @@ const menuSchema = new Schema(
           "Friday",
           "Saturday",
           "Sunday",
+          ""
         ],
         required: false,
       },
