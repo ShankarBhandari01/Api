@@ -81,6 +81,13 @@ app.use(
     etag: false,
   })
 );
+app.use(
+  "/public",
+  expressStatic(join(__dirname, "../public/logos"), {
+    dotfiles: "ignore",
+    etag: false,
+  })
+);
 
 // === Routes ===
 app.use(indexRoutes);
@@ -101,7 +108,7 @@ app.use((req, res) => {
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {
     logger.log("Memory usage check", "info");
-    monitorMemory({ rss: 150, heapUsed: 120 });
+    monitorMemory({ rss: 250, heapUsed: 120 });
   }, 60000); // 1 minute
 }
 

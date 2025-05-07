@@ -1,7 +1,7 @@
 // utils/memoryMonitor.js
 import Logger from "./logger.js";
 const logger = new Logger();
-export function monitorMemory(thresholds = { rss: 150, heapUsed: 100 }) {
+export function monitorMemory(thresholds = { rss: 250, heapUsed: 100 }) {
   const usage = process.memoryUsage();
   const MB = (bytes) => (bytes / 1024 / 1024).toFixed(2);
 
