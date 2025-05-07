@@ -25,7 +25,7 @@ import memorystore from "memorystore";
 
 import container from "../containers/Containers.js";
 import { createTenantScope } from "../middleware/CreateTenantScope.js";
-import { initNotificationQueue } from "../jobs/notification.job.js";
+import { initNotificationQueue } from "../jobs/Notification.job.js";
 const MemoryStore = memorystore(session);
 
 const app = express();
