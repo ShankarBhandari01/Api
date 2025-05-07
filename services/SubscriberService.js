@@ -27,7 +27,7 @@ class SubscriberService extends BaseService {
   };
 
   getAllSubscribe = async () =>
-    await this.handleRepositoryCall(this.repository.getAllSubscribers());
+    await this.handleRepositoryCall(this.repository.getAllSubscribers);
 
   getSubscribers = async () => {
     return await this.handleRepositoryCall(this.repository.getAllSubscribers);
