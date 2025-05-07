@@ -29,13 +29,13 @@ class ReservationRepository extends BaseRepo {
     }
   };
 
-  getReservations = async ({
+  getReservations = async (
     skip = 0,
     limit = 10,
-    filterToday = false,
+    isTodayReservations = false,
     filterUpcoming = false,
-    filterPast = false,
-  } = {}) => {
+    filterPast = false
+  ) => {
     try {
       const now = new Date();
       const startOfDay = new Date(now.setHours(0, 0, 0, 0));
@@ -43,7 +43,7 @@ class ReservationRepository extends BaseRepo {
 
       let query = {};
 
-      if (filterToday) {
+      if (isTodayReservations) {
         query = {
           reservation_date: { $gte: startOfDay, $lt: endOfDay },
         };
@@ -57,7 +57,7 @@ class ReservationRepository extends BaseRepo {
         };
       }
 
-      if (filterToday || filterUpcoming || filterPast) {
+      if (isTodayReservations || filterUpcoming || filterPast) {
         return await this.reservationModel
           .find(query)
           .populate("table_id")
