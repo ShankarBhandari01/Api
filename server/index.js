@@ -82,7 +82,7 @@ app.use(
   })
 );
 app.use(
-  "/public",
+  "/logo",
   expressStatic(join(__dirname, "../public/logos"), {
     dotfiles: "ignore",
     etag: false,
