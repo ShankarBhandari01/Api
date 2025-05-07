@@ -14,7 +14,7 @@ router.post("/subscribe", async (req, res, next) => {
   }
 });
 
-router.get("/getAllSubscribers", async (req, res, next) => {
+router.get("/getAllSubscribers", isAuthenticated, async (req, res, next) => {
   try {
     const controller = req.scope.resolve("subscriberController");
     await controller.getAllSubscribe();
