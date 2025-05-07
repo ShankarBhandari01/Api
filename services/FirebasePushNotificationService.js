@@ -1,7 +1,7 @@
 import firebase from 'firebase-admin';
 import serviceAccount from "../firebase-service-account.json" with { type: "json" };
 import BaseService from "./BaseService.js";
-import { sendSocketioNotification } from "../jobs/notification.job.js";
+import { sendSocketioNotification } from "../jobs/Notification.job.js";
 
 class FirebasePushNotificationService extends BaseService {
   constructor({ connection, notificationRepository }) {
