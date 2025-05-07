@@ -137,8 +137,27 @@ class FirebasePushNotificationService extends BaseService {
     }
   };
 
-  getNotifications = async () =>
-    await this.handleRepositoryCall(this.notificationRepository.getNotifications);
+  getNotifications = async (page, limit) =>{
+   const skip = this.getSkipNumber(page,limit);
+
+  const [notification,total]= await Promise.all([
+    this.notificationRepository.getNotifications(limit,skip),
+    this.notificationRepository.getDocumentCounts()
+  ]);
+  // Format the response
+  const response = super.prepareResponse(notification, "notification");
+
+  if (Array.isArray(notification) && notification.length > 0) {
+    response.pagination = {
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalCount: total,
+    };
+  }
+
+  return response;
+  }
+  
 
   updateNotification = async (id) =>
     await this.handleRepositoryCall(this.notificationRepository.updateSeenStatus, id);

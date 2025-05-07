@@ -27,7 +27,7 @@ router.get("/getAllSubscribers", isAuthenticated, async (req, res, next) => {
 router.post("/unsubscribe", async (req, res, next) => {
   try {
     const controller = req.scope.resolve("subscriberController");
-    await controller.unsubscribe()();
+    await controller.unsubscribe();
   } catch (err) {
     next(err);
   }
@@ -40,7 +40,20 @@ router.post(
   async (req, res, next) => {
     try {
       const controller = req.scope.resolve("subscriberController");
-      await controller.addCampaingn()();
+      await controller.addCampaingn();
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.put(
+  "/updateCampaign/:id",
+  campaignSchemaValidation,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("subscriberController");
+      await controller.updateCampaign();
     } catch (err) {
       next(err);
     }

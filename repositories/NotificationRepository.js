@@ -1,7 +1,7 @@
 import BaseRepository from "./BaseRepository.js";
 import Notificaition from "../models/Notification.js";
 class NotificationRepository extends BaseRepository {
-  constructor({connection}) {
+  constructor({ connection }) {
     super(connection);
     this.connection = connection;
     this.notification = Notificaition(connection);
@@ -9,10 +9,24 @@ class NotificationRepository extends BaseRepository {
 
   saveNotification = async (newNotification) =>
     await this.notification.create(newNotification);
-  getNotifications = async () =>
-    this.notification.find().sort({ createdAt: -1 }).lean();
+
+  getNotifications = async (limit, skip) =>
+    this.notification
+      .find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
   updateSeenStatus = async (id) =>
-    await this.notification.findByIdAndUpdate(id, { isRead: true });
+    await this.notification.findByIdAndUpdate(
+      id,
+      { isRead: true },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
   clearNotifications = async () => {
     await this.notification.deleteMany({});
@@ -26,5 +40,6 @@ class NotificationRepository extends BaseRepository {
     // If notificationId is provided, delete that specific notification
     await this.notification.findByIdAndDelete(notificationId);
   };
+  getDocumentCounts = async () => await this.notification.countDocuments();
 }
 export default NotificationRepository;

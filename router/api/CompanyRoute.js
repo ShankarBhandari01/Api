@@ -165,7 +165,7 @@ router.delete(
 );
 
 // GET notification
-router.get("/notification", isAuthenticated, async (req, res, next) => {
+router.get("/notification", async (req, res, next) => {
   try {
     const controller = req.scope.resolve("companyController");
     await controller.getNotifications();

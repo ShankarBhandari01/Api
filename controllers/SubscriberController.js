@@ -47,6 +47,13 @@ class SubscriberController extends BaseController {
       "Campain added successfully"
     );
   };
+  // update campaign
+  updateCampaign = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(this.subscriberService, async (service) => {
+      return await service.updateCampaign(id, this.req.body);
+    });
+  };
 }
 
 export default SubscriberController;

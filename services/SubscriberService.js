@@ -45,6 +45,14 @@ class SubscriberService extends BaseService {
       campaign
     );
   };
+
+  updateCampaign = async (id, campaign) => {
+    return await this.handleRepositoryCall(
+      this.repository.updateCampaign,
+      id,
+      campaign
+    );
+  };
 }
 
 export default SubscriberService;
