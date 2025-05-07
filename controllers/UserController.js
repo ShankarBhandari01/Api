@@ -1,6 +1,4 @@
-import UserService from "../services/userService.js";
 import BaseController from "./BaseController.js";
-
 class UserController extends BaseController {
   constructor({ req, res, userService }) {
     super(req, res);
@@ -44,7 +42,7 @@ class UserController extends BaseController {
   // Get all users method
   getAllUsers = async () => {
     await this.runServiceMethod(
-      UserService,
+      this.userService,
       async (service) => {
         return await service.getAllUsers();
       },
@@ -54,7 +52,7 @@ class UserController extends BaseController {
 
   updateUser = async () => {
     await this.runServiceMethod(
-      UserService,
+      this.userService,
       async (service) => {
         const bodyData = this.req.body;
         const image = this.req.files?.image || null;
@@ -67,7 +65,7 @@ class UserController extends BaseController {
 
   getUserById = async () => {
     await this.runServiceMethod(
-      UserService,
+      this.userService,
       async (service) => {
         const userId = this.req.params.id;
         return await service.getUserById(userId);
@@ -79,7 +77,7 @@ class UserController extends BaseController {
   // Logout method
   logout = async () => {
     await this.runServiceMethod(
-      UserService,
+      this.userService,
       async (service) => {
         const user = this.req.session.user;
         if (!user || !user._id) {
