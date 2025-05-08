@@ -35,7 +35,9 @@ class ReservationService extends BaseService {
 
       // Determine if it's a weekend in Finland time
       const isWeekendDay = isWeekend(finlandDate);
-      const hoursRange = isWeekendDay ? openingHours.weekends: openingHours.weekdays;
+      const hoursRange = isWeekendDay
+        ? openingHours.weekends
+        : openingHours.weekdays;
 
       // Extract opening and closing times (e.g. "10:00–18:00")
       const [openTime, closeTime] = hoursRange.replace(/\s/g, "").split("–");
@@ -44,10 +46,12 @@ class ReservationService extends BaseService {
 
       // Build Finland opening datetime for reservation date
       const openingDateTime = new Date(finlandDate);
+      openingDateTime = toZonedTime(openingDateTime, "Europe/Helsinki");
       openingDateTime.setHours(openHour, openMin, 0, 0);
 
       // Build closing datetime for reservation date
       const closingDateTime = new Date(finlandDate);
+      closingDateTime = toZonedTime(closingDateTime, "Europe/Helsinki");
       closingDateTime.setHours(closeHour, closeMin, 0, 0);
 
       // Latest reservation time is 15 minutes before closing
