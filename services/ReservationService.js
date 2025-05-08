@@ -27,62 +27,57 @@ class ReservationService extends BaseService {
       const companyInfo = await this.companyRepository.getCompanyInfo();
       const openingHours = companyInfo.openingHours;
 
-      // Parse UTC date from reservation request
-      const utcDate = new Date(newReservation.reservation_date);
+      // Parse the UTC reservation date from the request
+      const reservationUTC = new Date(newReservation.reservation_date);
 
-      // Convert UTC date to Finland timezone as a Date object
-      const finlandDate = toZonedTime(utcDate, "Europe/Helsinki");
+      // Convert to Finland time zone
+      const reservationFinland = toZonedTime(reservationUTC, "Europe/Helsinki");
 
-      // Determine if it's a weekend in Finland time
-      const isWeekendDay = isWeekend(finlandDate);
+      // Determine if the reservation date is a weekend in Finland
+      const isWeekendDay = isWeekend(reservationFinland);
       const hoursRange = isWeekendDay
         ? openingHours.weekends
         : openingHours.weekdays;
 
-      // Extract opening and closing times (e.g. "10:00–18:00")
+      // Extract opening and closing times (e.g. "11:00–22:00")
       const [openTime, closeTime] = hoursRange.replace(/\s/g, "").split("–");
       const [openHour, openMin] = openTime.split(":").map(Number);
       const [closeHour, closeMin] = closeTime.split(":").map(Number);
 
-      // Build Finland opening datetime for reservation date
-      let openingDateTime = new Date(finlandDate);
-      openingDateTime = toZonedTime(openingDateTime, "Europe/Helsinki");
+      // Create opening and closing Date objects in Finland time
+      const openingDateTime = new Date(reservationFinland);
       openingDateTime.setHours(openHour, openMin, 0, 0);
 
-      // Build closing datetime for reservation date
-      let closingDateTime = new Date(finlandDate);
-      closingDateTime = toZonedTime(closingDateTime, "Europe/Helsinki");
+      const closingDateTime = new Date(reservationFinland);
       closingDateTime.setHours(closeHour, closeMin, 0, 0);
 
-      // Latest reservation time is 15 minutes before closing
-      let latestReservationTime = new Date(
-        closingDateTime.getTime() - 15 * 60000
+      // Latest allowed reservation time (15 minutes before closing)
+      const latestReservationTime = new Date(
+        closingDateTime.getTime() - 15 * 60 * 1000
       );
-      latestReservationTime = toZonedTime(
-        latestReservationTime,
-        "Europe/Helsinki"
-      );
-      // Validate reservation window
+
+      // Validate reservation time
       if (
-        finlandDate < openingDateTime ||
-        finlandDate > latestReservationTime
+        reservationFinland < openingDateTime ||
+        reservationFinland > latestReservationTime
       ) {
-        throw {
-          message: `Reservation must be between ${openTime} and ${closeTime}, and at least 15 minutes before closing.`,
-        };
+        throw new Error(
+          `Reservation must be between ${openTime} and ${closeTime}, and at least 15 minutes before closing.`
+        );
       }
 
-      // Proceed with saving
+      // Proceed with saving the reservation
       const result = await this.reservationRepository.addReservation(
         newReservation
       );
 
-      // Invalidate cache
+      // Invalidate Redis cache for reservations
       await this.redisSocketService.delCacheKey("reservation:*");
 
       return super.prepareResponse(result);
     } catch (error) {
-      // Propagate structured error
+      // Log the error for debugging purposes
+      console.error("Error adding reservation:", error);
       throw { message: error.message, stack: error.stack };
     }
   };
