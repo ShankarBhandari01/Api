@@ -42,11 +42,15 @@ class SubscriberRepository extends BaseRepository {
   };
 
   updateAutomaticCampaignForJob = async () => {
-    const now = new Date();
-    await this.Campaign.updateMany(
-      { endDate: { $lt: now }, status: { $ne: "expired" } },
-      { $set: { status: "expired" } }
-    );
+    try {
+      const now = new Date();
+      await this.CampaignModel.updateMany(
+        { endDate: { $lt: now }, status: { $ne: "expired" } },
+        { $set: { status: "expired" } }
+      );
+    } catch (error) {
+      this.log(`[Api] ${error.message}`, "error");
+    }
   };
 
   addCampaingn = async (Campaign) => {

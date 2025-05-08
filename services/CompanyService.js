@@ -72,6 +72,7 @@ class CompanyService extends BaseService {
       this.logAndThrowError("addRoleWithMenuRights error ", error);
     }
   }
+  // this is ui menu update not items menu
   updateMenu = async (id, menu) => {
     try {
       const existingMenu = await this.companyRepository.findMenuById(id);
@@ -110,7 +111,7 @@ class CompanyService extends BaseService {
       this.logAndThrowError("updateMenu error", err);
     }
   };
-
+  // ui menu list  add
   addMenus = async (menus) => {
     const results = [];
 

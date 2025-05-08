@@ -1,5 +1,5 @@
 import Queue from "bull";
-import SocketService from "../socketio/SocketService.js";
+import SocketService from "../socketio/RedisSocketService.js";
 import { notifyUser } from "../socketio/notification.gateway.js";
 import config from "../config/appconfig.js";
 

@@ -1,30 +1,44 @@
 import BaseService from "./BaseService.js";
 
 class ReservationService extends BaseService {
-  constructor({ connection, reservationRepository }) {
+  constructor({ connection, reservationRepository, redisSocketService }) {
     super(connection);
     this.connection = connection;
     this.reservationRepository = reservationRepository;
+    this.redisSocketService = redisSocketService;
   }
 
   addReservation = async (newReservation) => {
-    return await this.handleRepositoryCall(
-      this.reservationRepository.addReservation,
-      newReservation
-    );
+    try {
+      const result = await this.reservationRepository.addReservation(
+        newReservation
+      );
+
+      // Invalidate all cached reservations
+      await this.redisSocketService.delCacheKey("reservation:*");
+
+      return super.prepareResponse(result);
+    } catch (error) {
+      throw { message: error.message, stack: error.stack };
+    }
   };
+
   getAllReservation = async (filters) => {
     try {
       const {
         page = 1,
         limit = 10,
-        searchText = "",
-        isTodayReservations,
+        searchText = "", // (currently unused, preserved for future use)
+        isTodayReservations = false,
       } = filters;
 
       const skip = this.getSkipNumber(page, limit);
+      const cacheKey = `reservation:all:page:${page}:limit:${limit}:today:${isTodayReservations}`;
 
-      // Fetch reservations and total count
+      //  Check cache
+      const cached = await this.redisSocketService.getCacheValue(cacheKey);
+      if (cached) return cached;
+
       const [reservations, totalCount] = await Promise.all([
         this.reservationRepository.getReservations(
           skip,
@@ -34,7 +48,6 @@ class ReservationService extends BaseService {
         this.reservationRepository.getReservationCount(),
       ]);
 
-      // Format the response
       const response = super.prepareResponse(reservations, "reservations");
 
       if (Array.isArray(reservations) && reservations.length > 0) {
@@ -45,9 +58,12 @@ class ReservationService extends BaseService {
         };
       }
 
+      // Cache the result
+      await this.redisSocketService.setCacheValue(cacheKey, response, 60);
+
       return response;
     } catch (error) {
-      throw { message: error.message };
+      throw { message: error.message, stack: error.stack };
     }
   };
 }

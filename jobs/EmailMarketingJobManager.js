@@ -1,14 +1,14 @@
 // jobs/EmailMarketingJob.js
-import Logger from "../utils/logger.js";
-class EmailMarketingJobManager extends Logger {
-  constructor({ agendaService, mongoConnectionManager }) {
-    super();
+class EmailMarketingJobManager {
+  constructor({ agendaService, mongoConnectionManager, logger }) {
     this.agendaService = agendaService;
     this.mongoConnectionManager = mongoConnectionManager;
+    this.logger = logger;
   }
 
   async init() {
     await this._startJob();
+   // await this.testAgandaServer();
   }
 
   async _startJob() {
@@ -17,7 +17,7 @@ class EmailMarketingJobManager extends Logger {
         this.mongoConnectionManager.getConnectionString("Mydatabase")
       );
     } catch (error) {
-      this.log(`Error in EmailMarketingJob: ${error.message}`, "error");
+      this.logger.log(`Error in EmailMarketingJob: ${error.message}`, "error");
       return;
     }
   }
@@ -27,28 +27,33 @@ class EmailMarketingJobManager extends Logger {
       // Gracefully stop the agenda jobs and the service
       if (this.agendaService) {
         await this.agendaService.agenda.stop();
-        this.log("Agenda jobs successfully stopped.", "info");
+        this.logger.log("Agenda jobs successfully stopped.", "info");
       } else {
-        this.log(
+        this.logger.log(
           "Agenda service was not initialized. No jobs to stop.",
           "info"
         );
       }
     } catch (error) {
-      this.log(`Error stopping agenda jobs: ${error}`, "error");
+      this.logger.log(`Error stopping agenda jobs: ${error}`, "error");
     }
   }
 
-  // we can add a method to check job status
+  // a method to check job status
   async checkJobStatus() {
     if (this.agendaService && this.agendaService.agenda) {
       const jobStatus = await this.agendaService.agenda.jobs();
-      this.log(`Current Agenda job count: ${jobStatus.length}`);
+      this.logger.log(`Current Agenda job count: ${jobStatus.length}`);
       return jobStatus;
     }
-    this.log("Agenda service is not initialized.", "info");
+    this.logger.log("Agenda service is not initialized.", "info");
     return null;
   }
+  // test service
+  testAgandaServer = async () => {
+    await this.agendaService.agenda.now("sendCampaignEmail"); // For testing immediately
+    await this.agendaService.agenda.now("expire old campaigns"); // Similarly for expiration
+  };
 }
 
 export default EmailMarketingJobManager;
