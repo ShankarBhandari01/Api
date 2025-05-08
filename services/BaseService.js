@@ -3,6 +3,9 @@ import appconfig from "../config/appconfig.js";
 import BaseRepo from "../repositories/BaseRepository.js";
 import pkg from "lodash";
 import { customResourceResponse } from "../utils/constants.js";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { isWeekend } from "date-fns";
+
 const { omit } = pkg;
 const { sign } = jsonweb;
 
@@ -67,6 +70,7 @@ class BaseService extends BaseRepo {
       return Promise.reject(err);
     }
   }
+
   async doRecording(log) {
     try {
       const result = await super.insertUserLog(log);
@@ -138,6 +142,55 @@ class BaseService extends BaseRepo {
           "An error occurred while interacting with the database",
         stack: err.stack,
       };
+    }
+  };
+
+  // openning hours validation
+  validationOpeningHour = (openingHours, requestDate, isOrder) => {
+    try {
+      // Convert UTC date to Finland time
+      const dateUTC = new Date(requestDate);
+      const zonedTime = toZonedTime(dateUTC, "Europe/Helsinki");
+
+      // Select appropriate hours for weekdays/weekends
+      const isWeekendDay = isWeekend(zonedTime);
+      const hoursRange = (
+        isWeekendDay ? openingHours.weekends : openingHours.weekdays
+      )
+        .replace(/\s/g, "")
+        .split("–");
+
+      const [openHour, openMin] = hoursRange[0].split(":").map(Number);
+      const [closeHour, closeMin] = hoursRange[1].split(":").map(Number);
+
+      // Construct opening and closing datetime objects
+      const openingDateTime = new Date(zonedTime.getTime());
+      openingDateTime.setHours(openHour, openMin, 0, 0);
+
+      const closingDateTime = new Date(zonedTime.getTime());
+      closingDateTime.setHours(closeHour, closeMin, 0, 0);
+
+      // closing time  
+      const effectiveClosingTime = isOrder
+        ? new Date(closingDateTime.getTime() - 10 * 60 * 1000) // for order 10 minutes before closing
+        : new Date(closingDateTime.getTime() - 15 * 60 * 1000); // for reservation 15 minutes before closing
+
+      // Check if within range
+      const isValidTime =
+        zonedTime >= openingDateTime &&
+        zonedTime <= effectiveClosingTime;
+
+      if (!isValidTime) {
+        const action = isOrder ? "Order" : "Reservation";
+        const extraNote = isOrder
+          ? "and at least 10 minutes before closing"
+          : ", and at least 15 minutes before closing";
+        throw new Error(
+          `${action} must be between ${hoursRange[0]} and ${hoursRange[1]}${extraNote}.`
+        );
+      }
+    } catch (e) {
+      throw { message: e.message };
     }
   };
 }
