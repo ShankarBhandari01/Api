@@ -1,6 +1,5 @@
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import { isWeekend } from "date-fns";
-import * as dateFnsTz from "date-fns-tz";
-const { formatInTimeZone, zonedTimeToUtc } = dateFnsTz;
 import BaseService from "./BaseService.js";
 
 class ReservationService extends BaseService {
@@ -28,50 +27,55 @@ class ReservationService extends BaseService {
       const companyInfo = await this.companyRepository.getCompanyInfo();
       const openingHours = companyInfo.openingHours;
 
+      // Parse UTC date from reservation request
       const utcDate = new Date(newReservation.reservation_date);
-      const finlandTime = formatInTimeZone(
-        utcDate,
-        "Europe/Helsinki",
-        "yyyy-MM-dd HH:mm:ss zzz"
-      );
 
-      const isWeekendDay = isWeekend(finlandTime);
-      const hoursRange = isWeekendDay
-        ? openingHours.weekends
-        : openingHours.weekdays;
+      // Convert UTC date to Finland timezone as a Date object
+      const finlandDate = toZonedTime(utcDate, "Europe/Helsinki");
 
+      // Determine if it's a weekend in Finland time
+      const isWeekendDay = isWeekend(finlandDate);
+      const hoursRange = isWeekendDay ? openingHours.weekends: openingHours.weekdays;
+
+      // Extract opening and closing times (e.g. "10:00–18:00")
       const [openTime, closeTime] = hoursRange.replace(/\s/g, "").split("–");
       const [openHour, openMin] = openTime.split(":").map(Number);
       const [closeHour, closeMin] = closeTime.split(":").map(Number);
 
-      const openingDateTime = new Date(finlandTime);
+      // Build Finland opening datetime for reservation date
+      const openingDateTime = new Date(finlandDate);
       openingDateTime.setHours(openHour, openMin, 0, 0);
 
-      const closingDateTime = new Date(finlandTime);
+      // Build closing datetime for reservation date
+      const closingDateTime = new Date(finlandDate);
       closingDateTime.setHours(closeHour, closeMin, 0, 0);
 
-      // Subtract 15 minutes from closing time
+      // Latest reservation time is 15 minutes before closing
       const latestReservationTime = new Date(
         closingDateTime.getTime() - 15 * 60000
       );
 
+      // Validate reservation window
       if (
-        finlandTime < openingDateTime ||
-        finlandTime > latestReservationTime
+        finlandDate < openingDateTime ||
+        finlandDate > latestReservationTime
       ) {
         throw {
-          message: `Reservation must be between ${openTime} and ${closeTime}, and at least 15 minutes before closing time.`,
+          message: `Reservation must be between ${openTime} and ${closeTime}, and at least 15 minutes before closing.`,
         };
       }
 
+      // Proceed with saving
       const result = await this.reservationRepository.addReservation(
         newReservation
       );
 
+      // Invalidate cache
       await this.redisSocketService.delCacheKey("reservation:*");
 
       return super.prepareResponse(result);
     } catch (error) {
+      // Propagate structured error
       throw { message: error.message, stack: error.stack };
     }
   };
