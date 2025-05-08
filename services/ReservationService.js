@@ -45,20 +45,23 @@ class ReservationService extends BaseService {
       const [closeHour, closeMin] = closeTime.split(":").map(Number);
 
       // Build Finland opening datetime for reservation date
-      const openingDateTime = new Date(finlandDate);
+      let openingDateTime = new Date(finlandDate);
       openingDateTime = toZonedTime(openingDateTime, "Europe/Helsinki");
       openingDateTime.setHours(openHour, openMin, 0, 0);
 
       // Build closing datetime for reservation date
-      const closingDateTime = new Date(finlandDate);
+      let closingDateTime = new Date(finlandDate);
       closingDateTime = toZonedTime(closingDateTime, "Europe/Helsinki");
       closingDateTime.setHours(closeHour, closeMin, 0, 0);
 
       // Latest reservation time is 15 minutes before closing
-      const latestReservationTime = new Date(
+      let latestReservationTime = new Date(
         closingDateTime.getTime() - 15 * 60000
       );
-
+      latestReservationTime = toZonedTime(
+        latestReservationTime,
+        "Europe/Helsinki"
+      );
       // Validate reservation window
       if (
         finlandDate < openingDateTime ||
