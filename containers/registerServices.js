@@ -1,6 +1,4 @@
 import { asClass } from "awilix";
-
-import AgendaService from "../services/AgendaService.js";
 import BaseService from "../services/BaseService.js";
 import CompanyService from "../services/CompanyService.js";
 import EmailService from "../services/EmailService.js";
@@ -14,11 +12,11 @@ import UserService from "../services/userService.js";
 
 export default function registerServices(container) {
   container.register({
+    subscriberService: asClass(SubscriberService).scoped(),
     userService: asClass(UserService).scoped(),
     companyService: asClass(CompanyService).scoped(),
     baseService: asClass(BaseService).scoped(),
     menuService: asClass(MenuService).scoped(),
-    agendaService: asClass(AgendaService).scoped(),
     orderService: asClass(OrderService).scoped(),
     reservationService: asClass(ReservationService).scoped(),
     stockService: asClass(StockService).scoped(),
@@ -26,6 +24,5 @@ export default function registerServices(container) {
     firebasePushNotificationService: asClass(
       FirebasePushNotificationService
     ).scoped(),
-    subscriberService: asClass(SubscriberService).scoped(),
   });
 }

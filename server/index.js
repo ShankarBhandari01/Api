@@ -1,11 +1,11 @@
 import express, { json, urlencoded, static as expressStatic } from "express";
+import container from "../containers/Containers.js";
 import session from "express-session";
 import methodOverride from "method-override";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 
 import config from "../config/appconfig.js";
-import Logger from "../utils/logger.js";
 
 import indexRoutes from "../router/index.js";
 import corsMiddleware from "../middleware/CorsMiddleware.js";
@@ -23,13 +23,12 @@ import { monitorMemory } from "../utils/memoryMonitor.js";
 import helmet from "helmet";
 import memorystore from "memorystore";
 
-import container from "../containers/Containers.js";
 import { createTenantScope } from "../middleware/CreateTenantScope.js";
 import { initNotificationQueue } from "../jobs/Notification.job.js";
 const MemoryStore = memorystore(session);
 
 const app = express();
-const logger = new Logger();
+const logger = container.resolve("logger");
 
 // === System Settings ===
 app.set("trust proxy", 1);

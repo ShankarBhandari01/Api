@@ -4,7 +4,7 @@ import _ from "lodash";
 import appconfig from "../config/appconfig.js";
 import RequestHandler from "../utils/RequestHandler.js";
 import BaseService from "../services/BaseService.js";
-
+import container from "../containers/Containers.js";
 
 const requestHandler = new RequestHandler();
 
@@ -29,13 +29,30 @@ function handleAuthorizationError(res) {
 }
 
 async function verifyTokenInDatabase(req, token) {
+  // only connection is in the scope variable
   const connection = req.scope.resolve("connection");
-  const baseService = new BaseService(connection);
+  // get instance from di
+  const redis = req.scope.resolve("redisSocketService");
+  // cache key
+  const cacheKey = `auth:token:${token}`;
 
+  // Try fetching token info from Redis cache
+  const cachedTokenData = await redis.getCacheValue(cacheKey);
+  if (cachedTokenData) {
+    return { isValid: true, DatabaseToken: cachedTokenData };
+  }
+
+  // Fallback to database if not found in cache
+  const baseService = new BaseService(connection);
   const storedToken = await baseService.getCurrentUserToken(token);
+
   if (!storedToken) {
     return { isValid: false, message: "Invalid or expired token" };
   }
+
+  // Cache the token data for future use (e.g., 1hr)
+  await redis.setCacheValue(cacheKey, storedToken, 3600);
+
   return { isValid: true, DatabaseToken: storedToken };
 }
 

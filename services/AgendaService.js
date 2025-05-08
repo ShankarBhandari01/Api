@@ -1,22 +1,18 @@
 import Agenda from "agenda";
-import EmailService from "./EmailService.js";
 import appconfig from "../config/appconfig.js";
+import { Worker } from "worker_threads";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import container from "../containers/Containers.js";
+import createScopedDependency from "../utils/createScopedDependency.js";
 
-class AgendaService extends EmailService {
-  constructor({ mongoConnectionManager }) {
-    super();
+class AgendaService {
+  constructor({ logger }) {
     this.agenda = null;
-    this.mongoConnectionManager = mongoConnectionManager;
+    this.logger = logger;
   }
 
-  // Database Connection for Agenda
-  getDatabaseConnection = async () => {
-    const db = await this.mongoConnectionManager.getConnection("Mydatabase");
-    return db;
-  };
-
-  // Initialize Agenda
   async initializeAgenda(connectionString) {
     try {
       this.agenda = new Agenda({
@@ -30,99 +26,136 @@ class AgendaService extends EmailService {
       this._attachAgendaListeners();
       await this.agenda._ready;
       await this.defineJobs();
-      this.log("Agenda initialized and jobs defined...", "info");
+      this.logger.log("[Agenda] initialized and jobs defined...", "info");
     } catch (error) {
-      this.log(`Error initializing Agenda: ${error}`, "error");
+      this.logger.log(`[Agenda] Error initializing Agenda: ${error}`, "error");
     }
   }
 
   _attachAgendaListeners() {
     this.agenda.on("start", (job) => {
-      this.log(`Job started: ${job.attrs.name}`, "info");
+      this.logger.log(`[Agenda] Job started: ${job.attrs.name}`, "info");
     });
 
     this.agenda.on("complete", (job) => {
-      this.log(`Job completed: ${job.attrs.name}`, "info");
+      this.logger.log(`[Agenda] Job completed: ${job.attrs.name}`, "info");
     });
 
     this.agenda.on("fail", (err, job) => {
-      this.log(`Job failed: ${job.attrs.name}, Error: ${err.message}`, "error");
+      this.logger.log(
+        `[Agenda] Job failed: ${job.attrs.name}, Error: ${err.message}`,
+        "error"
+      );
     });
   }
-
+  createScope = async () => {
+    const { scope, dependency: subscriberRepository } =
+      await createScopedDependency(
+        container,
+        "Mydatabase",
+        "subscriberRepository"
+      );
+    return { scope, subscriberRepository };
+  };
   async defineJobs() {
-    // Campaign Email Job
+    // Campaign Email Job using Worker
     this.agenda.define("sendCampaignEmail", { priority: "high" }, async () => {
       try {
-        const scope = container.createScope();
-        const subscriberRepository = scope.resolve("subscriberRepository");
+        this.logger.log("[Agenda] Checking for active campaigns...", "info");
 
-        this.log("Checking for active campaigns...", "info");
-
+        const scope = await this.createScope();
+        const subscriberRepository = scope.subscriberRepository;
         const campaigns = await subscriberRepository.getAllActiveCampaign();
+
         if (!campaigns.length)
-          return this.log("No active campaigns found.", "info");
+          return this.logger.log("[Agenda] No active campaigns found.", "info");
 
         const subscribers = await subscriberRepository.getAllSubscribers();
         if (!subscribers.length)
-          return this.log("No subscribers found.", "info");
+          return this.logger.log("[Agenda] No subscribers found.", "info");
 
         const recipientEmails = subscribers.map((s) => s.email);
 
-        for (const campaign of campaigns) {
-          try {
-            this.log(`Sending email for campaign: ${campaign.name.en}`, "info");
+        const worker = new Worker(
+          join(__dirname, "../worker/campaignEmailWorker.js"),
+          {
+            workerData: {
+              campaigns,
+              recipientEmails,
+            },
+          }
+        );
 
-            const endDate = new Date(campaign.endDate).toLocaleDateString(
-              "fi-FI"
-            );
+        worker.on("message", async (msg) => {
+          if (msg?.error) {
+            this.logger.log(`[Agenda] Worker Error: ${msg.error}`, "error");
+          } else {
+            this.logger.log(`[Agenda] Worker: ${msg}`, "info");
+            for (const campaign of campaigns) {
+              await subscriberRepository.updateCampaignAfterJob(campaign._id);
+            }
+          }
+        });
 
-            const templateData = {
-              lang: "fi",
-              customer_email: recipientEmails,
-              name: campaign.name.fi,
-              promotion_message: campaign.message.fi,
-              offer_details: campaign.offer_details.fi,
-              offer_validity: endDate,
-              offer_terms: campaign.offer_terms.fi,
-            };
+        worker.on("error", (err) => {
+          this.logger.log(`[Agenda] Worker failed: ${err.message}`, "error");
+        });
 
-            await this.sendPushNotification(templateData);
-            await subscriberRepository.updateCampaignAfterJob(campaign._id);
-            this.log("Campaign email sent successfully.", "info");
-          } catch (error) {
-            this.log(
-              `Error sending campaign email: ${campaign.name.en}`,
+        worker.on("exit", (code) => {
+          if (code !== 0)
+            this.logger.log(
+              `[Agenda] Worker stopped with code ${code}`,
               "error"
             );
-            await subscriberRepository.updateCampaignAfterJob(
-              campaign._id,
-              error.message,
-              campaign.status
-            );
-          }
-        }
+        });
       } catch (error) {
-        this.log(`Error in campaign email job: ${error.message}`, "error");
+        this.logger.log(
+          `[Agenda] Error in campaign email job: ${error.message}`,
+          "error"
+        );
       }
     });
 
-    // Expire Old Campaigns Job
-    this.agenda.define(
-      "expire old campaigns",
-      { priority: "high" },
-      async () => {
-        try {
-          const scope = container.createScope();
-          const subscriberRepository = scope.resolve("subscriberRepository");
+    // Expire Old Campaigns Job using Worker
+    this.agenda.define("expireOldCampaigns", { priority: "high" }, async () => {
+      try {
+        this.logger.log(
+          "[Agenda] Automatic expire of old campaigns...",
+          "info"
+        );
+        const worker = new Worker(
+          join(__dirname, "../worker/expireOldCampaignsWorker.js"),
+          {
+            workerData: {},
+          }
+        );
 
-          this.log("Automatic expire of old campaigns...", "info");
-          await subscriberRepository.updateAutomaticCampaignForJob();
-        } catch (error) {
-          this.log(`Error in expire campaigns job: ${error.message}`, "error");
-        }
+        worker.on("message", async (msg) => {
+          if (msg?.error) {
+            this.logger.log(`[Agenda] Worker Error: ${msg.error}`, "error");
+          } else {
+            this.logger.log(`[Agenda] Worker: ${msg}`, "info");
+          }
+        });
+
+        worker.on("error", (err) => {
+          this.logger.log(`[Agenda] Worker failed: ${err.message}`, "error");
+        });
+
+        worker.on("exit", (code) => {
+          if (code !== 0)
+            this.logger.log(
+              `[Agenda] Worker stopped with code ${code}`,
+              "error"
+            );
+        });
+      } catch (error) {
+        this.logger.log(
+          `[Agenda] Error in expire campaigns job: ${error.message}`,
+          "error"
+        );
       }
-    );
+    });
 
     await this.startAgendaJobs();
   }
@@ -131,22 +164,44 @@ class AgendaService extends EmailService {
     if (!this.agenda) throw new Error("Agenda is not initialized.");
 
     await this.agenda.start();
-    this.log("Agenda job scheduler started and ready.", "info");
+    this.logger.log("[Agenda] Job scheduler started and ready.", "info");
 
-    await this.agenda.every(
-      appconfig.agenda.CAMPAIGN_EMAIL_SCHEDULE,
-      "sendCampaignEmail"
-    );
-    this.log("Campaign email job scheduled.", "info");
+    try {
+      // Schedule "sendCampaignEmail" job uniquely
+      await this.agenda.every(
+        appconfig.agenda.CAMPAIGN_EMAIL_SCHEDULE,
+        "sendCampaignEmail",
+        {},
+        { unique: { name: "sendCampaignEmail" } }
+      );
+      this.logger.log(
+        "[Agenda] Campaign email job scheduled (unique).",
+        "info"
+      );
 
-    await this.agenda.every(
-      appconfig.agenda.EXPIRE_CAMPAIGN_SCHEDULE,
-      "expire old campaigns"
-    );
-    this.log("Expire old campaigns job scheduled.", "info");
+      // Schedule "expireOldCampaigns" job uniquely
+      await this.agenda.every(
+        appconfig.agenda.EXPIRE_CAMPAIGN_SCHEDULE,
+        "expireOldCampaigns",
+        {},
+        { unique: { name: "expireOldCampaigns" } }
+      );
+      this.logger.log(
+        "[Agenda] Expire old campaigns job scheduled (unique).",
+        "info"
+      );
 
-    const jobs = await this.agenda.jobs({});
-    this.log(`Scheduled jobs count: ${jobs.length}`, "info");
+      const allJobs = await this.agenda.jobs({});
+      this.logger.log(
+        `[Agenda] Total scheduled jobs: ${allJobs.length}`,
+        "info"
+      );
+    } catch (error) {
+      this.logger.log(
+        `[Agenda] Error scheduling jobs: ${error.message}`,
+        "error"
+      );
+    }
   }
 }
 

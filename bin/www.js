@@ -5,10 +5,11 @@
  */
 import { createServer } from "http";
 import app from "../server/index.js";
-import Logger from "../utils/logger.js";
 import os from "os";
-import SocketService from "../socketio/SocketService.js";
-const logger = new Logger();
+import container from "../containers/Containers.js";
+
+const RedisSocketService = container.resolve("redisSocketService");
+const logger = container.resolve("logger");
 
 /**
  * Create HTTP server.
@@ -19,7 +20,7 @@ const server = createServer(app);
  * Create seckot redis server.
  */
 
-//SocketService.init(server);
+RedisSocketService.init(server);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -122,7 +123,7 @@ function gracefulShutdown(signal) {
     logger.log("[App] Forced shutdown due to timeout", "error");
     process.exit(1);
   }, 30000); // 30 seconds timeout
-  
+
   // shutdown redis sever
   SocketService.shutdown();
 }

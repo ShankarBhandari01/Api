@@ -2,10 +2,11 @@ import BaseService from "./BaseService.js";
 import OrderDTO from "../dtos/OrderDto.js";
 
 class OrderService extends BaseService {
-  constructor({ connection, orderRepository }) {
+  constructor({ connection, orderRepository, redisSocketService }) {
     super(connection);
     this.connection = connection;
     this.orderRespository = orderRepository;
+    this.redisSocketService = redisSocketService;
   }
 
   saveOrders = async (orders, lang) => {
@@ -13,14 +14,13 @@ class OrderService extends BaseService {
       const dto = new OrderDTO(orders);
       dto.validate();
       const { customer, items } = dto;
-      //Check if customer exists
+
       const checkCustomer = await this.orderRespository.checkCustomerSave(
         customer
       );
       if (!checkCustomer) throw new Error("Customer does not exist");
 
-      orders.customer = checkCustomer._id; // Reference valid ID
-      //Extract unique item IDs
+      orders.customer = checkCustomer._id;
       const itemIds = items.map((i) => i.item);
       const savedItems = await this.orderRespository.getOrderItems(itemIds);
 
@@ -28,16 +28,13 @@ class OrderService extends BaseService {
         throw new Error("One or more items not found in database");
       }
 
-      //Verify each item from DB
       items.forEach((reqItem) => {
         const savedItem = savedItems.find(
           (dbItem) => dbItem._id.toString() === reqItem.item
         );
-
         if (!savedItem) {
           throw new Error(`Item not found in database itemId: ${reqItem.item}`);
         }
-
         if (!savedItem.isActive || savedItem.isDeleted) {
           throw new Error(
             `Item '${savedItem.stockName.fi}' is currently unavailable`
@@ -48,32 +45,38 @@ class OrderService extends BaseService {
             `Price mismatch for item '${savedItem.stockName.fi}'`
           );
         }
-        //Set totalPrice for each item
         reqItem.totalPrice = parseFloat(
           (reqItem.pricePerItem * reqItem.quantity).toFixed(2),
           0
         );
-        // saving name of items for records
         reqItem.name = savedItem.stockName;
       });
-      //Calculate total order amount from DTO
+
       orders.totalAmount = dto.getCalculatedTotal();
       orders.orderQuantity = dto.getOrderQuantity();
-      //Save the order
-      return await this.handleRepositoryCall(
-        this.orderRespository.saveOrder,
-        orders
-      );
+
+      const savedOrder = await this.orderRespository.saveOrder(orders);
+      await this.redisSocketService.delCacheKeyMatching("order:*");
+
+      return super.prepareResponse(savedOrder);
     } catch (error) {
       this.logAndThrowError("Validation error saving order", error);
     }
   };
 
   getOrderStatus = async (order_id) => {
-    return await this.handleRepositoryCall(
-      this.orderRespository.getOrderByOrderId,
-      order_id
-    );
+    try {
+      const cacheKey = `order:status:${order_id}`;
+      const cached = await this.redisSocketService.getCacheValue(cacheKey);
+      if (cached) return cached;
+
+      const result = await this.orderRespository.getOrderByOrderId(order_id);
+      const response = super.prepareResponse(result);
+      await this.redisSocketService.setCacheValue(cacheKey, response);
+      return response;
+    } catch (error) {
+      this.logAndThrowError("Error getting order status", error);
+    }
   };
 
   updateOrderStatus = async (order_id, status) => {
@@ -93,38 +96,41 @@ class OrderService extends BaseService {
       if (order.length == 0) {
         throw new Error("Order not found");
       }
-      // update the status field in object
       order.status = status;
-      return await this.handleRepositoryCall(
-        this.orderRespository.saveOrder,
-        order,
-        true
-      );
+      const updatedOrder = await this.orderRespository.saveOrder(order, true);
+      await this.redisSocketService.delCacheKeyMatching("order:*");
+      return super.prepareResponse(updatedOrder);
     } catch (error) {
       this.logAndThrowError("Validation error saving order", error);
     }
   };
 
   getOrderByStatusOrAll = async (filter) => {
-    filter.skip = this.getSkipNumber(filter.page, filter.limit);
+    try {
+      filter.skip = this.getSkipNumber(filter.page, filter.limit);
+      const cacheKey = `order:filter:${JSON.stringify(filter)}`;
+      const cached = await this.redisSocketService.getCacheValue(cacheKey);
+      if (cached) return cached;
 
-    const [Orders, total] = await Promise.all([
-      this.orderRespository.getOrderOrSearch(filter),
-      this.orderRespository.countOrders(filter),
-    ]);
+      const [Orders, total] = await Promise.all([
+        this.orderRespository.getOrderOrSearch(filter),
+        this.orderRespository.countOrders(filter),
+      ]);
 
-    // Format the response
-    const response = super.prepareResponse(Orders, "Orders");
+      const response = super.prepareResponse(Orders, "Orders");
+      if (Array.isArray(Orders) && Orders.length > 0) {
+        response.pagination = {
+          currentPage: filter.page,
+          totalPages: Math.ceil(total / filter.limit),
+          totalCount: total,
+        };
+      }
 
-    if (Array.isArray(Orders) && Orders.length > 0) {
-      response.pagination = {
-        currentPage: filter.page,
-        totalPages: Math.ceil(total / filter.limit),
-        totalCount: total,
-      };
+      await this.redisSocketService.setCacheValue(cacheKey, response);
+      return response;
+    } catch (error) {
+      this.logAndThrowError("Validation error saving order", error);
     }
-
-    return response;
   };
 }
 export default OrderService;

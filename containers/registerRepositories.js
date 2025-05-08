@@ -11,6 +11,7 @@ import UserRepository from "../repositories/UserRepository.js";
 
 export default function registerRepositories(container) {
   container.register({
+    subscriberRepository: asClass(SubscriberRepository).scoped(),
     userRepository: asClass(UserRepository).scoped(),
     companyRepository: asClass(CompanyRepository).scoped(),
     baseRepository: asClass(BaseRepository).scoped(),
@@ -19,6 +20,5 @@ export default function registerRepositories(container) {
     orderRepository: asClass(OrderRespository).scoped(),
     reservationRepository: asClass(ReservationRepository).scoped(),
     stockRepository: asClass(StockRepository).scoped(),
-    subscriberRepository: asClass(SubscriberRepository).scoped(),
   });
 }

@@ -4,10 +4,16 @@ const { omit } = pkg;
 import BaseService from "./BaseService.js";
 
 class UserService extends BaseService {
-  constructor({ connection, userRepository, companyRepository }) {
+  constructor({
+    connection,
+    userRepository,
+    companyRepository,
+    redisSocketService,
+  }) {
     super(connection);
     this.userRepo = userRepository;
     this.companyRepository = companyRepository;
+    this.redisSocketService = redisSocketService;
   }
 
   // New helper method to check for duplicate email and role existence
@@ -59,6 +65,45 @@ class UserService extends BaseService {
 
   doLogin = async (request, session) => {
     try {
+      // First, try to fetch user data from cache
+      const cacheKey = `user:${request.email}`;
+      const cachedUser = await this.redisSocketService.getCacheValue(cacheKey);
+
+      if (cachedUser) {
+        // If user is cached, directly return the cached data
+        const user = cachedUser;
+        // Check if user is active
+        if (!user.isActive) throw new Error("User is not active");
+        
+        const roleWithMenus = await this.getUserRole(user.role);
+
+        if (!roleWithMenus)
+          throw new Error("Invalid role. Role does not exist.");
+
+        // Sanitize and set session
+        const sanitizedUser = omit(user, ["password", "createdDate"]);
+        sanitizedUser.role = {
+          name: roleWithMenus.name,
+          description: roleWithMenus.description,
+          menuRights: roleWithMenus.menuRights
+            .filter((mr) => mr.menu !== null)
+            .map((mr) => ({
+              menu: mr.menu,
+              permissions: mr.permissions,
+            })),
+        };
+        session.user = sanitizedUser;
+        session.firebaseToken = {
+          fcmToken: request.fcmToken,
+          deviceInfo: request.deviceInfo,
+        };
+
+        // Return session data
+        const token = await super.assignToken(session);
+        return { session: token, user: session.user };
+      }
+
+      // If no cached user, fetch from DB
       const user = await this.getUser(request);
       if (!user) throw new Error("UserNotFound");
 
@@ -88,6 +133,13 @@ class UserService extends BaseService {
           })),
       };
 
+      // Cache user data for future use
+      await this.redisSocketService.setCacheValue(
+        cacheKey,
+        sanitizedUser,
+        3600
+      ); // Cache for 1 hour
+
       session.user = sanitizedUser;
       session.firebaseToken = {
         fcmToken: request.fcmToken,
@@ -103,14 +155,59 @@ class UserService extends BaseService {
   };
 
   // Helper methods
-  getUserRole = async (roleId) =>
-    await this.companyRepository.findRoleById(roleId);
-  getUser = async (request) =>
-    await this.userRepo.getUserByUsername(request.email);
-  getUserById = async (id) => await this.userRepo.getUserById(id);
+  getUserRole = async (roleId) => {
+    // Cache check for roles
+    const cacheKey = `role:${roleId}`;
+    const cachedRole = await this.redisSocketService.getCacheValue(cacheKey);
+
+    if (cachedRole) {
+      return cachedRole;
+    }
+
+    const role = await this.companyRepository.findRoleById(roleId);
+    if (role) {
+      // Cache role data for future use
+      await this.redisSocketService.setCacheValue(cacheKey, role, 3600); // Cache for 1 hour
+    }
+    return role;
+  };
+
+  getUser = async (request) => {
+    const cacheKey = `user:${request.email}`;
+    const cachedUser = await this.redisSocketService.getCacheValue(cacheKey);
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
+    const user = await this.userRepo.getUserByUsername(request.email);
+    if (user) {
+      // Cache user data for future use
+      await this.redisSocketService.setCacheValue(cacheKey, user, 3600); // Cache for 1 hour
+    }
+    return user;
+  };
+
+  getUserById = async (id) => {
+    const cacheKey = `user:id:${id}`;
+    const cachedUser = await this.redisSocketService.getCacheValue(cacheKey);
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
+    const user = await this.userRepo.getUserById(id);
+    if (user) {
+      // Cache user data for future use
+      await this.redisSocketService.setCacheValue(cacheKey, user, 3600); // Cache for 1 hour
+    }
+    return user;
+  };
 
   logout = async (userId) => {
     try {
+      // Clear user cache on logout
+      await this.redisSocketService.delCacheKey(`user:${userId}`);
       return await super.logout(userId);
     } catch (err) {
       throw { message: err.message };
@@ -138,6 +235,10 @@ class UserService extends BaseService {
         "updatedDate",
         "__v",
       ]);
+
+      // Clear user cache upon update
+      await this.redisSocketService.delCacheKey(`user:${userId}`);
+
       return super.prepareResponse(sanitizedResponse);
     } catch (err) {
       throw { message: err.message };
