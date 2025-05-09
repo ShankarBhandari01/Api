@@ -67,7 +67,7 @@ class OrderService extends BaseService {
       orders.orderQuantity = dto.getOrderQuantity();
 
       const savedOrder = await this.orderRespository.saveOrder(orders);
-      await this.redisSocketService.delCacheKeyMatching("order:*");
+      await this.redisSocketService.delCacheKey("order:*");
 
       return super.prepareResponse(savedOrder);
     } catch (error) {
@@ -109,7 +109,7 @@ class OrderService extends BaseService {
       }
       order.status = status;
       const updatedOrder = await this.orderRespository.saveOrder(order, true);
-      await this.redisSocketService.delCacheKeyMatching("order:*");
+      await this.redisSocketService.delCacheKey("order:*");
       return super.prepareResponse(updatedOrder);
     } catch (error) {
       this.logAndThrowError("Validation error saving order", error);
