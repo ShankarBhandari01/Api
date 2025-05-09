@@ -2,15 +2,26 @@ import BaseService from "./BaseService.js";
 import OrderDTO from "../dtos/OrderDto.js";
 
 class OrderService extends BaseService {
-  constructor({ connection, orderRepository, redisSocketService }) {
+  constructor({
+    connection,
+    orderRepository,
+    redisSocketService,
+    companyRepository,
+  }) {
     super(connection);
     this.connection = connection;
     this.orderRespository = orderRepository;
     this.redisSocketService = redisSocketService;
+    this.companyRepository = companyRepository;
   }
 
   saveOrders = async (orders, lang) => {
     try {
+      // const companyInfo = await this.companyRepository.getCompanyInfo();
+      // const openingHours = companyInfo.openingHours;
+      // validate opening hours
+      // this.validationOpeningHour(openingHours);
+
       const dto = new OrderDTO(orders);
       dto.validate();
       const { customer, items } = dto;
@@ -56,7 +67,7 @@ class OrderService extends BaseService {
       orders.orderQuantity = dto.getOrderQuantity();
 
       const savedOrder = await this.orderRespository.saveOrder(orders);
-      await this.redisSocketService.delCacheKeyMatching("order:*");
+      await this.redisSocketService.delCacheKey("order:*");
 
       return super.prepareResponse(savedOrder);
     } catch (error) {
@@ -98,7 +109,7 @@ class OrderService extends BaseService {
       }
       order.status = status;
       const updatedOrder = await this.orderRespository.saveOrder(order, true);
-      await this.redisSocketService.delCacheKeyMatching("order:*");
+      await this.redisSocketService.delCacheKey("order:*");
       return super.prepareResponse(updatedOrder);
     } catch (error) {
       this.logAndThrowError("Validation error saving order", error);
