@@ -5,7 +5,6 @@ import pkg from "lodash";
 import { customResourceResponse } from "../utils/constants.js";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import { isWeekend } from "date-fns";
-
 const { omit } = pkg;
 const { sign } = jsonweb;
 
