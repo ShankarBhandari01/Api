@@ -75,7 +75,7 @@ class BaseRepository extends Logger {
       this.log("[Api] FCM Token registered successfully", "info");
     } catch (err) {
       this.log(`[Api] FCM token error:${err}`, "error");
-      await Promise.reject(err);
+      await Promise.resolve(err);
     }
   };
   async insertUserLog(log) {

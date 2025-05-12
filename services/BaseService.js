@@ -169,15 +169,14 @@ class BaseService extends BaseRepo {
       const closingDateTime = new Date(zonedTime.getTime());
       closingDateTime.setHours(closeHour, closeMin, 0, 0);
 
-      // closing time  
+      // closing time
       const effectiveClosingTime = isOrder
         ? new Date(closingDateTime.getTime() - 10 * 60 * 1000) // for order 10 minutes before closing
         : new Date(closingDateTime.getTime() - 15 * 60 * 1000); // for reservation 15 minutes before closing
 
       // Check if within range
       const isValidTime =
-        zonedTime >= openingDateTime &&
-        zonedTime <= effectiveClosingTime;
+        zonedTime >= openingDateTime && zonedTime <= effectiveClosingTime;
 
       if (!isValidTime) {
         const action = isOrder ? "Order" : "Reservation";
@@ -191,6 +190,22 @@ class BaseService extends BaseRepo {
     } catch (e) {
       throw { message: e.message };
     }
+  };
+
+  // Helper function to sanitize user data and add role info
+  sanitizeUser = (user, roleWithMenus) => {
+    const sanitizedUser = omit(user, ["password", "createdDate"]);
+    sanitizedUser.role = {
+      name: roleWithMenus.name,
+      description: roleWithMenus.description,
+      menuRights: roleWithMenus.menuRights
+        .filter((mr) => mr.menu !== null)
+        .map((mr) => ({
+          menu: mr.menu,
+          permissions: mr.permissions,
+        })),
+    };
+    return sanitizedUser;
   };
 }
 
