@@ -52,12 +52,27 @@ class SubscriberRepository extends BaseRepository {
       this.log(`[Api] ${error.message}`, "error");
     }
   };
-
-  addCampaingn = async (Campaign) => {
+  handleImageUpload = async (image, session) => {
+    let imageId = null;
+    if (image) {
+      imageId = await this.handleImageUploadToDatabase(image, session);
+    }
+    return imageId; // Return the imageId
+  };
+  addCampaingn = async (inCampaign, image) => {
+    const session = await this.connection.startSession();
+    session.startTransaction();
     try {
-      return await this.CampaignModel.create(Campaign);
+      inCampaign.image = (await this.handleImageUpload(image, session)) || null;
+
+      const campaign = await this.CampaignModel.create(inCampaign);
+      await session.commitTransaction();
+      return campaign;
     } catch (error) {
+      await session.abortTransaction();
       this.logAndThrowError(error.message, error);
+    } finally {
+      await session.endSession();
     }
   };
 
@@ -67,7 +82,7 @@ class SubscriberRepository extends BaseRepository {
       if (status !== "") {
         filters = { status: status };
       }
-      return await this.CampaignModel.find(filters);
+      return await this.CampaignModel.find(filters).populate("image");
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
@@ -78,12 +93,18 @@ class SubscriberRepository extends BaseRepository {
       status: "Active",
       startDate: { $lte: now },
       endDate: { $gte: now },
-    }).lean();
+    })
+      .populate("image")
+      .lean();
     return campaigns;
   };
   // api
-  updateCampaign = async (campaignId, updateData) => {
+  updateCampaign = async (campaignId, updateData, image) => {
+    const session = await this.connection.startSession();
+    session.startTransaction();
     try {
+      updateData.image = (await this.handleImageUpload(image, session)) || null;
+
       const updatedCampaign = await this.CampaignModel.findByIdAndUpdate(
         campaignId,
         updateData,
@@ -96,10 +117,13 @@ class SubscriberRepository extends BaseRepository {
       if (!updatedCampaign) {
         throw new Error(`Campaign with ID ${campaignId} not found.`);
       }
-
+      await session.commitTransaction();
       return updatedCampaign;
     } catch (error) {
+      await session.abortTransaction();
       throw new Error(`Failed to update campaign: ${error.message}`);
+    } finally {
+      await session.endSession();
     }
   };
 

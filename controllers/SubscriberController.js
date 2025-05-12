@@ -42,16 +42,19 @@ class SubscriberController extends BaseController {
     await this.runServiceMethod(
       this.subscriberService,
       async (service) => {
-        return await service.addCampaingn(this.req.body);
+        const bodyData = this.req.body;
+        const image = this.req.files?.image || null;
+        return await service.addCampaingn(bodyData, image);
       },
       "Campain added successfully"
     );
   };
   // update campaign
   updateCampaign = async () => {
+    const image = this.req.files?.image || null;
     const { id } = this.req.params;
     await this.runServiceMethod(this.subscriberService, async (service) => {
-      return await service.updateCampaign(id, this.req.body);
+      return await service.updateCampaign(id, this.req.body, image);
     });
   };
 }

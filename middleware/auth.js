@@ -4,7 +4,6 @@ import _ from "lodash";
 import appconfig from "../config/appconfig.js";
 import RequestHandler from "../utils/RequestHandler.js";
 import BaseService from "../services/BaseService.js";
-import container from "../containers/Containers.js";
 
 const requestHandler = new RequestHandler();
 

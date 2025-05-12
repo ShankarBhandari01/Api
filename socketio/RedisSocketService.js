@@ -45,7 +45,7 @@ class SocketService {
     registerNotificationGateway(this.io);
 
     this.logger.log(
-      "[RedisSocketService] nitialized with Redis Pub/Sub + Cache",
+      "[RedisSocketService] initialized with Redis Pub/Sub + Cache",
       "info"
     );
   }

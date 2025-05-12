@@ -75,7 +75,7 @@ class UserService extends BaseService {
         // Check if user is active
         if (!user.isActive) throw new Error("User is not active");
         
-        const roleWithMenus = await this.getUserRole(user.role);
+        const roleWithMenus = await this.getUserRole(user.role._id);
 
         if (!roleWithMenus)
           throw new Error("Invalid role. Role does not exist.");
@@ -115,7 +115,7 @@ class UserService extends BaseService {
       if (!isPasswordMatch) throw new Error("InvalidCredentials");
 
       // Check user role
-      const roleWithMenus = await this.getUserRole(user.role);
+      const roleWithMenus = await this.getUserRole(user.role._id);
       if (!roleWithMenus) throw new Error("Invalid role. Role does not exist.");
 
       // Sanitize user data

@@ -19,8 +19,8 @@ const CompanyScheme = new Schema({
   email: String,
   googleMap: String,
   description: {
-    en: { type: String, default: "new listed" },
-    fi: { type: String, default: "uusi listattu" },
+    en: { type: String, default: "" },
+    fi: { type: String, default: "" },
   },
   created_at: {
     type: Date,
