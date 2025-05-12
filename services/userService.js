@@ -65,6 +65,8 @@ class UserService extends BaseService {
 
   doLogin = async (request, session) => {
     try {
+      // lower case the email
+      request.email = request.email.toLowerCase();
       const cacheKey = `user:${request.email}`;
       let user = await this.redisSocketService.getCacheValue(cacheKey);
 
