@@ -1,5 +1,4 @@
 import { Router } from "express";
-import mongoManager from "../../database/ConnectionManager.js";
 import { formatMemoryUsage, analyzeDbStatus } from "../../utils/healthUtils.js";
 import metricsRegistry from "../../utils/metrics.js";
 
@@ -7,7 +6,8 @@ const router = Router();
 
 router.get("/health", async (req, res) => {
   try {
-    const connections = new mongoManager().getConnectionStatus();
+    const mongoConnectionManager = req.scope.resolve("mongoConnectionManager");
+    const connections = mongoConnectionManager.getConnectionStatus();
     const { isDbUp, dbStatus } = analyzeDbStatus(connections);
     const memoryUsage = formatMemoryUsage(process.memoryUsage());
 
