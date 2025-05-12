@@ -27,13 +27,19 @@ class MongoConnectionManager extends logger {
     };
   }
 
+  delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   async retryConnection(uri, options, retries = 3, delay = 2000) {
     for (let i = 0; i < retries; i++) {
       try {
-        return await createConnection(uri, options);
+        return createConnection(uri, options);
       } catch (err) {
         this.log(`[Mongo] Retry ${i + 1} failed: ${err.message}`, "warn");
-        if (i < retries - 1) await new Promise((res) => setTimeout(res, delay));
+        if (i < retries - 1) {
+          await this.delay(delay);
+        }
       }
     }
     throw new Error("Mongo connection retries exhausted.");
@@ -45,7 +51,7 @@ class MongoConnectionManager extends logger {
     }
 
     if (this.pendingConnections[dbName]) {
-      return await this.pendingConnections[dbName];
+      return this.pendingConnections[dbName];
     }
 
     try {
@@ -112,6 +118,7 @@ class MongoConnectionManager extends logger {
     this.connectionString = `${baseUri}/${dbName}?${params}`;
     return this.connectionString;
   }
+
   getAllConnections() {
     return this.connections;
   }

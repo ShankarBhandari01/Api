@@ -16,11 +16,12 @@ class EmailService extends BaseService {
     };
     // Transporter configuration
     this.transporter = createTransport({
-      service: "gmail",
-      secure: false,
+      host: "smtp.hostinger.com",
+      port: 465,
+      secure: true,
       auth: {
         user: appconfig.sendgrid.from_email,
-        pass: appconfig.sendgrid.gmail_pass,
+        pass: appconfig.sendgrid.email_pass,
       },
     });
   }
@@ -53,7 +54,7 @@ class EmailService extends BaseService {
     // Prepare the email content by injecting data into the template
     const htmlContent = template(templateData);
     const mailOptions = {
-      from: appconfig.sendgrid.from_email,
+      from:`"14 Peaks" <${appconfig.sendgrid.from_email}>`,
       to: customer_email,
       subject: subject,
       html: htmlContent,
