@@ -39,18 +39,20 @@ class SubscriberService extends BaseService {
     return await this.handleRepositoryCall(this.repository.unsubscribe, email);
   };
 
-  addCampaingn = async (campaign) => {
+  addCampaingn = async (campaign, image) => {
     return await this.handleRepositoryCall(
       this.repository.addCampaingn,
-      campaign
+      campaign,
+      image
     );
   };
 
-  updateCampaign = async (id, campaign) => {
+  updateCampaign = async (id, campaign, image) => {
     return await this.handleRepositoryCall(
       this.repository.updateCampaign,
       id,
-      campaign
+      campaign,
+      image
     );
   };
 }

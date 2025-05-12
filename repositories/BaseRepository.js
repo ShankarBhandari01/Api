@@ -3,11 +3,13 @@ import userlog from "../models/UserloginLog.js";
 import Logger from "../utils/logger.js";
 import { DatabaseError } from "../utils/errors.js";
 import FcmToken from "../models/FcmToken.js";
+import imageModel from "../models/Image.js";
 
 class BaseRepository extends Logger {
   constructor(connection) {
     super();
     this.connection = connection;
+    this.imageModel = imageModel(connection);
   }
   async saveTokens(createdToken, user) {
     const { token, refreshToken } = createdToken;
@@ -130,6 +132,20 @@ class BaseRepository extends Logger {
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
+  };
+
+  // Utility function to handle image upload logic
+  handleLogoUpload = async (imageData, session) => {
+    const newImage = new this.imageModel();
+    if (imageData && imageData.length > 0) {
+      const image = imageData[0];
+      newImage.url = image.url;
+      newImage.filename = image.originalname;
+      newImage.contentType = image.mimetype;
+      newImage.imageData = image.buffer;
+      return await this.uploadImage(newImage, session);
+    }
+    return null;
   };
 
   // Utility function to log and throw errors

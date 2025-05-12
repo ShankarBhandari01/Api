@@ -37,19 +37,6 @@ class CompanyRepository extends BaseRepo {
   getMenuByPath = async (inPath) => await this.menu.findOne({ path: inPath });
   updateMenu = async (updateMenu) => await updateMenu.save();
 
-  // Utility function to handle image upload logic
-  async handleLogoUpload(imageData, session) {
-    const newImage = new this.imageModel();
-    if (imageData && imageData.length > 0) {
-      const image = imageData[0];
-      newImage.url = image.url;
-      newImage.filename = image.originalname;
-      newImage.contentType = image.mimetype;
-      newImage.imageData = image.buffer;
-      return await this.uploadImage(newImage, session);
-    }
-    return null;
-  }
   // Get company info with population of related fields
   getCompanyInfo = async () =>
     await this.company

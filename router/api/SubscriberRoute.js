@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { campaignSchemaValidation } from "../../middleware/DataValidator.js";
 import { isAuthenticated } from "../../middleware/auth.js";
-
+import fileupload from "../../middleware/fileUploadMiddleware.js";
 const router = Router();
 
 // Endpoint to subscribe user
@@ -36,6 +36,7 @@ router.post("/unsubscribe", async (req, res, next) => {
 router.post(
   "/addCampaingn",
   isAuthenticated,
+  fileupload.uploadImage,
   campaignSchemaValidation,
   async (req, res, next) => {
     try {
@@ -49,6 +50,7 @@ router.post(
 
 router.put(
   "/updateCampaign/:id",
+  fileupload.uploadImage,
   campaignSchemaValidation,
   async (req, res, next) => {
     try {

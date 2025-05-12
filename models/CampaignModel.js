@@ -1,5 +1,10 @@
 import { Schema } from "mongoose";
 const CampaingnScheme = new Schema({
+  image: {
+    type: Schema.Types.ObjectId,
+    ref: "Image",
+    default: null,
+  },
   name: {
     en: { type: String, default: "new listed" },
     fi: { type: String, default: "uusi listattu" },
@@ -16,7 +21,7 @@ const CampaingnScheme = new Schema({
   },
   status: {
     type: String,
-    enum: ["Active", "Completed", "Expired", "Issue",'Disable'],
+    enum: ["Active", "Completed", "Expired", "Issue", "Disable"],
     default: "Active",
   },
   issueMessage: { type: Object },
