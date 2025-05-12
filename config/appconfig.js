@@ -42,7 +42,7 @@ const sendgrid = {
   api_key: process.env.SEND_GRID_API_KEY,
   api_user: process.env.USERNAME,
   from_email: process.env.FROM_EMAIL,
-  gmail_pass: process.env.GMAIL_PASS,
+  email_pass: process.env.EMAIL_PASS,
 };
 const file = {
   uploadDir: join(__dirname, "../public/images"),
