@@ -1,4 +1,3 @@
-import Logger from "../utils/logger.js";
 import { DatabaseError } from "../utils/errors.js";
 import BaseRepo from "./BaseRepository.js";
 import userTable from "../models/UserModel.js";
@@ -7,26 +6,15 @@ import Menu from "../models/UiMenuRight.js";
 import Role from "../models/Role.js";
 import _ from "lodash";
 
-const logger = new Logger();
-
 class UserRepository extends BaseRepo {
-  constructor({ connection }) {
+  constructor({ connection, logger }) {
     super(connection);
     this.connection = connection;
     this.userModel = userTable(connection);
     this.imageModel = imageModel(connection);
     this.menu = Menu(connection);
     this.role = Role(connection);
-  }
-
-  // Utility to safely convert image to base64
-  formatProfileImage(profilePic) {
-    if (profilePic && profilePic.imageData && profilePic.contentType) {
-      return `data:${
-        profilePic.contentType
-      };base64,${profilePic.imageData.toString("base64")}`;
-    }
-    return null;
+    this.logger = logger;
   }
 
   addUser = async (user, image) => {
@@ -36,28 +24,18 @@ class UserRepository extends BaseRepo {
 
     while (attempts < 3) {
       try {
-        const newImage = this.imageModel();
-        if (image && image.length > 0) {
-          const imageData = image[0];
-          newImage.url = imageData.url;
-          newImage.filename = imageData.originalname;
-          newImage.contentType = imageData.mimetype;
-          newImage.imageData = imageData.buffer;
-
-          const uploadedImage = await this.uploadImage(newImage, session);
-          user.profilePic = uploadedImage.id;
-        }
-
+        user.profilePic = this.handleImageUploadToDatabase(image, session);
+        
         const newUser = await this.userModel.create([user], { session });
         await session.commitTransaction();
         return newUser[0];
       } catch (error) {
         await session.abortTransaction();
         attempts++;
-        logger.log(`Error adding user: ${error.message}`, "error");
+        this.logger.log(`Error adding user: ${error.message}`, "error");
 
         if (attempts >= 3) {
-          logger.log(
+          this.logger.log(
             `Failed after multiple attempts: ${error.message}`,
             "error"
           );
@@ -86,7 +64,10 @@ class UserRepository extends BaseRepo {
 
       return user;
     } catch (error) {
-      logger.log(`Error retrieving user by email: ${error.message}`, "error");
+      this.logger.log(
+        `Error retrieving user by email: ${error.message}`,
+        "error"
+      );
       throw new DatabaseError(
         `Error retrieving user from the database: ${error.message}`
       );
@@ -114,7 +95,7 @@ class UserRepository extends BaseRepo {
 
       return sanitized;
     } catch (error) {
-      logger.log(`Error retrieving user by ID: ${error.message}`, "error");
+      this.logger.log(`Error retrieving user by ID: ${error.message}`, "error");
       throw new DatabaseError(
         `Error retrieving user from the database: ${error.message}`
       );
@@ -126,17 +107,7 @@ class UserRepository extends BaseRepo {
     session.startTransaction();
 
     try {
-      const newImage = this.imageModel();
-      if (image && image.length > 0) {
-        const imageData = image[0];
-        newImage.url = imageData.url;
-        newImage.filename = imageData.originalname;
-        newImage.contentType = imageData.mimetype;
-        newImage.imageData = imageData.buffer;
-
-        const uploadedImage = await this.uploadImage(newImage, session);
-        userData.profilePic = uploadedImage.id;
-      }
+      userData.profilePic = this.handleImageUploadToDatabase(image, session);
 
       const updatedUser = await this.userModel
         .findByIdAndUpdate(userId, userData, { new: true, session })
@@ -156,7 +127,7 @@ class UserRepository extends BaseRepo {
       return updatedUser;
     } catch (error) {
       await session.abortTransaction();
-      logger.log(`Error updating user: ${error.message}`, "error");
+      this.logger.log(`Error updating user: ${error.message}`, "error");
       throw new DatabaseError(
         `Error updating user in the database: ${error.message}`
       );
@@ -189,7 +160,7 @@ class UserRepository extends BaseRepo {
         return sanitized;
       });
     } catch (error) {
-      logger.log(`Error retrieving all users: ${error.message}`, "error");
+      this.logger.log(`Error retrieving all users: ${error.message}`, "error");
       throw new DatabaseError(
         `Error retrieving all users from the database: ${error.message}`
       );

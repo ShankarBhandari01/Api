@@ -9,7 +9,6 @@ class BaseRepository extends Logger {
   constructor(connection) {
     super();
     this.connection = connection;
-    this.imageModel = imageModel(connection);
   }
   async saveTokens(createdToken, user) {
     const { token, refreshToken } = createdToken;
@@ -135,8 +134,9 @@ class BaseRepository extends Logger {
   };
 
   // Utility function to handle image upload logic
-  handleLogoUpload = async (imageData, session) => {
-    const newImage = new this.imageModel();
+  handleImageUploadToDatabase = async (imageData, session) => {
+    const ImageModel = imageModel(this.connection);
+    const newImage = new ImageModel();
     if (imageData && imageData.length > 0) {
       const image = imageData[0];
       newImage.url = image.url;
@@ -153,6 +153,16 @@ class BaseRepository extends Logger {
     this.log(`[Api] ${message.message}`, "error");
     throw new DatabaseError(`${message}: ${err.message}`);
   };
+
+  // Utility to safely convert image to base64
+  formatProfileImage(profilePic) {
+    if (profilePic && profilePic.imageData && profilePic.contentType) {
+      return `data:${
+        profilePic.contentType
+      };base64,${profilePic.imageData.toString("base64")}`;
+    }
+    return null;
+  }
 }
 
 export default BaseRepository;

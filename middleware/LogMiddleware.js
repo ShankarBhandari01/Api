@@ -1,7 +1,6 @@
 import UserloginLog from "../models/UserloginLog.js";
 import BaseService from "../services/BaseService.js";
 import Logger from "../utils/logger.js";
-import container from "../containers/Containers.js";
 import pkg from "lodash";
 const { omit } = pkg;
 
@@ -30,7 +29,7 @@ export function loggingMiddleware(req, res, next) {
       const sanitizedResponse = omit(plainPostData, ["password"]);
 
       // log database connection string
-      const mongoConnectionManager = container.resolve(
+      const mongoConnectionManager = req.scope.resolve(
         "mongoConnectionManager"
       );
       const connection = await mongoConnectionManager.getConnection(

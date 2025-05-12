@@ -62,8 +62,8 @@ app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(languageMiddleware);
-app.use(loggingMiddleware);
 app.use(createTenantScope(container));
+app.use(loggingMiddleware);
 app.use(apiLimiter);
 //app.use(metricsMiddleware);
 

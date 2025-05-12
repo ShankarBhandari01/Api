@@ -52,10 +52,10 @@ class SubscriberRepository extends BaseRepository {
       this.log(`[Api] ${error.message}`, "error");
     }
   };
-  handleImageUpload = async (image) => {
+  handleImageUpload = async (image, session) => {
     let imageId = null;
     if (image) {
-      imageId = await this.handleLogoUpload(image, session);
+      imageId = await this.handleImageUploadToDatabase(image, session);
     }
     return imageId; // Return the imageId
   };
@@ -63,7 +63,7 @@ class SubscriberRepository extends BaseRepository {
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
-      inCampaign.image = (await this.handleImageUpload(image)) || null;
+      inCampaign.image = (await this.handleImageUpload(image, session)) || null;
 
       const campaign = await this.CampaignModel.create(inCampaign);
       await session.commitTransaction();
@@ -103,7 +103,7 @@ class SubscriberRepository extends BaseRepository {
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
-      updateData.image = (await this.handleImageUpload(image)) || null;
+      updateData.image = (await this.handleImageUpload(image, session)) || null;
 
       const updatedCampaign = await this.CampaignModel.findByIdAndUpdate(
         campaignId,
