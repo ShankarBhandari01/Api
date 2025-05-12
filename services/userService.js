@@ -65,47 +65,17 @@ class UserService extends BaseService {
 
   doLogin = async (request, session) => {
     try {
-      // First, try to fetch user data from cache
       const cacheKey = `user:${request.email}`;
-      const cachedUser = await this.redisSocketService.getCacheValue(cacheKey);
-
-      if (cachedUser) {
-        // If user is cached, directly return the cached data
-        const user = cachedUser;
-        // Check if user is active
-        if (!user.isActive) throw new Error("User is not active");
-        
-        const roleWithMenus = await this.getUserRole(user.role._id);
-
-        if (!roleWithMenus)
-          throw new Error("Invalid role. Role does not exist.");
-
-        // Sanitize and set session
-        const sanitizedUser = omit(user, ["password", "createdDate"]);
-        sanitizedUser.role = {
-          name: roleWithMenus.name,
-          description: roleWithMenus.description,
-          menuRights: roleWithMenus.menuRights
-            .filter((mr) => mr.menu !== null)
-            .map((mr) => ({
-              menu: mr.menu,
-              permissions: mr.permissions,
-            })),
-        };
-        session.user = sanitizedUser;
-        session.firebaseToken = {
-          fcmToken: request.fcmToken,
-          deviceInfo: request.deviceInfo,
-        };
-
-        // Return session data
-        const token = await super.assignToken(session);
-        return { session: token, user: session.user };
-      }
+      let user = await this.redisSocketService.getCacheValue(cacheKey);
 
       // If no cached user, fetch from DB
-      const user = await this.getUser(request);
-      if (!user) throw new Error("UserNotFound");
+      if (!user) {
+        user = await this.getUser(request);
+        if (!user) throw new Error("UserNotFound");
+
+        // Cache user data for future use
+        await this.redisSocketService.setCacheValue(cacheKey, user, 3600); // Cache for 1 hour
+      }
 
       // Check if user is active
       if (!user.isActive) throw new Error("User is not active");
@@ -118,27 +88,8 @@ class UserService extends BaseService {
       const roleWithMenus = await this.getUserRole(user.role._id);
       if (!roleWithMenus) throw new Error("Invalid role. Role does not exist.");
 
-      // Sanitize user data
-      const sanitizedUser = omit(user, ["password", "createdDate"]);
-
-      // Add role and menu rights
-      sanitizedUser.role = {
-        name: roleWithMenus.name,
-        description: roleWithMenus.description,
-        menuRights: roleWithMenus.menuRights
-          .filter((mr) => mr.menu !== null)
-          .map((mr) => ({
-            menu: mr.menu,
-            permissions: mr.permissions,
-          })),
-      };
-
-      // Cache user data for future use
-      await this.redisSocketService.setCacheValue(
-        cacheKey,
-        sanitizedUser,
-        3600
-      ); // Cache for 1 hour
+      // Sanitize and set session
+      const sanitizedUser = this.sanitizeUser(user, roleWithMenus);
 
       session.user = sanitizedUser;
       session.firebaseToken = {
@@ -146,7 +97,7 @@ class UserService extends BaseService {
         deviceInfo: request.deviceInfo,
       };
 
-      // Save token and return session data
+      // Return session data
       const token = await super.assignToken(session);
       return { session: token, user: session.user };
     } catch (err) {
