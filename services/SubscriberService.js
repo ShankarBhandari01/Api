@@ -47,6 +47,16 @@ class SubscriberService extends BaseService {
     );
   };
 
+  getAllCampaigns = async () => {
+    return await this.handleRepositoryCall(this.repository.getAllCampaigns);
+  };
+
+  getActiveCampaign = async () =>
+    await this.handleRepositoryCall(
+      this.repository.getAllActiveCampaign,
+      "active"
+    );
+
   updateCampaign = async (id, campaign, image) => {
     return await this.handleRepositoryCall(
       this.repository.updateCampaign,

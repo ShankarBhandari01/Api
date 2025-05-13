@@ -57,6 +57,17 @@ class SubscriberController extends BaseController {
       return await service.updateCampaign(id, this.req.body, image);
     });
   };
+
+  getAllCampaigns = async () => {
+    await this.runServiceMethod(this.subscriberService, async (service) => {
+      return await service.getAllCampaigns();
+    });
+  };
+  getActiveCampaign = async () => {
+    await this.runServiceMethod(this.subscriberService, async (service) => {
+      return await service.getActiveCampaign();
+    });
+  };
 }
 
 export default SubscriberController;

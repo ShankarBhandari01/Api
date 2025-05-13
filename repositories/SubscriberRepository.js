@@ -1,6 +1,7 @@
 import BaseRepository from "./BaseRepository.js";
 import Subscriber from "../models/SubscriberModel.js";
 import Campaign from "../models/CampaignModel.js";
+import Image from "../models/Image.js";
 
 class SubscriberRepository extends BaseRepository {
   constructor({ connection }) {
@@ -8,6 +9,7 @@ class SubscriberRepository extends BaseRepository {
     this.model = Subscriber(connection);
     this.CampaignModel = Campaign(connection);
     this.connection = connection;
+    this.image = Image(connection);
   }
 
   subscribe = async (subscribers) => {
@@ -82,7 +84,17 @@ class SubscriberRepository extends BaseRepository {
       if (status !== "") {
         filters = { status: status };
       }
-      return await this.CampaignModel.find(filters).populate("image");
+      const campaigns = await this.CampaignModel.find(filters)
+        .populate("image")
+        .lean();
+
+      for (const campaign of campaigns) {
+        if (campaign.image) {
+          campaign.imageBase64 = this.formatProfileImage(campaign.image);
+          delete campaign.image;
+        }
+      }
+      return campaigns;
     } catch (error) {
       this.logAndThrowError(error.message, error);
     }
@@ -96,6 +108,13 @@ class SubscriberRepository extends BaseRepository {
     })
       .populate("image")
       .lean();
+
+    for (const campaign of campaigns) {
+      if (campaign.image) {
+        campaign.imageBase64 = this.formatProfileImage(campaign.image);
+        delete campaign.image;
+      }
+    }
     return campaigns;
   };
   // api
@@ -103,6 +122,17 @@ class SubscriberRepository extends BaseRepository {
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
+      // check any active campaign
+      const isAnyActiveCampaign = await this.CampaignModel.exists({
+        status: "active",
+      });
+
+      if (isAnyActiveCampaign) {
+        throw new Error(
+          "Cannot update campaign while another campaign is active"
+        );
+      }
+
       updateData.image = (await this.handleImageUpload(image, session)) || null;
 
       const updatedCampaign = await this.CampaignModel.findByIdAndUpdate(
