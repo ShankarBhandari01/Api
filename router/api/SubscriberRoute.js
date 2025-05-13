@@ -48,6 +48,23 @@ router.post(
   }
 );
 
+router.get("/getAllCampaigns", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("subscriberController");
+    await controller.getAllCampaigns();
+  } catch (err) {
+    next(err);
+  }
+});
+router.get("/getActiveCampaign", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("subscriberController");
+    await controller.getActiveCampaign();
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.put(
   "/updateCampaign/:id",
   fileupload.uploadImage,
@@ -61,4 +78,5 @@ router.put(
     }
   }
 );
+
 export default router;

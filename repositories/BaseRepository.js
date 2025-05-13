@@ -155,11 +155,11 @@ class BaseRepository extends Logger {
   };
 
   // Utility to safely convert image to base64
-  formatProfileImage(profilePic) {
-    if (profilePic && profilePic.imageData && profilePic.contentType) {
-      return `data:${
-        profilePic.contentType
-      };base64,${profilePic.imageData.toString("base64")}`;
+  formatProfileImage(image) {
+    if (image && image.imageData && image.contentType) {
+      return `data:${image.contentType};base64,${image.imageData.toString(
+        "base64"
+      )}`;
     }
     return null;
   }
