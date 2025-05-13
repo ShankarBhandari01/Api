@@ -22,7 +22,7 @@ const CampaingnScheme = new Schema({
   status: {
     type: String,
     enum: ["Active", "Completed", "Expired", "Issue", "Disable"],
-    default: "Active",
+    default: "Disable",
   },
   issueMessage: { type: Object },
   offer_details: {
