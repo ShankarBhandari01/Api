@@ -78,5 +78,12 @@ router.put(
     }
   }
 );
-
+router.delete("/deleteCampign/:id", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("subscriberController");
+    await controller.deleteCampign();
+  } catch (err) {
+    next(err);
+  }
+});
 export default router;

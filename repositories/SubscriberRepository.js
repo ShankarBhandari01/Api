@@ -124,7 +124,7 @@ class SubscriberRepository extends BaseRepository {
     try {
       // check any active campaign
       const isAnyActiveCampaign = await this.CampaignModel.exists({
-        status: "active",
+        status: "Active",
       });
 
       if (isAnyActiveCampaign) {
@@ -156,6 +156,12 @@ class SubscriberRepository extends BaseRepository {
       await session.endSession();
     }
   };
+
+  getCampaignByid = async (id) =>
+    await this.CampaignModel.findById(id).populate("image").lean();
+
+  deleteOne = async (id) => await this.CampaignModel.deleteOne({ _id: id });
+  deleteImageById = async (id) => await this.image.deleteOne({ _id: id });
 
   // job
   updateCampaignAfterJob = async (

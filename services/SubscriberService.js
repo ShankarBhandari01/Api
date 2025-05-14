@@ -54,7 +54,7 @@ class SubscriberService extends BaseService {
   getActiveCampaign = async () =>
     await this.handleRepositoryCall(
       this.repository.getAllActiveCampaign,
-      "active"
+      "Active"
     );
 
   updateCampaign = async (id, campaign, image) => {
@@ -64,6 +64,29 @@ class SubscriberService extends BaseService {
       campaign,
       image
     );
+  };
+  deleteCampaign = async (id) => {
+    try {
+      if (!id) {
+        throw new Error("Campaign ID is required for deletion");
+      }
+      const campaign = await this.repository.getCampaignByid(id);
+      if (!campaign) {
+        throw new Error("Campaign not found or already deleted");
+      }
+      if (campaign.status == "Active") {
+        throw new Error("Cannot delete active campaign");
+      }
+      // Delete the associated image if it exists
+      if (campaign.image && campaign.image._id) {
+        await this.repository.deleteImageById;
+        campaign.image._id;
+      }
+      // delete campaign
+      return await this.handleRepositoryCall(this.repository.deleteOne, id);
+    } catch (error) {
+      throw { message: error.message };
+    }
   };
 }
 

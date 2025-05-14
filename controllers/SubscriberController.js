@@ -68,6 +68,13 @@ class SubscriberController extends BaseController {
       return await service.getActiveCampaign();
     });
   };
+
+  deleteCampign = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(this.subscriberService, async (service) => {
+      return await service.deleteCampaign(id);
+    });
+  };
 }
 
 export default SubscriberController;
