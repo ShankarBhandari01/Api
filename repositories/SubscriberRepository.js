@@ -134,7 +134,7 @@ class SubscriberRepository extends BaseRepository {
       }
 
       // handle image update
-      if (image != "") {
+      if (image) {
         updateData.image = await this.handleImageUpload(image, session);
       } else {
         updateData.image = null;
