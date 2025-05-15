@@ -132,10 +132,12 @@ class SubscriberRepository extends BaseRepository {
           "Cannot update campaign while another campaign is active"
         );
       }
-      
+
       if (image) {
         updateData.image =
           (await this.handleImageUpload(image, session)) || null;
+      } else {
+        updateData.image = null;
       }
 
       const updatedCampaign = await this.CampaignModel.findByIdAndUpdate(
