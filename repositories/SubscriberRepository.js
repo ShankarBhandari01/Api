@@ -134,7 +134,7 @@ class SubscriberRepository extends BaseRepository {
       }
 
       // handle image update
-      if (image) {
+      if (image != "") {
         updateData.image = await this.handleImageUpload(image, session);
       } else {
         updateData.image = null;
@@ -149,22 +149,11 @@ class SubscriberRepository extends BaseRepository {
           runValidators: true,
           session,
         }
-      )
-        .populate("image")
-        .lean();
+      );
 
       if (!updatedCampaign) {
         throw new Error(`Campaign with ID ${campaignId} not found.`);
       }
-      
-      // format image
-      if (updatedCampaign.image) {
-        updatedCampaign.imageBase64 = this.formatProfileImage(
-          updatedCampaign.image
-        );
-        delete updatedCampaign.image;
-      }
-
       await session.commitTransaction();
       return updatedCampaign;
     } catch (error) {
