@@ -147,12 +147,21 @@ class SubscriberRepository extends BaseRepository {
           new: true, // return the updated document
           runValidators: true, // enforce schema validations
         }
-      );
-
+      )
+        .populate("image")
+        .lean();
       if (!updatedCampaign) {
         throw new Error(`Campaign with ID ${campaignId} not found.`);
       }
       await session.commitTransaction();
+
+      // format the imge data
+      for (const campaign of updatedCampaign) {
+        if (campaign.image) {
+          campaign.imageBase64 = this.formatProfileImage(campaign.image);
+          delete campaign.image;
+        }
+      }
       return updatedCampaign;
     } catch (error) {
       await session.abortTransaction();
