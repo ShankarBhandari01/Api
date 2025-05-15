@@ -122,46 +122,50 @@ class SubscriberRepository extends BaseRepository {
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
-      // check any active campaign
+      // check if another active campaign exists
       const isAnyActiveCampaign = await this.CampaignModel.exists({
         status: "Active",
       });
 
-      if (isAnyActiveCampaign && updateData.status == "Active") {
+      if (isAnyActiveCampaign && updateData.status === "Active") {
         throw new Error(
           "Cannot update campaign while another campaign is active"
         );
       }
 
+      // handle image update
       if (image) {
-        updateData.image =
-          (await this.handleImageUpload(image, session)) || null;
+        updateData.image = await this.handleImageUpload(image, session);
       } else {
         updateData.image = null;
       }
 
+      // update campaign
       const updatedCampaign = await this.CampaignModel.findByIdAndUpdate(
         campaignId,
         updateData,
         {
-          new: true, // return the updated document
-          runValidators: true, // enforce schema validations
+          new: true,
+          runValidators: true,
+          session,
         }
       )
         .populate("image")
         .lean();
+
       if (!updatedCampaign) {
         throw new Error(`Campaign with ID ${campaignId} not found.`);
       }
-      await session.commitTransaction();
-
-      // format the imge data
-      for (const campaign of updatedCampaign) {
-        if (campaign.image) {
-          campaign.imageBase64 = this.formatProfileImage(campaign.image);
-          delete campaign.image;
-        }
+      
+      // format image
+      if (updatedCampaign.image) {
+        updatedCampaign.imageBase64 = this.formatProfileImage(
+          updatedCampaign.image
+        );
+        delete updatedCampaign.image;
       }
+
+      await session.commitTransaction();
       return updatedCampaign;
     } catch (error) {
       await session.abortTransaction();
