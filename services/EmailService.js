@@ -54,7 +54,7 @@ class EmailService extends BaseService {
     // Prepare the email content by injecting data into the template
     const htmlContent = template(templateData);
     const mailOptions = {
-      from:`"14 Peaks" <${appconfig.sendgrid.from_email}>`,
+      from: `"14 Peaks" <${appconfig.sendgrid.from_email}>`,
       to: customer_email,
       subject: subject,
       html: htmlContent,
@@ -66,6 +66,11 @@ class EmailService extends BaseService {
     } catch (error) {
       this.log(`Error sending email:${error}`, "error");
     }
+  }
+
+  // send order place emails
+  async sendOrderPlaceConfirmation(orderData){
+    
   }
 
   // Send a booking confirmation email
