@@ -136,10 +136,7 @@ class SubscriberRepository extends BaseRepository {
       // handle image update
       if (image) {
         updateData.image = await this.handleImageUpload(image, session);
-      } else {
-        updateData.image = null;
       }
-
       // update campaign
       const updatedCampaign = await this.CampaignModel.findByIdAndUpdate(
         campaignId,
