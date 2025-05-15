@@ -127,13 +127,16 @@ class SubscriberRepository extends BaseRepository {
         status: "Active",
       });
 
-      if (isAnyActiveCampaign) {
+      if (isAnyActiveCampaign && updateData.status == "Active") {
         throw new Error(
           "Cannot update campaign while another campaign is active"
         );
       }
-
-      updateData.image = (await this.handleImageUpload(image, session)) || null;
+      
+      if (image) {
+        updateData.image =
+          (await this.handleImageUpload(image, session)) || null;
+      }
 
       const updatedCampaign = await this.CampaignModel.findByIdAndUpdate(
         campaignId,

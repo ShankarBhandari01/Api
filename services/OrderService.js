@@ -7,12 +7,14 @@ class OrderService extends BaseService {
     orderRepository,
     redisSocketService,
     companyRepository,
+    emailService,
   }) {
     super(connection);
     this.connection = connection;
     this.orderRespository = orderRepository;
     this.redisSocketService = redisSocketService;
     this.companyRepository = companyRepository;
+    this.emailService = emailService;
   }
 
   saveOrders = async (orders, lang) => {
@@ -69,6 +71,10 @@ class OrderService extends BaseService {
       const savedOrder = await this.orderRespository.saveOrder(orders);
       await this.redisSocketService.delCacheKey("order:*");
 
+      // send confirmation emails
+      this.emailService.sendOrderPlaceConfirmation(savedOrder);
+
+      // send response to user
       return super.prepareResponse(savedOrder);
     } catch (error) {
       this.logAndThrowError("Validation error saving order", error);
