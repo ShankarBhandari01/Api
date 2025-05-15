@@ -1,10 +1,11 @@
 import { Types } from "mongoose";
 
 class OrderDTO {
-  constructor({ customer, items, totalAmount }) {
+  constructor({ customer, items, totalAmount, orderType }) {
     this.customer = customer;
     this.items = items || [];
     this.totalAmount = totalAmount;
+    this.orderType = orderType;
   }
 
   isValidObjectId(id) {
