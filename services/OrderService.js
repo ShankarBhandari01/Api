@@ -112,7 +112,7 @@ class OrderService extends BaseService {
 
       if (!validStatuses.includes(status)) {
         throw new Error("Invalid status");
-      } else if (!time || isNaN(time)) {
+      } else if ((!time || isNaN(time) || time < 0) && status == "accepted") {
         throw new Error("Invalid time");
       }
       const order = await this.orderRespository.getOrderByOrderId(order_id);
