@@ -21,7 +21,7 @@ router.get("/status/:orderId", async (req, res, next) => {
   }
 });
 
-router.put("/orders/:orderId", isAuthenticated, async (req, res, next) => {
+router.put("/orders/:orderId", async (req, res, next) => {
   try {
     const controller = req.scope.resolve("orderController");
     await controller.updateStatus();

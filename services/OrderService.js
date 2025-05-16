@@ -130,7 +130,7 @@ class OrderService extends BaseService {
       await this.redisSocketService.delCacheKey("order:*");
 
       // send updates emails
-      this.emailService.sendOrderPlaceConfirmation(updatedOrder.toObject());
+      this.emailService.sendOrderPlaceConfirmation(updatedOrder);
 
       return super.prepareResponse(updatedOrder);
     } catch (error) {
