@@ -1,4 +1,4 @@
-import { createContainer, asClass } from "awilix";
+import { createContainer, asClass, asValue, Lifetime } from "awilix";
 import MongoConnectionManager from "../database/ConnectionManager.js";
 import EmailMarketingJobManager from "../jobs/EmailMarketingJobManager.js";
 
@@ -8,6 +8,8 @@ import registerControllers from "./registerControllers.js";
 import RedisSocketService from "../socketio/RedisSocketService.js";
 import Logger from "../utils/logger.js";
 import AgendaService from "../services/AgendaService.js";
+import MLServiceClient from "../utils/MLServiceClient.js";
+import PredictionService from "../services/prediction.service.js";
 
 const container = createContainer();
 
@@ -18,6 +20,9 @@ container.register({
   emailMarketingJobManager: asClass(EmailMarketingJobManager).singleton(),
   agendaService: asClass(AgendaService).singleton(),
   redisSocketService: asClass(RedisSocketService).singleton(),
+  grpcAddress: asValue("localhost:50051"),
+  mlClient: asClass(MLServiceClient, { lifetime: Lifetime.SINGLETON }),
+  predictionService: asClass(PredictionService).singleton(),
 });
 
 // Modular per-request scoped registrations

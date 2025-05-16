@@ -8,6 +8,7 @@ import subscriberRoute from "./SubscriberRoute.js";
 import orderRoute from "./OrderRoute.js";
 import menuRoute from "./MenuRoute.js";
 import apiHealthRoute from "./apihealtRoute.js";
+import predictionRoute from "./prediction.routes.js";
 
 const router = Router();
 // binding of route
@@ -20,5 +21,6 @@ router.use(subscriberRoute);
 router.use(orderRoute);
 router.use(menuRoute);
 router.use(apiHealthRoute);
+router.use(predictionRoute);
 
 export default router;

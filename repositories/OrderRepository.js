@@ -25,11 +25,13 @@ class OrderRespository extends BaseRepo {
     return await this.item.find({ _id: { $in: itemIds } }).lean();
   };
   getOrderByOrderId = async (order_id, populate = false) => {
-    const order = this.order.findOne({ orderId: order_id });
+    const order = await this.order.findOne({ orderId: order_id });
+    if (!order) return null;
     return populate
       ? await order.populate("customer", "customerId name email phone address")
-      : await order;
+      : order;
   };
+
   getOrderOrSearch = async (filters) => {
     const {
       status,
@@ -142,14 +144,13 @@ class OrderRespository extends BaseRepo {
 
   saveOrder = async (newOrder, isStatusUpdate = false) => {
     try {
+      var savedOrder = {};
       // updating status
       if (isStatusUpdate) {
-        return await newOrder.populate([
-          { path: "customer", select: "customerId name email phone address" },
-          { path: "items.item" },
-        ]);
+        savedOrder = await newOrder.save();
+      } else {
+        savedOrder = await this.order.create(newOrder);
       }
-      const savedOrder = await this.order.create(newOrder);
 
       //Populate customer and item details
       const order = await this.order

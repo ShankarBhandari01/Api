@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package ml;
+
+service MLService {
+  rpc Predict (PredictionRequest) returns (PredictionResponse);
+}
+
+message PredictionRequest {
+  string customer_id = 1;
+  repeated string menu_items = 2;
+}
+
+message PredictionResponse {
+  string recommended_dish = 1;
+}
