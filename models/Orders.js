@@ -1,7 +1,6 @@
 import mongoose, { Schema as _Schema } from "mongoose";
 const { Schema } = mongoose;
 import { randomBytes } from "crypto";
-import { type } from "os";
 // Helper function to generate alphanumeric IDs
 function generateAlphanumericId(prefix = "") {
   return prefix + randomBytes(4).toString("hex").toUpperCase();
@@ -44,6 +43,16 @@ export default (connection) => {
         enum: ["TakeAway", "EatIn"],
         required: true,
         default: "EatIn",
+      },
+      pareparingTime: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      reason: {
+        type: String,
+        required: false,
+        default: "",
       },
       customer: {
         type: _Schema.Types.ObjectId,

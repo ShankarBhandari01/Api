@@ -45,12 +45,17 @@ class OrderController extends BaseController {
   };
 
   updateStatus = async () => {
-    const { orderId, status } = this.req.params;
+    const { orderId } = this.req.params;
+    const { status, time, reason } = this.req.body;
     await this.runServiceMethod(
       this.orderService,
       async (service) => {
-        const response = await service.updateOrderStatus(orderId, status);
-        // TODO send message to user about status of orders
+        const response = await service.updateOrderStatus(
+          orderId,
+          status,
+          time,
+          reason
+        );
         return response;
       },
       "Order status updated successfully"

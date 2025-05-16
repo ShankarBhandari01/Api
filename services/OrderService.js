@@ -87,7 +87,10 @@ class OrderService extends BaseService {
       const cached = await this.redisSocketService.getCacheValue(cacheKey);
       if (cached) return cached;
 
-      const result = await this.orderRespository.getOrderByOrderId(order_id);
+      const result = await this.orderRespository.getOrderByOrderId(
+        order_id,
+        true
+      );
       const response = super.prepareResponse(result);
       await this.redisSocketService.setCacheValue(cacheKey, response);
       return response;
@@ -96,7 +99,7 @@ class OrderService extends BaseService {
     }
   };
 
-  updateOrderStatus = async (order_id, status) => {
+  updateOrderStatus = async (order_id, status, time, reason) => {
     try {
       const validStatuses = [
         "pending",
@@ -106,19 +109,32 @@ class OrderService extends BaseService {
         "completed",
         "cancelled",
       ];
+
       if (!validStatuses.includes(status)) {
         throw new Error("Invalid status");
+      } else if (!time || isNaN(time)) {
+        throw new Error("Invalid time");
       }
       const order = await this.orderRespository.getOrderByOrderId(order_id);
-      if (order.length == 0) {
+      if (order === null || order.length == 0) {
         throw new Error("Order not found");
       }
+
       order.status = status;
+      order.pareparingTime = Number.parseInt(time);
+      // Check if the status is "cancelled" or "rejected"
+      if (status === "cancelled" || "rejected") {
+        order.reason = reason;
+      }
       const updatedOrder = await this.orderRespository.saveOrder(order, true);
       await this.redisSocketService.delCacheKey("order:*");
+
+      // send updates emails
+      this.emailService.sendOrderPlaceConfirmation(updatedOrder.toObject());
+
       return super.prepareResponse(updatedOrder);
     } catch (error) {
-      this.logAndThrowError("Validation error saving order", error);
+      this.logAndThrowError("Error saving order", error);
     }
   };
 

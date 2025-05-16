@@ -8,13 +8,26 @@ const { compile } = pkg;
 class EmailService extends BaseService {
   constructor() {
     super();
-    this.templates = {
-      en: "./templates/en.html",
-      fi: "./templates/fi.html",
-      marketingEn: "templates/marketingEn.html",
-      marketingFi: "templates/marketingFi.html",
+
+    // Centralized template registry
+    this.templatePaths = {
+      bookingConfirmation: {
+        fi: "./templates/fi.html",
+        en: "./templates/en.html",
+      },
+      marketing: {
+        fi: "./templates/marketingFi.html",
+        en: "./templates/marketingEn.html",
+      },
+      orderConfirmation: {
+        fi: "./templates/orderFi.html",
+        en: "./templates/orderEn.html",
+      },
+      orderRejected: {
+        fi: "./templates/orderRejectedFi.html",
+      },
     };
-    // Transporter configuration
+
     this.transporter = createTransport({
       host: "smtp.hostinger.com",
       port: 465,
@@ -26,37 +39,36 @@ class EmailService extends BaseService {
     });
   }
 
-  // Load template based on the provided language
-  loadTemplate(lang, ismarketing = false) {
-    let filePath;
-    if (ismarketing) {
-      if (lang == "en") {
-        filePath = this.templates["marketingEn"];
-      } else {
-        filePath = this.templates["marketingFi"];
-      }
-    } else {
-      filePath = this.templates[lang] || this.templates["en"];
+  // Generic template loader
+  loadTemplate(templateKey, lang = "fi") {
+    const filePath =
+      this.templatePaths[templateKey]?.[lang] ??
+      this.templatePaths[templateKey]?.["fi"]; // fallback to FI
+    if (!filePath) {
+      throw new Error(
+        `Template not found for key: ${templateKey} and lang: ${lang}`
+      );
     }
+
     const template = readFileSync(filePath, "utf-8");
     return compile(template);
   }
 
-  // Generic method to send email notifications
+  // Generic email sender
   async sendEmailNotification({
     customer_email,
     subject,
+    templateKey,
     lang = "fi",
     templateData,
-    ismarketing = false,
   }) {
-    const template = this.loadTemplate(lang, ismarketing);
-    // Prepare the email content by injecting data into the template
+    const template = this.loadTemplate(templateKey, lang);
     const htmlContent = template(templateData);
+
     const mailOptions = {
       from: `"14 Peaks" <${appconfig.sendgrid.from_email}>`,
       to: customer_email,
-      subject: subject,
+      subject,
       html: htmlContent,
     };
 
@@ -64,16 +76,63 @@ class EmailService extends BaseService {
       await this.transporter.sendMail(mailOptions);
       this.log(`${subject} email sent successfully`, "info");
     } catch (error) {
-      this.log(`Error sending email:${error}`, "error");
+      this.log(`Error sending email: ${error}`, "error");
     }
   }
 
-  // send order place emails
-  async sendOrderPlaceConfirmation(orderData){
-    
+  // Order email
+  async sendOrderPlaceConfirmation(orderData, lang = "fi") {
+    let subject;
+
+    if (orderData.status === "accepted") {
+      subject =
+        lang === "fi"
+          ? `Tilausvahvistus – Ravintola 14 Peaks (Tilausnumero: ${orderData.orderId})`
+          : `Order Confirmation – Restaurant 14 Peaks (Order No: ${orderData.orderId})`;
+    } else if (
+      orderData.status === "rejected" ||
+      orderData.status === "cancelled"
+    ) {
+      subject =
+        lang === "fi"
+          ? `Tilaus peruutettu – Ravintola 14 Peaks (Tilausnumero: ${orderData.orderId})`
+          : `Order Cancelled – Restaurant 14 Peaks (Order No: ${orderData.orderId})`;
+    } else {
+      // fallback
+      subject =
+        lang === "fi"
+          ? `Tilaustiedot – Ravintola 14 Peaks (Tilausnumero: ${orderData.orderId})`
+          : `Order Details – Restaurant 14 Peaks (Order No: ${orderData.orderId})`;
+    }
+
+    const templateData = {
+      templateKey: "orderConfirmation",
+      customer_name: orderData.customer.name,
+      customer_email: orderData.customer.email,
+      order_number: orderData.orderId,
+      order_date: new Date(orderData.createdDate).toLocaleDateString("fi-FI"),
+      order_items: orderData.items,
+      total_price: orderData.totalAmount,
+      order_type: orderData.orderType,
+      preparing_time: orderData.pareparingTime,
+      order_status: orderData.status,
+    };
+
+    if (orderData.status === "rejected" || orderData.status === "cancelled") {
+      templateData.cancellation_reason = orderData.reason;
+      templateData.templateKey = "orderRejected";
+    }
+
+    await this.sendEmailNotification({
+      customer_email: templateData.customer_email,
+      subject,
+      templateKey: templateData.templateKey,
+      lang,
+      templateData,
+    });
   }
 
-  // Send a booking confirmation email
+  // Booking confirmation
   async sendBookingConfirmation(reservationData) {
     const date = new Date(reservationData.reservation_date);
     const hours = date.getHours();
@@ -102,7 +161,6 @@ class EmailService extends BaseService {
       reservation_code,
     };
 
-    // Determine the subject based on language
     const subject =
       lang === "fi"
         ? "Varausvahvistus: Pöytävaraus"
@@ -111,22 +169,23 @@ class EmailService extends BaseService {
     await this.sendEmailNotification({
       customer_email,
       subject,
+      templateKey: "bookingConfirmation",
       lang,
       templateData,
     });
   }
-  //Send a push notification
+
+  // Push Notification (marketing)
   async sendPushNotification(templateData) {
-    //Determine the subject based on language
     const subject =
       templateData.lang === "fi" ? "Uusi Ilmoitus" : "New Notification";
-    //Send the push notification email using the generic method
+
     await this.sendEmailNotification({
       customer_email: templateData.customer_email,
       subject,
+      templateKey: "marketing",
       lang: templateData.lang,
       templateData,
-      ismarketing: true,
     });
   }
 }
