@@ -1,5 +1,6 @@
 import accessToken from "../models/Token.js";
 import userlog from "../models/UserloginLog.js";
+import sharp from "sharp";
 import Logger from "../utils/logger.js";
 import { DatabaseError } from "../utils/errors.js";
 import FcmToken from "../models/FcmToken.js";
@@ -162,6 +163,29 @@ class BaseRepository extends Logger {
       )}`;
     }
     return null;
+  }
+  // Utility function to validate image dimensions
+  async validateImageDimensions(imageBuffer) {
+    try {
+      if (!imageBuffer || !imageBuffer[0] || !imageBuffer[0].buffer) {
+        this.log("Image buffer is empty or invalid", "error");
+        return { valid: false, message: "Image buffer is empty or invalid" };
+      }
+
+      const metadata = await sharp(imageBuffer[0].buffer).metadata();
+
+      if (metadata.width >= 600 && metadata.height >= 600) {
+        return { valid: true, message: "Image dimensions are valid" };
+      } else {
+        const msg = `Image dimensions too small: ${metadata.width}x${metadata.height}. Minimum required is 600x600 px.`;
+        this.log(msg, "error");
+        return { valid: false, message: msg };
+      }
+    } catch (error) {
+      const msg = `Error reading image metadata: ${error.message}`;
+      this.log(msg, "error");
+      return { valid: false, message: msg };
+    }
   }
 }
 

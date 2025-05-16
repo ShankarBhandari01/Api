@@ -24,8 +24,11 @@ class OrderRespository extends BaseRepo {
   getOrderItems = async (itemIds) => {
     return await this.item.find({ _id: { $in: itemIds } }).lean();
   };
-  getOrderByOrderId = async (order_id) => {
-    return await this.order.findOne({ orderId: order_id });
+  getOrderByOrderId = async (order_id, populate = false) => {
+    const order = this.order.findOne({ orderId: order_id });
+    return populate
+      ? await order.populate("customer", "customerId name email phone address")
+      : await order;
   };
   getOrderOrSearch = async (filters) => {
     const {
@@ -141,7 +144,10 @@ class OrderRespository extends BaseRepo {
     try {
       // updating status
       if (isStatusUpdate) {
-        return await newOrder.save();
+        return await newOrder.populate([
+          { path: "customer", select: "customerId name email phone address" },
+          { path: "items.item" },
+        ]);
       }
       const savedOrder = await this.order.create(newOrder);
 

@@ -35,7 +35,6 @@ router.post("/unsubscribe", async (req, res, next) => {
 // Endpoint to add Campaingn to all subscribers
 router.post(
   "/addCampaingn",
-  isAuthenticated,
   fileupload.uploadImage,
   campaignSchemaValidation,
   async (req, res, next) => {

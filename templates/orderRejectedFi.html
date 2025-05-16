@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tilausperuutus – Ravintola 14 Peaks</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f8f8;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #c0392b; /* red tone for cancellation */
+      }
+      .details,
+      .order-summary {
+        margin-bottom: 20px;
+        font-size: 16px;
+        color: #555;
+      }
+      .details li,
+      .order-summary li {
+        margin-bottom: 8px;
+      }
+      .cancellation-reason {
+        background-color: #fceaea;
+        border-left: 4px solid #c0392b;
+        padding: 10px;
+        margin-bottom: 20px;
+        font-style: italic;
+        color: #c0392b;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 14px;
+        color: #7f8c8d;
+      }
+      .footer a {
+        color: #2980b9;
+        text-decoration: none;
+      }
+      .footer-table {
+        width: 100%;
+        max-width: 100%;
+      }
+      .footer-table td {
+        vertical-align: top;
+        padding-top: 15px;
+      }
+      .footer-table img {
+        max-width: 120px;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tilausperuutus – Ravintola 14 Peaks</h1>
+
+      <div class="details">
+        <h3>Tilaustiedot:</h3>
+        <ul>
+          <li><strong>Tilausnumero:</strong> {{order_number}}</li>
+          <li><strong>Päivämäärä:</strong> {{order_date}}</li>
+          <li><strong>Asiakas:</strong> {{customer_name}}</li>
+          <li><strong>Sähköposti:</strong> {{customer_email}}</li>
+          {{#if preparing_time}}
+          <li><strong>Valmisteluaika:</strong> {{preparing_time}}</li>
+          {{/if}}
+          <li><strong>Tila:</strong> {{order_status}}</li>
+        </ul>
+        <p><strong>Peruutuksen syy:</strong> {{cancellation_reason}}</p>
+      </div>
+
+      <div class="cancellation-reason">
+        <strong>Peruutuksen syy:</strong> {{cancellation_reason}}
+      </div>
+
+      <div class="order-summary">
+        <h3>Tilauksen yhteenveto:</h3>
+        <ul>
+          {{#each order_items}}
+          <li>
+            {{quantity}} × {{name.en}} – {{pricePerItem}} € =
+            <strong>{{totalPrice}} €</strong> {{#if special_requests}}<br /><em
+              >Erityistoiveet:</em
+            >
+            {{special_requests}}{{/if}}
+          </li>
+          {{/each}}
+        </ul>
+        <p><strong>Yhteensä:</strong> {{total_price}} €</p>
+      </div>
+
+      <p>Hei {{customer_name}},</p>
+
+      <p>
+        Valitettavasti tilauksesi on peruutettu. Pahoittelemme tästä
+        mahdollisesti aiheutuvaa haittaa.
+      </p>
+
+      <p>
+        Jos sinulla on kysyttävää tai haluat lisätietoja, ota rohkeasti yhteyttä
+        soittamalla numeroon <strong>+358503662992</strong> tai vastaamalla
+        tähän sähköpostiin.
+      </p>
+
+      <p>Kiitos ymmärryksestäsi.</p>
+
+      <div class="footer">
+        <table class="footer-table">
+          <tr>
+            <td style="width: 70%">
+              <p>Terveisin,</p>
+              <p><strong>Ravintola 14 Peaks</strong></p>
+              <p>Siltasaarenkatu 13 0530 Helsinki</p>
+              <p><strong>+358503662992</strong></p>
+              <p>
+                <a href="https://ravintola14peaks.fi">ravintola14peaks.fi</a>
+              </p>
+            </td>
+            <td style="text-align: right">
+              <img
+                src="https://i.postimg.cc/fbDrMwGc/14-Peaks-Logo-plain-1.png"
+                alt="Logo"
+              />
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
