@@ -7,6 +7,7 @@ import ReservationController from "../controllers/ReservationController.js";
 import StockController from "../controllers/StockController.js";
 import SubscriberController from "../controllers/SubscriberController.js";
 import UserController from "../controllers/UserController.js";
+import PredictionController from "../controllers/prediction.controller.js";
 
 export default function registerControllers(container) {
   container.register({
@@ -18,5 +19,6 @@ export default function registerControllers(container) {
     reservationController: asClass(ReservationController).scoped(),
     stockController: asClass(StockController).scoped(),
     subscriberController: asClass(SubscriberController).scoped(),
+    predictionController: asClass(PredictionController).scoped(),
   });
 }
