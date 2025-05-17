@@ -9,7 +9,7 @@ export function mapToCompanyDTO(req) {
   // Default to the body fields or handle cases where some data might be missing
   const companyData = {
     name: body.name || "",
-    logo: files?.logo || body.logo || "", // Prioritize uploaded image if present
+    logo: files?.logo || body.logo || null, // Prioritize uploaded image if present
     address: body.address || "",
     phone: body.phone || "",
     email: body.email || "",
