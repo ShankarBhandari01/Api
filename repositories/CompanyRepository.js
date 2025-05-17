@@ -49,28 +49,37 @@ class CompanyRepository extends BaseRepo {
   addCompanyInfo = async (companyInfo) => {
     const session = await this.connection.startSession();
     session.startTransaction();
+
     try {
-      // Handle logo upload
+      // Handle default name
+      if (!companyInfo.name || companyInfo.name.trim() === "") {
+        companyInfo.name = "The 14 Peak, Himalayan Fusion";
+      }
+
+      // Handle logo upload if provided
       let logoId = null;
       if (companyInfo.logo) {
-        logoId = await this.handleImageUploadToDatabase(companyInfo.logo, session);
+        logoId = await this.handleImageUploadToDatabase(
+          companyInfo.logo,
+          session
+        );
       }
 
-      if (companyInfo.name === "") {
-        companyInfo.name = "The 14 peak, himalayan fusion";
-      }
+      const existingCompany = await this.getCompanyInfo();
 
-      companyInfo.logo = logoId;
+      const updateData = {
+        ...companyInfo,
+        updated_at: new Date(),
+      };
+
+      if (logoId) updateData.logo = logoId;
+
+      const filter = existingCompany?._id ? { _id: existingCompany._id } : {}; // for upsert
 
       const company = await this.company
         .findOneAndUpdate(
-          { name: companyInfo.name },
-          {
-            $set: {
-              ...companyInfo,
-              updated_at: new Date(),
-            },
-          },
+          filter,
+          { $set: updateData },
           {
             upsert: true,
             new: true,
