@@ -55,7 +55,7 @@ class SubscriberRepository extends BaseRepository {
     }
   };
   handleImageUpload = async (image, session) => {
-    const result = await this.validateImageDimensions(imageBuffer);
+    const result = await this.validateImageDimensions(image);
     if (!result.valid) {
       throw Error(result.message);
     }
