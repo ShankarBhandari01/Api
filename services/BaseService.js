@@ -4,7 +4,7 @@ import BaseRepo from "../repositories/BaseRepository.js";
 import pkg from "lodash";
 import { customResourceResponse } from "../utils/constants.js";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
-import { isWeekend } from "date-fns";
+import { format } from "date-fns";
 const { omit } = pkg;
 const { sign } = jsonweb;
 
@@ -143,38 +143,35 @@ class BaseService extends BaseRepo {
       };
     }
   };
-
-  // openning hours validation
+  // Helper function to format date
   validationOpeningHour = (openingHours, requestDate, isOrder) => {
     try {
-      // Convert UTC date to Finland time
       const dateUTC = new Date(requestDate);
       const zonedTime = toZonedTime(dateUTC, "Europe/Helsinki");
 
-      // Select appropriate hours for weekdays/weekends
-      const isWeekendDay = isWeekend(zonedTime);
-      const hoursRange = (
-        isWeekendDay ? openingHours.weekends : openingHours.weekdays
-      )
-        .replace(/\s/g, "")
-        .split("–");
+      const weekday = format(zonedTime, "eeee").toLowerCase(); // e.g., "monday"
 
-      const [openHour, openMin] = hoursRange[0].split(":").map(Number);
-      const [closeHour, closeMin] = hoursRange[1].split(":").map(Number);
+      const dayHours = openingHours?.openingHours?.[weekday];
+      if (!dayHours) {
+        this.log(`No opening hours set for ${weekday}`, "error");
+        return;
+      }
 
-      // Construct opening and closing datetime objects
+      const [openStr, closeStr] = dayHours.replace(/\s/g, "").split("-");
+      const [openHour, openMin = 0] = openStr.split(":").map(Number);
+      const [closeHour, closeMin = 0] = closeStr.split(":").map(Number);
+
       const openingDateTime = new Date(zonedTime.getTime());
       openingDateTime.setHours(openHour, openMin, 0, 0);
 
       const closingDateTime = new Date(zonedTime.getTime());
       closingDateTime.setHours(closeHour, closeMin, 0, 0);
 
-      // closing time
-      const effectiveClosingTime = isOrder
-        ? new Date(closingDateTime.getTime() - 10 * 60 * 1000) // for order 10 minutes before closing
-        : new Date(closingDateTime.getTime() - 15 * 60 * 1000); // for reservation 15 minutes before closing
+      const cutoff = isOrder ? 10 : 15;
+      const effectiveClosingTime = new Date(
+        closingDateTime.getTime() - cutoff * 60 * 1000
+      );
 
-      // Check if within range
       const isValidTime =
         zonedTime >= openingDateTime && zonedTime <= effectiveClosingTime;
 
@@ -184,7 +181,7 @@ class BaseService extends BaseRepo {
           ? "and at least 10 minutes before closing"
           : ", and at least 15 minutes before closing";
         throw new Error(
-          `${action} must be between ${hoursRange[0]} and ${hoursRange[1]}${extraNote}.`
+          `${action} must be between ${openStr} and ${closeStr}${extraNote}.`
         );
       }
     } catch (e) {
