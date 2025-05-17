@@ -167,5 +167,22 @@ class OrderRespository extends BaseRepo {
       this.logAndThrowError("Database Error saving order", error);
     }
   };
+
+  countOrderBystatus = async () =>
+    await order.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          status: "$_id",
+          count: 1,
+        },
+      },
+    ]);
 }
 export default OrderRespository;
