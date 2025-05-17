@@ -59,7 +59,7 @@ class CompanyRepository extends BaseRepo {
 
       // Handle logo upload if provided
       let logoId = null;
-      if (companyInfo.logo) {
+      if (companyInfo.logo != "" && companyInfo.logo) {
         logoId = await this.handleImageUploadToDatabase(
           companyInfo.logo,
           session
