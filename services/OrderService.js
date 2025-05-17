@@ -159,6 +159,9 @@ class OrderService extends BaseService {
         };
       }
 
+      response.countByStatus =
+        await this.orderRespository.countOrderBystatus();
+
       await this.redisSocketService.setCacheValue(cacheKey, response);
       return response;
     } catch (error) {
