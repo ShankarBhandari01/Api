@@ -8,9 +8,11 @@ import ReservationRepository from "../repositories/ReservationRepository.js";
 import StockRepository from "../repositories/stockRepo.js";
 import SubscriberRepository from "../repositories/SubscriberRepository.js";
 import UserRepository from "../repositories/UserRepository.js";
+import SettingRepository from "../repositories/SettingRepository.js";
 
 export default function registerRepositories(container) {
   container.register({
+    settingRepository: asClass(SettingRepository).scoped(),
     subscriberRepository: asClass(SubscriberRepository).scoped(),
     userRepository: asClass(UserRepository).scoped(),
     companyRepository: asClass(CompanyRepository).scoped(),
