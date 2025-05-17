@@ -8,6 +8,7 @@ import Role from "../models/Role.js";
 class CompanyRepository extends BaseRepo {
   constructor({ connection }) {
     super();
+    this.connection = connection;
     this.company = CompanyModel(connection).CompanyModel;
     this.imageModel = ImageSchema(connection);
     this.menu = Menu(connection);
