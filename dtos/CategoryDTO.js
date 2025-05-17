@@ -16,20 +16,21 @@ class CategoryDTO {
     this.isActive = data.isActive || true;
     this.isDeleted = data.isDeleted || false;
     this.isLunchCategory = data.isLunchCategory || false;
-    this.id=data.id
+    this.id = data.id;
+    this.isOrderable = data.isOrderable || false;
   }
 
-    // stringified JSON fields
-    parseLangField(field) {
-      if (typeof field === "string") {
-        try {
-          field = JSON.parse(field);
-        } catch (e) {
-          field = {};
-        }
+  // stringified JSON fields
+  parseLangField(field) {
+    if (typeof field === "string") {
+      try {
+        field = JSON.parse(field);
+      } catch (e) {
+        field = {};
       }
-      return field;
     }
+    return field;
+  }
 }
 
 export default CategoryDTO;
