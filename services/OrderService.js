@@ -120,8 +120,11 @@ class OrderService extends BaseService {
         throw new Error("Order not found");
       }
 
-      order.status = status;
-      order.pareparingTime = Number.parseInt(time);
+      order.status = status; // update status
+      // Only set time in accepted orders only
+      if (status == "accepted") {
+        order.pareparingTime = Number.parseInt(time);
+      }
       // Check if the status is "cancelled" or "rejected"
       if (status === "cancelled" || "rejected") {
         order.reason = reason;
@@ -158,7 +161,7 @@ class OrderService extends BaseService {
           totalCount: total,
         };
       }
-      
+
       // grouping order by status and count them up
       response.countByStatus = await this.orderRespository.countOrderBystatus();
 
