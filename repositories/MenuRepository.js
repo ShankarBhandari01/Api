@@ -68,6 +68,14 @@ class MenuRepository extends BaseRepo {
       if (existingMenu) {
         throw new Error("A menu with this type already exists.");
       }
+
+      if (menuType.code == "lunch") {
+        const existingMenu = await this.getMenuByWeekName(menuData.weekday.en);
+        if (existingMenu.length > 0) {
+          throw new Error("A menu with this weekday already exists.");
+        }
+      }
+
       // Validate stock items exist for starters, mainCourses, desserts, drinks, and extras
       const allItemsValid = await this.itemsExist([
         ...menuData.starters,
@@ -102,6 +110,9 @@ class MenuRepository extends BaseRepo {
 
     return existingItemsCount === uniqueItemIds.length;
   };
+
+  getMenuByWeekName = async (weekname) =>
+    await this.menu.find({ 'weekday.en': weekname });
 
   getMenuByType = async (menuData) => {
     const escapedName = escapeRegExp(menuData.name);
