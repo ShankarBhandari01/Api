@@ -13,7 +13,7 @@ router.post("/menuType", isAuthenticated, async (req, res, next) => {
   }
 });
 // POST add menu
-router.post("/addMenu", isAuthenticated, async (req, res, next) => {
+router.post("/addMenu", async (req, res, next) => {
   try {
     const controller = req.scope.resolve("menuController");
     await controller.addMenu();
