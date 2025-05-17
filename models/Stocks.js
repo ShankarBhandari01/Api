@@ -79,6 +79,10 @@ const categorySchema = new Schema({
     type: Boolean,
     default: false,
   },
+  isOrderable: {
+    type: Boolean,
+    default: false,
+  },
   isActive: {
     type: Boolean,
     default: true,
