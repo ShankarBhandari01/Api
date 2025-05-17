@@ -169,7 +169,7 @@ class OrderRespository extends BaseRepo {
   };
 
   countOrderBystatus = async () =>
-    await order.aggregate([
+    await this.order.aggregate([
       {
         $group: {
           _id: "$status",
