@@ -79,10 +79,13 @@ class SocketService {
       let batchSize = 0;
 
       do {
-        const [nextCursor, keys] = await this.cacheClient.scan(cursor, {
+        const result = await this.cacheClient.scan(cursor, {
           MATCH: pattern,
           COUNT: 100,
         });
+
+        const nextCursor = result.cursor;
+        const keys = result.keys;
 
         if (keys.length) {
           keys.forEach((key) => pipeline.unlink(key));
@@ -106,7 +109,6 @@ class SocketService {
         cursor = nextCursor;
       } while (cursor !== "0");
 
-      // Final batch execution
       if (batchSize > 0) {
         try {
           await pipeline.exec();
