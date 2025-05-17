@@ -175,14 +175,18 @@ router.get("/notification", isAuthenticated, async (req, res, next) => {
 });
 
 // PUT notification
-router.put("/notification/markAllAsRead", async (req, res, next) => {
-  try {
-    const controller = req.scope.resolve("companyController");
-    await controller.updateAllSeenStatus();
-  } catch (e) {
-    next(e);
+router.put(
+  "/notification/markAllAsRead",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.updateAllSeenStatus();
+    } catch (e) {
+      next(e);
+    }
   }
-});
+);
 // PUT notification
 router.put("/notification/:id", isAuthenticated, async (req, res, next) => {
   try {
