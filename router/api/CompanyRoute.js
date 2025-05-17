@@ -165,7 +165,7 @@ router.delete(
 );
 
 // GET notification
-router.get("/notification", isAuthenticated,async (req, res, next) => {
+router.get("/notification", isAuthenticated, async (req, res, next) => {
   try {
     const controller = req.scope.resolve("companyController");
     await controller.getNotifications();
@@ -174,6 +174,19 @@ router.get("/notification", isAuthenticated,async (req, res, next) => {
   }
 });
 
+// PUT notification
+router.put(
+  "/notification/markAllAsRead",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.updateAllSeenStatus();
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 // PUT notification
 router.put("/notification/:id", isAuthenticated, async (req, res, next) => {
   try {

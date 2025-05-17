@@ -164,6 +164,9 @@ class FirebasePushNotificationService extends BaseService {
 
   deleteNotification = async (id) =>
     await this.handleRepositoryCall(this.notificationRepository.deleteNotification, id);
+  
+  updateAllSeenStatus = async (ids) =>
+    await this.handleRepositoryCall(this.notificationRepository.updateAllSeenStatus, ids);
 
  
   

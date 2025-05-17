@@ -32,6 +32,16 @@ class NotificationRepository extends BaseRepository {
     await this.notification.deleteMany({});
   };
 
+  updateAllSeenStatus = async (ids) => {
+    return await this.notification.updateMany(
+      { _id: { $in: ids } },
+      { $set: { isRead: true } },
+      {
+        runValidators: true,
+      }
+    );
+  };
+
   deleteNotification = async (notificationId) => {
     if (!notificationId) {
       await this.clearNotifications();
