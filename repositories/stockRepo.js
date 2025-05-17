@@ -53,6 +53,10 @@ class StockRepository extends BaseRepo {
    */
   getAllStock = async (skip, limit, sort = "asc") => {
     try {
+      if (limit == 99) {
+        limit = 0;
+      }
+
       const stocks = await this.stockModel
         .find({ isDeleted: false, isActive: true })
         .skip(skip)
