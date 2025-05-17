@@ -18,6 +18,7 @@ router.get("/getCompanyInfo", async (req, res, next) => {
 // POST company info
 router.post(
   "/addCompanyInfo",
+  isAuthenticated,
   fileupload.uploadImage,
   async (req, res, next) => {
     try {
