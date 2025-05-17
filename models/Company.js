@@ -1,11 +1,24 @@
 import { Schema, model } from "mongoose";
 
-const OpeningHourSchema = new Schema({
-  weekdays: { type: String, required: true },
-  buffet: { type: String, required: true },
-  weekends: { type: String, required: true },
-  _id: false,
-});
+//  OpeningHourSchema
+const OpeningHourSchema = new Schema(
+  {
+    buffet: {
+      days: { type: String, required: true }, // e.g., "Mon - Fri"
+      hours: { type: String, required: true }, // e.g., "11 - 15"
+    },
+    openingHours: {
+      monday: { type: String, required: true }, // "11 - 22"
+      tuesday: { type: String, required: true },
+      wednesday: { type: String, required: true },
+      thursday: { type: String, required: true },
+      friday: { type: String, required: true }, // "11 - 23"
+      saturday: { type: String, required: true }, // "12 - 23"
+      sunday: { type: String, required: true }, // "13 - 21"
+    },
+  },
+  { _id: false }
+);
 
 const CompanyScheme = new Schema({
   name: String,
