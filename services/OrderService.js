@@ -158,9 +158,9 @@ class OrderService extends BaseService {
           totalCount: total,
         };
       }
-
-      response.countByStatus =
-        await this.orderRespository.countOrderBystatus();
+      
+      // grouping order by status and count them up
+      response.countByStatus = await this.orderRespository.countOrderBystatus();
 
       await this.redisSocketService.setCacheValue(cacheKey, response);
       return response;
