@@ -18,27 +18,33 @@ class UserRepository extends BaseRepo {
   }
 
   addUser = async (user, image) => {
-    const session = await this.connection.startSession();
-    session.startTransaction();
     let attempts = 0;
 
     while (attempts < 3) {
+      const session = await this.connection.startSession();
       try {
-        user.profilePic = this.handleImageUploadToDatabase(image, session);
-        
+        session.startTransaction();
+
+        if (image) {
+          user.profilePic = await this.handleImageUploadToDatabase(
+            image,
+            session
+          );
+        } else {
+          user.profilePic = null;
+        }
+
         const newUser = await this.userModel.create([user], { session });
+
         await session.commitTransaction();
-        return newUser[0];
+        return newUser[0]; // Success
       } catch (error) {
         await session.abortTransaction();
         attempts++;
-        this.logger.log(`Error adding user: ${error.message}`, "error");
+        this.logger.log(`Attempt ${attempts}: ${error.message}`, "error");
 
         if (attempts >= 3) {
-          this.logger.log(
-            `Failed after multiple attempts: ${error.message}`,
-            "error"
-          );
+          this.logger.log(`Failed after 3 attempts: ${error.message}`, "error");
           throw new DatabaseError(
             "Error adding user to the database: " + error.message
           );
