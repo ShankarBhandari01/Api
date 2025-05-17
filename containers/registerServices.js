@@ -9,9 +9,11 @@ import ReservationService from "../services/ReservationService.js";
 import StockService from "../services/stockService.js";
 import SubscriberService from "../services/SubscriberService.js";
 import UserService from "../services/userService.js";
+import SettingService from "../services/SettingService.js";
 
 export default function registerServices(container) {
   container.register({
+    settingService: asClass(SettingService).scoped(),
     subscriberService: asClass(SubscriberService).scoped(),
     userService: asClass(UserService).scoped(),
     companyService: asClass(CompanyService).scoped(),
