@@ -70,8 +70,71 @@ class SocketService {
     await this.cacheClient.setEx(key, ttl, JSON.stringify(data));
   }
 
-  async delCacheKey(key) {
-    await this.cacheClient.del(key);
+  async delCacheKey(pattern) {
+    try {
+      const stream = this.cacheClient.scanStream({
+        match: pattern,
+        count: 100,
+      });
+
+      let totalDeleted = 0;
+      let pipeline = this.cacheClient.multi();
+      let batchSize = 0;
+      const MAX_BATCH = 100;
+
+      await new Promise((resolve, reject) => {
+        stream.on("data", async (keys) => {
+          if (keys.length) {
+            keys.forEach((key) => pipeline.unlink(key));
+            totalDeleted += keys.length;
+            batchSize += keys.length;
+
+            if (batchSize >= MAX_BATCH) {
+              try {
+                await pipeline.exec();
+                pipeline = this.cacheClient.multi();
+                batchSize = 0;
+              } catch (err) {
+                this.logger.error(
+                  `[RedisSocketService] Error unlinking batch keys:`,
+                  err
+                );
+              }
+            }
+          }
+        });
+
+        stream.on("end", async () => {
+          try {
+            if (batchSize > 0) await pipeline.exec();
+            this.logger.log(
+              `[RedisSocketService] Unlinked ${totalDeleted} keys matching pattern: ${pattern}`,
+              "info"
+            );
+            resolve();
+          } catch (err) {
+            this.logger.error(
+              `[RedisSocketService] Error unlinking keys for pattern: ${pattern}`,
+              err
+            );
+            resolve();
+          }
+        });
+
+        stream.on("error", (err) => {
+          this.logger.error(
+            "[RedisSocketService] Redis scan stream error",
+            err
+          );
+          resolve();
+        });
+      });
+    } catch (err) {
+      this.logger.error(
+        "[RedisSocketService] Unexpected error in delCacheKey",
+        err
+      );
+    }
   }
 
   async shutdown() {

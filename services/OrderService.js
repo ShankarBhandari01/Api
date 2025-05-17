@@ -130,8 +130,8 @@ class OrderService extends BaseService {
         order.reason = reason;
       }
       const updatedOrder = await this.orderRespository.saveOrder(order, true);
+      
       await this.redisSocketService.delCacheKey("order:*");
-
       // send updates emails
       this.emailService.sendOrderPlaceConfirmation(updatedOrder);
 
