@@ -121,6 +121,7 @@ class StockRepository extends BaseRepo {
             categoryEn: { $first: "$categoryDetails.name.en" },
             categoryFi: { $first: "$categoryDetails.name.fi" },
             isLunchCategory: { $first: "$categoryDetails.isLunchCategory" },
+            categoryDetails: { $first: "$categoryDetails" },
             items: { $push: "$$ROOT" },
           },
         },
@@ -129,6 +130,10 @@ class StockRepository extends BaseRepo {
             _id: 1,
             categoryName: {
               category: { en: "$categoryEn", fi: "$categoryFi" },
+              categoryDescription: {
+                en: "$categoryDetails.description.en",
+                fi: "$categoryDetails.description.fi",
+              },
               isLunchCategory: "$isLunchCategory",
               items: { $ifNull: ["$items", []] },
             },
