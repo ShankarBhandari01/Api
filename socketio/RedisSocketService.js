@@ -95,9 +95,9 @@ class SocketService {
                 pipeline = this.cacheClient.multi();
                 batchSize = 0;
               } catch (err) {
-                this.logger.error(
-                  `[RedisSocketService] Error unlinking batch keys:`,
-                  err
+                this.logger.log(
+                  `[RedisSocketService] Error unlinking batch keys:${err}`,
+                  "err"
                 );
               }
             }
@@ -113,26 +113,26 @@ class SocketService {
             );
             resolve();
           } catch (err) {
-            this.logger.error(
+            this.logger.log(
               `[RedisSocketService] Error unlinking keys for pattern: ${pattern}`,
-              err
+              "error"
             );
             resolve();
           }
         });
 
         stream.on("error", (err) => {
-          this.logger.error(
-            "[RedisSocketService] Redis scan stream error",
-            err
+          this.logger.log(
+            `[RedisSocketService] Redis scan stream error: ${err}`,
+            "error"
           );
           resolve();
         });
       });
     } catch (err) {
-      this.logger.error(
-        "[RedisSocketService] Unexpected error in delCacheKey",
-        err
+      this.logger.log(
+        `[RedisSocketService] Unexpected error in delCacheKey: ${err}`,
+        "error"
       );
     }
   }
