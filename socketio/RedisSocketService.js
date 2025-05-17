@@ -72,63 +72,56 @@ class SocketService {
 
   async delCacheKey(pattern) {
     try {
-      const stream = this.cacheClient.scanStream({
-        match: pattern,
-        count: 100,
-      });
-
+      let cursor = "0";
       let totalDeleted = 0;
+      const MAX_BATCH = 100;
       let pipeline = this.cacheClient.multi();
       let batchSize = 0;
-      const MAX_BATCH = 100;
 
-      await new Promise((resolve, reject) => {
-        stream.on("data", async (keys) => {
-          if (keys.length) {
-            keys.forEach((key) => pipeline.unlink(key));
-            totalDeleted += keys.length;
-            batchSize += keys.length;
+      do {
+        const [nextCursor, keys] = await this.cacheClient.scan(cursor, {
+          MATCH: pattern,
+          COUNT: 100,
+        });
 
-            if (batchSize >= MAX_BATCH) {
-              try {
-                await pipeline.exec();
-                pipeline = this.cacheClient.multi();
-                batchSize = 0;
-              } catch (err) {
-                this.logger.log(
-                  `[RedisSocketService] Error unlinking batch keys:${err}`,
-                  "err"
-                );
-              }
+        if (keys.length) {
+          keys.forEach((key) => pipeline.unlink(key));
+          totalDeleted += keys.length;
+          batchSize += keys.length;
+
+          if (batchSize >= MAX_BATCH) {
+            try {
+              await pipeline.exec();
+            } catch (err) {
+              this.logger.log(
+                `[RedisSocketService] Error unlinking batch keys: ${err}`,
+                "error"
+              );
             }
+            pipeline = this.cacheClient.multi();
+            batchSize = 0;
           }
-        });
+        }
 
-        stream.on("end", async () => {
-          try {
-            if (batchSize > 0) await pipeline.exec();
-            this.logger.log(
-              `[RedisSocketService] Unlinked ${totalDeleted} keys matching pattern: ${pattern}`,
-              "info"
-            );
-            resolve();
-          } catch (err) {
-            this.logger.log(
-              `[RedisSocketService] Error unlinking keys for pattern: ${pattern}`,
-              "error"
-            );
-            resolve();
-          }
-        });
+        cursor = nextCursor;
+      } while (cursor !== "0");
 
-        stream.on("error", (err) => {
+      // Final batch execution
+      if (batchSize > 0) {
+        try {
+          await pipeline.exec();
+        } catch (err) {
           this.logger.log(
-            `[RedisSocketService] Redis scan stream error: ${err}`,
+            `[RedisSocketService] Error unlinking remaining keys: ${err}`,
             "error"
           );
-          resolve();
-        });
-      });
+        }
+      }
+
+      this.logger.log(
+        `[RedisSocketService] Unlinked ${totalDeleted} keys matching pattern: ${pattern}`,
+        "info"
+      );
     } catch (err) {
       this.logger.log(
         `[RedisSocketService] Unexpected error in delCacheKey: ${err}`,
