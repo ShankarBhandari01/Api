@@ -122,6 +122,15 @@ class CompanyController extends BaseController {
       "Notification deleted successfully"
     );
   };
+
+  async updateAllSeenStatus() {
+    const { ids } = this.req.body;
+    await this.runServiceMethod(
+      this.firebasePushNotificationService,
+      (service) => service.updateAllSeenStatus(ids),
+      "Notifications updated successfully"
+    );
+  }
 }
 
 export default CompanyController;
