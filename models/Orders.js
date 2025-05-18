@@ -64,6 +64,26 @@ export default (connection) => {
         ref: "Customer",
         required: true,
       },
+      subtotal: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      vatPercent: {
+        type: Number,
+        required: false,
+        default: 14,
+      },
+      vatAmount: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      totalAmount: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
       items: [
         {
           item: { type: _Schema.Types.ObjectId, ref: "Stock" },
@@ -78,7 +98,6 @@ export default (connection) => {
           _id: false,
         },
       ],
-      totalAmount: { type: Number, required: true },
       status: {
         type: String,
         enum: [
