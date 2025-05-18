@@ -49,6 +49,11 @@ export default (connection) => {
         required: false,
         default: 0,
       },
+      orderRemarks: {
+        type: String,
+        required: false,
+        default: "",
+      },
       reason: {
         type: String,
         required: false,
