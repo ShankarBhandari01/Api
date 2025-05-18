@@ -112,7 +112,7 @@ class MenuRepository extends BaseRepo {
   };
 
   getMenuByWeekName = async (weekname) =>
-    await this.menu.find({ 'weekday.en': weekname });
+    await this.menu.find({ "weekday.en": weekname });
 
   getMenuByType = async (menuData) => {
     const escapedName = escapeRegExp(menuData.name);
