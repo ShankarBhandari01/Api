@@ -192,7 +192,7 @@ class UserService extends BaseService {
         throw new Error("Failed to update user");
       }
 
-      const sanitizedResponse = omit(updateUserResponse.toObject(), [
+      const sanitizedResponse = omit(updateUserResponse, [
         "password",
         "createdDate",
         "updatedDate",
