@@ -29,6 +29,10 @@ const stockSchema = new Schema(
       default: 0,
       min: 0,
     },
+    vat_percent: {
+      type: Number,
+      default: 14,
+    },
     amount: {
       type: Number,
       required: true,

@@ -55,18 +55,30 @@ class OrderService extends BaseService {
         }
         if (savedItem.amount !== reqItem.pricePerItem) {
           throw new Error(
-            `Price mismatch for item '${savedItem.stockName.fi}'`
+            `Price mismatch for item '${savedItem.stockName.fi} ' (expected: ${reqItem.pricePerItem} actual: ${savedItem.amount})`
           );
         }
-        reqItem.totalPrice = parseFloat(
-          (reqItem.pricePerItem * reqItem.quantity).toFixed(2),
-          0
-        );
         reqItem.name = savedItem.stockName;
       });
-
-      orders.totalAmount = dto.getCalculatedTotal();
+      // total ordered quantity
       orders.orderQuantity = dto.getOrderQuantity();
+      // set vat amount
+      orders.vatAmount = dto.getVATAmountIncluded();
+      // set total amount excluding vat
+      orders.subtotal = dto.getSubtotalExcludingVAT();
+      // set vat percent
+      orders.vatPercent = dto.vatPercent;
+
+      // total amount including vat
+      if (orders.totalAmount !== dto.getCalculatedTotal()) {
+        throw new Error(
+          `Total amount mismatch (expected: ${dto.getCalculatedTotal()} actual: ${
+            orders.totalAmount
+          })`
+        );
+      }
+      // set total amount
+      orders.totalAmount = dto.getCalculatedTotal();
 
       const savedOrder = await this.orderRespository.saveOrder(orders);
       await this.redisSocketService.delCacheKey("order:*");
@@ -77,7 +89,7 @@ class OrderService extends BaseService {
       // send response to user
       return super.prepareResponse(savedOrder);
     } catch (error) {
-      this.logAndThrowError("Validation error saving order", error);
+      this.logAndThrowError("Error saving order", error);
     }
   };
 
@@ -130,7 +142,7 @@ class OrderService extends BaseService {
         order.reason = reason;
       }
       const updatedOrder = await this.orderRespository.saveOrder(order, true);
-      
+
       await this.redisSocketService.delCacheKey("order:*");
       // send updates emails
       this.emailService.sendOrderPlaceConfirmation(updatedOrder);

@@ -9,6 +9,7 @@ class OrderDTO {
     pareparingTime,
     orderRemarks,
     reason,
+    vatPercent = 14, // 14% VAT INCLUDED in prices
   }) {
     this.customer = customer;
     this.items = items || [];
@@ -17,6 +18,7 @@ class OrderDTO {
     this.pareparingTime = pareparingTime;
     this.orderRemarks = orderRemarks;
     this.reason = reason;
+    this.vatPercent = vatPercent;
   }
 
   isValidObjectId(id) {
@@ -52,6 +54,10 @@ class OrderDTO {
       ) {
         throw new Error(`Missing or invalid price for item at index ${index}`);
       }
+      // Ensure totalPrice is calculated
+      item.totalPrice = parseFloat(
+        (item.quantity * item.pricePerItem).toFixed(2)
+      );
     });
     return true;
   }
@@ -61,6 +67,19 @@ class OrderDTO {
     return parseFloat(
       this.items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)
     );
+  }
+  // Subtotal WITHOUT VAT
+  getSubtotalExcludingVAT() {
+    const total = this.getCalculatedTotal();
+    const subtotal = total / (1 + this.vatPercent / 100);
+    return parseFloat(subtotal.toFixed(2));
+  }
+
+  // VAT portion already inside the total
+  getVATAmountIncluded() {
+    const total = this.getCalculatedTotal();
+    const vat = (total * this.vatPercent) / (100 + this.vatPercent);
+    return parseFloat(vat.toFixed(2));
   }
 
   getOrderQuantity() {

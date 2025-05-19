@@ -20,6 +20,7 @@ class StockDTO {
     this.spiceLevel = stock.spiceLevel; // 1-3
     this.isGlutenFree = stock.isGlutenFree;
     this.isLactoseFree = stock.isLactoseFree;
+    this.vat_percent = stock.vat_percent || 14;
   }
 
   // stringified JSON fields

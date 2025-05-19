@@ -3,7 +3,9 @@ import pkg from "handlebars";
 import { readFileSync } from "fs";
 import appconfig from "../config/appconfig.js";
 import BaseService from "../services/BaseService.js";
+import { registerHelpers } from "../helper/handlebarsHelpers.js";
 const { compile } = pkg;
+registerHelpers(pkg);
 
 class EmailService extends BaseService {
   constructor() {
@@ -116,6 +118,10 @@ class EmailService extends BaseService {
       order_type: orderData.orderType,
       preparing_time: orderData.pareparingTime,
       order_status: orderData.status,
+      vat_percent: orderData.vatPercent || 14,
+      order_remarks: orderData.orderRemarks,
+      subtotal_price: orderData.subtotal, // this should be amount before VAT
+      vat_amount: orderData.vatAmount || 0, // this should be the VAT amount
     };
 
     if (orderData.status === "rejected" || orderData.status === "cancelled") {
