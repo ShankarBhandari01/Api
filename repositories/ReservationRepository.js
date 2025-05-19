@@ -29,6 +29,30 @@ class ReservationRepository extends BaseRepo {
     }
   };
 
+  getReservationById = async (reservationId) => {
+    try {
+      const reservation = await this.reservationModel
+        .findOne({ _id: reservationId })
+        .populate("table_id")
+        .lean();
+      return reservation;
+    } catch (error) {
+      this.logAndThrowError("Failed to fetch reservation by ID", error);
+    }
+  };
+
+  updateReservation = async (reservation) => {
+    try {
+      return await this.reservationModel.findByIdAndUpdate(
+        reservation._id,
+        reservation,
+        { new: true, runValidators: true }
+      );
+    } catch (error) {
+      this.logAndThrowError("Failed to update reservation", error);
+    }
+  };
+
   getReservations = async (
     skip = 0,
     limit = 10,

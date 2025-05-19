@@ -16,7 +16,18 @@ router.post(
     }
   }
 );
-
+// PUT // api/reservation update
+router.put(
+  "/updateReservationStatus/:reservationId",
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("reservationController");
+      await controller.updateReservationStatus();
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 // GET // api/reservations
 router.get("/getAllReservations", async (req, res, next) => {
   try {

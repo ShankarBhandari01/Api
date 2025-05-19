@@ -44,8 +44,8 @@ class OrderDTO {
           `Missing or invalid quantity for item at index ${index}`
         );
       }
-      if (item.quantity <= 0 || item.quantity > 10) {
-        throw new Error(`Quantity out of range (1–10) at index ${index}`);
+      if (item.quantity <= 0 || item.quantity >= 20) {
+        throw new Error(`Quantity out of range (1–20) at index ${index}`);
       }
       if (
         !item.pricePerItem ||
