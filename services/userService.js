@@ -17,13 +17,13 @@ class UserService extends BaseService {
   }
 
   // New helper method to check for duplicate email and role existence
-  async validateUser(userModel, userId = null) {
+  async validateUser(userModel, userId = null, isupdate = false) {
     // lower case the email
     userModel.email = userModel.email.toLowerCase();
 
     // Check if email address is already used
     const existingUser = await this.getUser(userModel);
-    if (existingUser && existingUser._id !== userId) {
+    if (existingUser && existingUser._id !== userId && !isupdate) {
       throw new Error("Email address already used.");
     }
 
@@ -174,7 +174,7 @@ class UserService extends BaseService {
   updateUser = async (userModel, image, userId) => {
     try {
       // Validate email and role
-      const existinguser = await this.validateUser(userModel, userId);
+      const existinguser = await this.validateUser(userModel, userId, true);
       if (userModel.password !== undefined && userModel.password !== "") {
         // hash the password
         userModel.password = await this.hashedPassword(userModel.password);
