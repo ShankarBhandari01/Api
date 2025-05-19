@@ -20,8 +20,6 @@ class ReservationController extends BaseController {
       this.reservationService,
       async (service) => {
         const response = await service.addReservation(this.req.body);
-        // After successful reservation, send booking confirmation and push notification
-        await this.emailService.sendBookingConfirmation(response.data);
         await this.firebasePushNotificationService.sendPushNotificationToAll(
           response.data
         );
@@ -30,6 +28,22 @@ class ReservationController extends BaseController {
       "Reservation added successfully"
     );
   };
+
+  // Update Reservation Status
+  updateReservationStatus = async () =>
+    await this.runServiceMethod(
+      this.reservationService,
+      async (service) => {
+        const reservationId = this.req.params.reservationId;
+        const status = this.req.body.status;
+        const response = await service.updareReservationStatus(
+          reservationId,
+          status
+        );
+        return response;
+      },
+      "Reservation status updated successfully"
+    );
 
   // Get Reservations
   getReservations = async () => {

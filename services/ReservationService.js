@@ -6,12 +6,14 @@ class ReservationService extends BaseService {
     reservationRepository,
     redisSocketService,
     companyRepository,
+    emailService,
   }) {
     super(connection);
     this.connection = connection;
     this.reservationRepository = reservationRepository;
     this.redisSocketService = redisSocketService;
     this.companyRepository = companyRepository;
+    this.emailService = emailService;
   }
 
   addReservation = async (newReservation) => {
@@ -38,6 +40,32 @@ class ReservationService extends BaseService {
     } catch (error) {
       // Log the error for debugging purposes
       console.error("Error adding reservation:", error);
+      throw { message: error.message, stack: error.stack };
+    }
+  };
+
+  updareReservationStatus = async (reservationId, status) => {
+    try {
+      const reservation = await this.reservationRepository.getReservationById(
+        reservationId
+      );
+
+      if (!reservation) {
+        throw new Error("Reservation not found");
+      }
+
+      reservation.status = status;
+      const updatedReservation =
+        await this.reservationRepository.updateReservation(reservation);
+
+      // Invalidate Redis cache for reservations
+      await this.redisSocketService.delCacheKey("reservation:*");
+      //send booking confirmation and push notification
+      await this.emailService.sendBookingConfirmation(updatedReservation);
+
+      return super.prepareResponse(updatedReservation);
+    } catch (error) {
+      console.error("Error updating reservation status:", error);
       throw { message: error.message, stack: error.stack };
     }
   };

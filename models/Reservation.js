@@ -20,6 +20,11 @@ export default (connection) => {
       reservation_date: { type: Date, required: true },
       number_of_guests: { type: Number, required: true },
       special_requests: { type: String },
+      status: {
+        type: String,
+        enum: ["Pending", "Confirmed", "Cancelled"],
+        default: "Pending",
+      },
       table_id: { type: Schema.Types.ObjectId, ref: "Table", required: true },
     },
     { timestamps: { createdAt: "createdDate", updatedAt: "updated_ts" } }
@@ -51,7 +56,9 @@ export default (connection) => {
         ? parseInt(lastReservation.reservation_code.split("-")[1], 10)
         : 0;
 
-      this.reservation_code = `RES-${(lastReservationNumber + 1).toString().padStart(3, "0")}`;
+      this.reservation_code = `RES-${(lastReservationNumber + 1)
+        .toString()
+        .padStart(3, "0")}`;
 
       // Commit transaction to ensure atomic operation
       await session.commitTransaction();
@@ -61,7 +68,7 @@ export default (connection) => {
     } catch (error) {
       await session.abortTransaction(); // Abort if there's an error
       session.endSession();
-      next(error); 
+      next(error);
     }
   });
 
