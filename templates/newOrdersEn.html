@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Order Notification – 14 Peaks</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 30px;
+      color: #333;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="
+        max-width: 600px;
+        margin: auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <tr>
+        <td style="text-align: center">
+          <h2 style="color: #2c3e50">🛎️ New Order Received</h2>
+          <p style="color: #666">
+            A new order has been placed on <strong>Restaurant 14 Peaks</strong>.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <h3>Order Summary</h3>
+          <ul style="list-style: none; padding: 0">
+            <li><strong>Order ID:</strong> {{order_number}}</li>
+            <li><strong>Order Time:</strong> {{order_date}}</li>
+            <li><strong>Order Type:</strong> {{order_type}}</li>
+            <li><strong>Status:</strong> {{order_status}}</li>
+          </ul>
+
+          <h3>Customer Info</h3>
+          <ul style="list-style: none; padding: 0">
+            <li><strong>Name:</strong> {{customer_name}}</li>
+            <li><strong>Email:</strong> {{customer_email}}</li>
+            <li><strong>Phone:</strong> {{customer_phone}}</li>
+          </ul>
+
+          <h3>Items</h3>
+          <table
+            width="100%"
+            cellpadding="5"
+            cellspacing="0"
+            border="0"
+            style="border-collapse: collapse; font-size: 14px"
+          >
+            <thead>
+              <tr bgcolor="#f0f0f0">
+                <th align="left">Item</th>
+                <th align="center">Qty</th>
+                <th align="right">Price (€)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each order_items}}
+              <tr>
+                <td>{{name.en}}</td>
+                <td align="center">{{quantity}}</td>
+                <td align="right">{{formatCurrency totalPrice}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+
+          <hr style="margin: 20px 0" />
+          <p><strong>Total:</strong> {{formatCurrency total_price}}</p>
+          <p><strong>VAT (14%):</strong> {{formatCurrency vat_amount}}</p>
+
+          {{#if order_remarks}}
+          <p style="margin-top: 10px">
+            <strong>Remarks:</strong> <em>{{order_remarks}}</em>
+          </p>
+          {{/if}}
+
+          <div style="margin-top: 30px; text-align: center">
+            <a
+              href="https://ravintola14peaks.fi/admin/orders"
+              style="
+                background-color: #2980b9;
+                color: #fff;
+                padding: 12px 20px;
+                text-decoration: none;
+                border-radius: 6px;
+              "
+            >
+              🔍 Track / Manage Order
+            </a>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

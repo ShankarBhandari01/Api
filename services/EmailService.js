@@ -10,7 +10,7 @@ registerHelpers(pkg);
 class EmailService extends BaseService {
   constructor() {
     super();
-
+    this.templateCache = {};
     // Centralized template registry
     this.templatePaths = {
       bookingConfirmation: {
@@ -28,6 +28,9 @@ class EmailService extends BaseService {
       orderRejected: {
         fi: "./templates/orderRejectedFi.html",
       },
+      newOrders: {
+        en: "./templates/newOrdersEn.html",
+      },
     };
 
     this.transporter = createTransport({
@@ -41,11 +44,15 @@ class EmailService extends BaseService {
     });
   }
 
-  // Generic template loader
   loadTemplate(templateKey, lang = "fi") {
+    const cacheKey = `${templateKey}-${lang}`;
+    if (this.templateCache[cacheKey]) {
+      return this.templateCache[cacheKey];
+    }
+
     const filePath =
       this.templatePaths[templateKey]?.[lang] ??
-      this.templatePaths[templateKey]?.["fi"]; // fallback to FI
+      this.templatePaths[templateKey]?.["fi"];
     if (!filePath) {
       throw new Error(
         `Template not found for key: ${templateKey} and lang: ${lang}`
@@ -53,7 +60,10 @@ class EmailService extends BaseService {
     }
 
     const template = readFileSync(filePath, "utf-8");
-    return compile(template);
+    const compiled = compile(template);
+    this.templateCache[cacheKey] = compiled;
+
+    return compiled;
   }
 
   // Generic email sender
@@ -82,7 +92,7 @@ class EmailService extends BaseService {
     }
   }
 
-  // Order email
+  // Order email to customer
   async sendOrderPlaceConfirmation(orderData, lang = "fi") {
     let subject;
 
@@ -112,6 +122,7 @@ class EmailService extends BaseService {
       customer_name: orderData.customer.name,
       customer_email: orderData.customer.email,
       order_number: orderData.orderId,
+      customer_phone: orderData.customer.phone,
       order_date: new Date(orderData.createdDate).toLocaleDateString("fi-FI"),
       order_items: orderData.items,
       total_price: orderData.totalAmount,
@@ -137,6 +148,37 @@ class EmailService extends BaseService {
       templateData,
     });
   }
+
+  // Order email to admin
+  sendOrderNotificationEmailToAdmin = async (orderData, lang = "en") => {
+    const subject = `New Order – Restaurant 14 Peaks (Order No: ${orderData.orderId})`;
+
+    const templateData = {
+      templateKey: "newOrders",
+      customer_name: orderData.customer.name,
+      customer_email: orderData.customer.email,
+      customer_phone: orderData.customer.phone,
+      order_number: orderData.orderId,
+      order_date: new Date(orderData.createdDate).toLocaleDateString("fi-FI"),
+      order_items: orderData.items,
+      total_price: orderData.totalAmount,
+      order_type: orderData.orderType,
+      preparing_time: orderData.pareparingTime,
+      order_status: orderData.status,
+      vat_percent: orderData.vatPercent || 14,
+      order_remarks: orderData.orderRemarks,
+      subtotal_price: orderData.subtotal, // this should be amount before VAT
+      vat_amount: orderData.vatAmount || 0, // this should be the VAT amount
+    };
+
+    await this.sendEmailNotification({
+      customer_email: "kesharioy@gmail.com",
+      subject,
+      templateKey: templateData.templateKey,
+      lang,
+      templateData,
+    });
+  };
 
   // Booking confirmation
   async sendBookingConfirmation(reservationData) {

@@ -67,6 +67,7 @@
                   <li><strong>Tilausnumero:</strong> {{order_number}}</li>
                   <li><strong>Tilauspäivämäärä:</strong> {{order_date}}</li>
                   <li><strong>Asiakas:</strong> {{customer_name}}</li>
+                  <li><strong>Puhelin:</strong> {{customer_phone}}</li>
                   <li><strong>Sähköposti:</strong> {{customer_email}}</li>
                   {{#if preparing_time}}
                   <li>
@@ -150,13 +151,13 @@
                         align="right"
                         style="padding: 8px; border-bottom: 1px solid #eee"
                       >
-                        {{pricePerItem}} €
+                        {{formatCurrency pricePerItem}}
                       </td>
                       <td
                         align="right"
                         style="padding: 8px; border-bottom: 1px solid #eee"
                       >
-                        <strong>{{totalPrice}} €</strong>
+                        <strong>{{formatCurrency totalPrice}} </strong>
                       </td>
                     </tr>
                     {{/each}}
@@ -174,7 +175,7 @@
                         align="right"
                         style="padding: 10px; border-top: 2px solid #ccc"
                       >
-                        <strong>{{subtotal_price}} €</strong>
+                        <strong>{{formatCurrency subtotal_price}} </strong>
                       </td>
                     </tr>
                     <tr>
@@ -182,7 +183,7 @@
                         <strong>ALV ({{vat_percent}}%):</strong>
                       </td>
                       <td align="right" style="padding: 10px">
-                        <strong>{{vat_amount}} €</strong>
+                        <strong>{{formatCurrency vat_amount}} </strong>
                       </td>
                     </tr>
                     <tr>
@@ -197,12 +198,20 @@
                         align="right"
                         style="padding: 10px; border-top: 2px solid #ccc"
                       >
-                        <strong>{{total_price}} €</strong>
+                        <strong>{{formatCurrency total_price}} </strong>
                       </td>
                     </tr>
                     {{#if order_remarks}}
                     <tr>
-                      <td colspan="4" style="padding: 10px; border-top: 1px solid #ccc; font-style: italic; color: #555;">
+                      <td
+                        colspan="4"
+                        style="
+                          padding: 10px;
+                          border-top: 1px solid #ccc;
+                          font-style: italic;
+                          color: #555;
+                        "
+                      >
                         <strong>Tilauksen lisätiedot:</strong> {{order_remarks}}
                       </td>
                     </tr>
@@ -211,7 +220,27 @@
                 </table>
               </td>
             </tr>
-
+            <!-- track order button -->
+            <tr>
+              <td align="left" style="padding: 20px 0">
+                <a
+                  href="https://ravintola14peaks.fi/track/${{order_number}}"
+                  style="
+                    display: inline-block;
+                    background-color: #27ae60;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 24px;
+                    font-size: 16px;
+                    border-radius: 5px;
+                    font-weight: bold;
+                  "
+                  target="_blank"
+                >
+                  Seuraa tilaustasi
+                </a>
+              </td>
+            </tr>
             <!-- Tervehdys ja viesti -->
             <tr>
               <td

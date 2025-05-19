@@ -83,9 +83,10 @@ class OrderService extends BaseService {
       const savedOrder = await this.orderRespository.saveOrder(orders);
       await this.redisSocketService.delCacheKey("order:*");
 
-      // send confirmation emails
+      // send confirmation emails to customer
       this.emailService.sendOrderPlaceConfirmation(savedOrder);
-
+      // send notification to admins
+      this.emailService.sendOrderNotificationEmailToAdmin(savedOrder);
       // send response to user
       return super.prepareResponse(savedOrder);
     } catch (error) {
