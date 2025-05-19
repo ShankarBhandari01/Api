@@ -113,7 +113,15 @@ class UserRepository extends BaseRepo {
     session.startTransaction();
 
     try {
-      userData.profilePic = this.handleImageUploadToDatabase(image, session);
+      
+      if (image) {
+        user.profilePic = await this.handleImageUploadToDatabase(
+          image,
+          session
+        );
+      } else {
+        user.profilePic = null;
+      }
 
       const updatedUser = await this.userModel
         .findByIdAndUpdate(userId, userData, { new: true, session })
@@ -125,14 +133,10 @@ class UserRepository extends BaseRepo {
 
       if (!updatedUser) return null;
 
-      if (image) {
-        user.profilePic = await this.handleImageUploadToDatabase(
-          image,
-          session
-        );
-      } else {
-        user.profilePic = null;
-      }
+      updatedUser.profileBase64 = this.formatProfileImage(
+        updatedUser.profilePic
+      );
+      delete updatedUser.profilePic;
 
       return updatedUser;
     } catch (error) {
