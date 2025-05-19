@@ -79,7 +79,9 @@ class EmailService extends BaseService {
 
     const mailOptions = {
       from: `"14 Peaks" <${appconfig.sendgrid.from_email}>`,
-      to: customer_email,
+      to: Array.isArray(customer_email)
+        ? customer_email.join(",")
+        : customer_email,
       subject,
       html: htmlContent,
     };
@@ -172,7 +174,7 @@ class EmailService extends BaseService {
     };
 
     await this.sendEmailNotification({
-      customer_email: "kesharioy@gmail.com",
+      customer_email: ["kesharioy@gmail.com", "admin@ravintola14peaks.fi"],
       subject,
       templateKey: templateData.templateKey,
       lang,
