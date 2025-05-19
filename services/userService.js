@@ -39,16 +39,17 @@ class UserService extends BaseService {
     if (!roleExists) {
       throw new Error("Invalid role. Role does not exist.");
     }
+    return existingUser;
   }
+
+  hashedPassword = async (password) => await hash(password, 10);
 
   doSignUp = async (userModel, image) => {
     try {
       // Validate email and role
       await this.validateUser(userModel);
-
-      // Hash the password using bcrypt
-      const hashedPassword = await hash(userModel.password, 10);
-      userModel.password = hashedPassword;
+      // hash the password
+      userModel.password = await this.hashedPassword(userModel.password);
 
       const addUserResponse = await this.userRepo.addUser(userModel, image);
       if (!addUserResponse) {
@@ -173,7 +174,13 @@ class UserService extends BaseService {
   updateUser = async (userModel, image, userId) => {
     try {
       // Validate email and role
-      await this.validateUser(userModel, userId);
+      const existinguser = await this.validateUser(userModel, userId);
+      if (userModel.password) {
+        // hash the password
+        userModel.password = await this.hashedPassword(userModel.password);
+      } else {
+        userModel.password = existinguser.password;
+      }
 
       // Attempt to update user using userRepo
       const updateUserResponse = await this.userRepo.updateUser(
