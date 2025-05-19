@@ -68,8 +68,8 @@ class OrderService extends BaseService {
       orders.subtotal = dto.getSubtotalExcludingVAT();
       // set vat percent
       orders.vatPercent = dto.vatPercent;
-      
-      orders.totalAmount = parseFloat(subtotal.toFixed(2));
+
+      orders.totalAmount = parseFloat(orders.totalAmount.toFixed(2));
 
       // total amount including vat
       if (orders.totalAmount !== dto.getCalculatedTotal()) {
