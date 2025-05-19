@@ -125,10 +125,14 @@ class UserRepository extends BaseRepo {
 
       if (!updatedUser) return null;
 
-      updatedUser.profileBase64 = this.formatProfileImage(
-        updatedUser.profilePic
-      );
-      delete updatedUser.profilePic;
+      if (image) {
+        user.profilePic = await this.handleImageUploadToDatabase(
+          image,
+          session
+        );
+      } else {
+        user.profilePic = null;
+      }
 
       return updatedUser;
     } catch (error) {
