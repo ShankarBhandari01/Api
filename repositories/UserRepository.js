@@ -113,14 +113,13 @@ class UserRepository extends BaseRepo {
     session.startTransaction();
 
     try {
-      
       if (image) {
-        user.profilePic = await this.handleImageUploadToDatabase(
+        userData.profilePic = await this.handleImageUploadToDatabase(
           image,
           session
         );
       } else {
-        user.profilePic = null;
+        userData.profilePic = null;
       }
 
       const updatedUser = await this.userModel
