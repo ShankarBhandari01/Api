@@ -175,7 +175,7 @@ class UserService extends BaseService {
     try {
       // Validate email and role
       const existinguser = await this.validateUser(userModel, userId);
-      if (userModel.password) {
+      if (userModel.password !== undefined && userModel.password !== "") {
         // hash the password
         userModel.password = await this.hashedPassword(userModel.password);
       } else {
