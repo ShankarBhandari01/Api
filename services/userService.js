@@ -18,6 +18,9 @@ class UserService extends BaseService {
 
   // New helper method to check for duplicate email and role existence
   async validateUser(userModel, userId = null) {
+    // lower case the email
+    userModel.email = userModel.email.toLowerCase();
+
     // Check if email address is already used
     const existingUser = await this.getUser(userModel);
     if (existingUser && existingUser._id !== userId) {
