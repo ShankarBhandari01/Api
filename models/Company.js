@@ -18,7 +18,7 @@ const OpeningHourSchema = new Schema(
     },
     closedDates: [
       {
-        date: { type: Date, required: true }, // e.g. 2025-12-25
+        date: { type: Date, }, // e.g. 2025-12-25
         reason: { type: String, default: "Closed by admin" },
         from: { type: String }, //format: "HH:mm" (e.g. "14:00")
         to: { type: String }, //format: "HH:mm" (e.g. "17:00")
