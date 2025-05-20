@@ -13,6 +13,9 @@ class EmailService extends BaseService {
     this.templateCache = {};
     // Centralized template registry
     this.templatePaths = {
+      bookingRejection: {
+        fi: "./templates/reservationRejection.html",
+      },
       bookingConfirmation: {
         fi: "./templates/fi.html",
         en: "./templates/en.html",
@@ -182,44 +185,55 @@ class EmailService extends BaseService {
     });
   };
 
-  // Booking confirmation
-  async sendBookingConfirmation(reservationData) {
-    const date = new Date(reservationData.reservation_date);
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-
-    let {
+  // Send booking email (confirmation or rejection)
+  async sendBookingEmail(reservationData) {
+    const {
       lang = "fi",
       customer_email,
       customer_name,
       reservation_date,
-      reservation_time,
+      reservation_code,
       number_of_guests,
       special_requests,
-      reservation_code,
+      status = "confirmed", // "confirmed" or "rejected"
     } = reservationData;
 
-    reservation_time = `${hours}:${minutes}`;
-    reservation_date = date.toLocaleDateString("fi-FI");
+    const dateObj = new Date(reservation_date);
+    const formattedTime = `${String(dateObj.getHours()).padStart(
+      2,
+      "0"
+    )}:${String(dateObj.getMinutes()).padStart(2, "0")}`;
+    const formattedDate = dateObj.toLocaleDateString("fi-FI");
 
     const templateData = {
       customer_name,
-      reservation_date,
-      reservation_time,
+      reservation_date: formattedDate,
+      reservation_time: formattedTime,
       number_of_guests,
       special_requests,
       reservation_code,
     };
 
-    const subject =
-      lang === "fi"
-        ? "Varausvahvistus: Pöytävaraus"
-        : "Booking Confirmation: Table Reservation";
+    // Define email subject per language and status
+    const subjects = {
+      fi: {
+        confirmed: "Varausvahvistus: Pöytävaraus",
+        rejected: "Valitettavasti emme voi vahvistaa varaustasi",
+      },
+      en: {
+        confirmed: "Booking Confirmation: Table Reservation",
+        rejected: "Unfortunately, we cannot confirm your reservation",
+      },
+    };
+
+    const subject = subjects[lang]?.[status] || subjects["fi"][status];
+    const templateKey =
+      status === "confirmed" ? "bookingConfirmation" : "bookingRejection";
 
     await this.sendEmailNotification({
       customer_email,
       subject,
-      templateKey: "bookingConfirmation",
+      templateKey,
       lang,
       templateData,
     });

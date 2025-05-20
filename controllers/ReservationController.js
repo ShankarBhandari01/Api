@@ -5,12 +5,10 @@ class ReservationController extends BaseController {
     req,
     res,
     reservationService,
-    emailService,
     firebasePushNotificationService,
   }) {
     super(req, res);
     this.reservationService = reservationService;
-    this.emailService = emailService;
     this.firebasePushNotificationService = firebasePushNotificationService;
   }
 
