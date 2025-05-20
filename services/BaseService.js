@@ -3,8 +3,8 @@ import appconfig from "../config/appconfig.js";
 import BaseRepo from "../repositories/BaseRepository.js";
 import pkg from "lodash";
 import { customResourceResponse } from "../utils/constants.js";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
-import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { format, parse, isWithinInterval } from "date-fns";
 const { omit } = pkg;
 const { sign } = jsonweb;
 
@@ -149,6 +149,16 @@ class BaseService extends BaseRepo {
       const dateUTC = new Date(requestDate);
       const zonedTime = toZonedTime(dateUTC, "Europe/Helsinki");
 
+      // check if the restaurant is closed today
+      const todayRestaurantTime = this.isRestaurantClosedNow(
+        openingHours,
+        zonedTime
+      );
+
+      if (todayRestaurantTime.isClosedNow) {
+        throw new Error(todayRestaurantTime.reason);
+      }
+
       const weekday = format(zonedTime, "eeee").toLowerCase(); // e.g., "monday"
 
       const dayHours = openingHours?.openingHours?.[weekday];
@@ -187,6 +197,44 @@ class BaseService extends BaseRepo {
     } catch (e) {
       throw { message: e.message };
     }
+  };
+
+  // Helper function to check if the restaurant is closed now
+  isRestaurantClosedNow = (openingHoursSchema, helsinkiNow) => {
+    const todayStr = format(helsinkiNow, "yyyy-MM-dd");
+    for (const cd of openingHoursSchema.closedDates || []) {
+      const closedDateStr = format(new Date(cd.date), "yyyy-MM-dd");
+      if (closedDateStr !== todayStr) continue;
+
+      if (!cd.from || !cd.to) {
+        return {
+          isClosedNow: true,
+          reason: cd.reason || "Closed (Special Date)",
+        };
+      }
+
+      const fromTime = parse(
+        `${todayStr} ${cd.from}`,
+        "yyyy-MM-dd HH:mm",
+        helsinkiNow
+      );
+      const toTime = parse(
+        `${todayStr} ${cd.to}`,
+        "yyyy-MM-dd HH:mm",
+        helsinkiNow
+      );
+
+      if (isWithinInterval(helsinkiNow, { start: fromTime, end: toTime })) {
+        return {
+          isClosedNow: true,
+          reason: cd.reason
+            ? `${cd.reason} (Closed from ${cd.from} to ${cd.to})`
+            : `Closed (Partial Day from ${cd.from} to ${cd.to})`,
+        };
+      }
+    }
+
+    return { isClosedNow: false };
   };
 
   // Helper function to sanitize user data and add role info
