@@ -5,12 +5,10 @@ class ReservationController extends BaseController {
     req,
     res,
     reservationService,
-    emailService,
     firebasePushNotificationService,
   }) {
     super(req, res);
     this.reservationService = reservationService;
-    this.emailService = emailService;
     this.firebasePushNotificationService = firebasePushNotificationService;
   }
 
@@ -70,6 +68,15 @@ class ReservationController extends BaseController {
     } catch (error) {
       this.sendError(error);
     }
+  };
+
+  // Send Socket.io Notification
+  sendNotification = async () => {
+    await this.firebasePushNotificationService.sendSocketioNotification(
+      this.req.body,
+      "abc123",
+      "orderStatusUpdate"
+    );
   };
 }
 

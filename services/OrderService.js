@@ -89,6 +89,7 @@ class OrderService extends BaseService {
       this.emailService.sendOrderPlaceConfirmation(savedOrder);
       // send notification to admins
       this.emailService.sendOrderNotificationEmailToAdmin(savedOrder);
+
       // send response to user
       return super.prepareResponse(savedOrder);
     } catch (error) {

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Varausvahvistus – Ravintola 14 Peaks</title>
+    <title>Varauksen hylkäys – Ravintola 14 Peaks</title>
     <style>
       body {
         font-family: "Segoe UI", Arial, sans-serif;
@@ -24,7 +24,7 @@
 
       h1 {
         text-align: center;
-        color: #1a2e3b;
+        color: #c0392b;
         margin-bottom: 20px;
       }
 
@@ -91,7 +91,7 @@
 
   <body>
     <div class="container">
-      <h1>Varausvahvistus</h1>
+      <h1>Valitettavasti emme voi vahvistaa varaustasi</h1>
 
       <div class="details">
         <h3>Varaustiedot</h3>
@@ -105,35 +105,31 @@
 
       <p>Hei <strong>{{customer_name}}</strong>,</p>
 
-      <p>Kiitos, että valitsit Ravintola 14 Peaks!</p>
-
       <p>
-        Vahvistamme ilolla varauksesi <strong>{{number_of_guests}} henkilölle</strong>
-        <strong>{{reservation_date}}</strong> klo <strong>{{reservation_time}}</strong>.
+        Kiitos kiinnostuksestasi Ravintola 14 Peaksia kohtaan ja
+        varauspyynnöstäsi. Valitettavasti emme pysty vahvistamaan varaustasi
+        <strong>{{reservation_date}} klo {{reservation_time}}</strong>.
       </p>
 
       <p>
-        Sinulle on luotu ainutlaatuinen varauskoodi:
-        <strong>{{reservation_code}}</strong>. Säilytä tämä saapuessasi
-        ravintolaan.
+        Tämä voi johtua siitä, että olemme jo täynnä kyseisenä ajankohtana tai
+        varauksessa on teknisiä ristiriitoja.
       </p>
 
       <p>
-        Odotamme innolla, että pääsemme tarjoamaan sinulle unohtumatonta
-        ruokailukokemusta.
+        Suosittelemme kokeilemaan toista ajankohtaa tai ottamaan meihin yhteyttä
+        suoraan, jotta voimme auttaa sinua löytämään sopivan vaihtoehdon.
       </p>
 
       <p>
-        Mikäli sinulla on erityistoiveita tai haluat muuttaa varausta, voit vastata
-        tähän sähköpostiin tai soittaa meille: <strong>+358 50 366 2992</strong>.
+        Mikäli sinulla on kysyttävää, voit vastata tähän sähköpostiin tai
+        soittaa meille numeroon <strong>+358 50 366 2992</strong>.
       </p>
 
       <p>
-        Suosittelemme saapumaan muutama minuutti etuajassa varmistaaksesi sujuvan
-        kokemuksen.
+        Pahoittelemme aiheutunutta vaivaa ja toivomme, että voimme palvella
+        sinua toisella kertaa.
       </p>
-
-      <p>Lämpimästi tervetuloa!</p>
 
       <div class="footer">
         <table class="footer-table">
@@ -143,9 +139,11 @@
               <p>Siltasaarenkatu 13, 00530 Helsinki</p>
               <p><strong>+358 50 366 2992</strong></p>
               <p>Business ID: 3477119-6</p>
-              <p><a href="https://ravintola14peaks.fi">ravintola14peaks.fi</a></p>
+              <p>
+                <a href="https://ravintola14peaks.fi">ravintola14peaks.fi</a>
+              </p>
             </td>
-            <td style="text-align: right;">
+            <td style="text-align: right">
               <img
                 src="https://api.ravintola14peaks.fi/logos/logo.jpeg"
                 alt="Ravintola 14 Peaks logo"

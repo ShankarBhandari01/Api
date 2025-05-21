@@ -34,7 +34,10 @@ class UserController extends BaseController {
     await this.runServiceMethod(
       this.userService,
       async (service) => {
-        return await service.doLogin(this.req.body, this.req.session);
+        const response = await service.doLogin(this.req.body, this.req.session);
+        this.req.session.user = response.user;
+        this.req.session.user._id = response.user._id;
+        return response;// Return the response
       },
       "User Logged In"
     );

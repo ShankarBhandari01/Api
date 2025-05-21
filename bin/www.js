@@ -4,13 +4,10 @@
  * Module dependencies.
  */
 import { createServer } from "http";
-import app from "../server/index.js";
+import index from "../server/index.js";
 import os from "os";
 import container from "../containers/Containers.js";
-
-const RedisSocketService = container.resolve("redisSocketService");
-const logger = container.resolve("logger");
-
+const app = index.app;
 /**
  * Create HTTP server.
  */
@@ -19,8 +16,8 @@ const server = createServer(app);
 /**
  * Create seckot redis server.
  */
-
-RedisSocketService.init(server);
+const { redisSocketService, logger } = container.cradle;
+redisSocketService.init(server, index.userSession, process.env.CORS_WHITELIST);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -125,7 +122,17 @@ function gracefulShutdown(signal) {
   }, 30000); // 30 seconds timeout
 
   // shutdown redis sever
-  SocketService.shutdown();
+  redisSocketService.shutdown();
+
+  // shutdown socket server
+  const { notificationQueueService, redisClientManager } = container.cradle;
+  if (notificationQueueService) {
+    notificationQueueService.shutdown();
+  }
+  // shutdown redis client
+  if (redisClientManager) {
+    redisClientManager.disconnect();
+  }
 }
 
 /**

@@ -12,10 +12,10 @@ class OrderController extends BaseController {
       this.orderService,
       async (service) => {
         const response = await service.saveOrders(this.req.body, this.lang);
+        // Send push notification to all admins
         await this.firebasePushNotificationService.sendPushNotificationToAdminsOnNewOrder(
           response.data
         );
-
         return response;
       },
       "Order place successfully"
@@ -55,6 +55,12 @@ class OrderController extends BaseController {
           status,
           time,
           reason
+        );
+
+        await this.firebasePushNotificationService.sendSocketioNotification(
+          response.data,
+          orderId,
+          "orderStatusUpdate"
         );
         return response;
       },

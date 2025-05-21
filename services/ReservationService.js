@@ -43,7 +43,8 @@ class ReservationService extends BaseService {
       throw { message: error.message, stack: error.stack };
     }
   };
-
+  
+  // update reservation status
   updareReservationStatus = async (reservationId, status) => {
     try {
       const reservation = await this.reservationRepository.getReservationById(
@@ -60,6 +61,7 @@ class ReservationService extends BaseService {
 
       // Invalidate Redis cache for reservations
       await this.redisSocketService.delCacheKey("reservation:*");
+
       //send booking confirmation and push notification
       await this.emailService.sendBookingConfirmation(updatedReservation);
 
