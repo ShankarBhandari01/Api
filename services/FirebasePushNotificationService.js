@@ -1,13 +1,14 @@
 import firebase from 'firebase-admin';
 import serviceAccount from "../firebase-service-account.json" with { type: "json" };
 import BaseService from "./BaseService.js";
-import { sendSocketioNotification } from "../jobs/Notification.job.js";
 
 class FirebasePushNotificationService extends BaseService {
-  constructor({ connection, notificationRepository }) {
+  constructor({ connection, notificationRepository, userService, notificationQueueService}) {
     super(connection);
     this.connection = connection;
     this.notificationRepository = notificationRepository;
+    this.userService = userService;
+    this.notificationQueueService = notificationQueueService;
     this.initializeFirebase();
   }
 
@@ -51,8 +52,7 @@ class FirebasePushNotificationService extends BaseService {
       const notification = { title, body };
 
       const fcmsTokens = await this.getFcmToken();
-      await this.savenotification(notification, null, "reservation");
-
+    
       if (fcmsTokens && fcmsTokens.length > 0) {
         const message = {
           notification,
@@ -63,6 +63,10 @@ class FirebasePushNotificationService extends BaseService {
       } else {
         this.log("No FCM tokens found", "error");
       }
+
+      notification.data = data;
+      await this.savenotification(notification, null, "reservation");
+
     } catch (error) {
       this.log(`Error sending notification: ${error}`, "error");
     }
@@ -97,8 +101,7 @@ class FirebasePushNotificationService extends BaseService {
       const notification = { title, body };
       const fcmsTokens = await this.getFcmToken();
 
-      await this.savenotification(notification, customer, "order");
-
+    
       if (Array.isArray(fcmsTokens) && fcmsTokens.length > 0) {
         const message = {
           notification,
@@ -110,14 +113,35 @@ class FirebasePushNotificationService extends BaseService {
       } else {
         this.log("No admin FCM tokens found", "warn");
       }
+      notification.data = orderData;
+      await this.savenotification(notification, customer, "order");
+      
     } catch (error) {
       this.log(`Error sending order notification: ${error}`, "error");
     }
   };
-// socket io notification channel function 
-  sendSocketioNotification=async(userId, message)=> {
-    await sendSocketioNotification(userId,message)
-  }
+
+  // socket io notification channel function 
+  sendSocketioNotification = async (message,userIds = null,notificationType ) => {
+    if (!message) {
+      this.log("Message is required to send socket.io notification", "error");
+      return;
+    }
+
+    if (!userIds) {
+      const users = await this.userService.getAllUsers();
+      userIds = users.data.map(user => user._id?.toString());
+    }
+  
+    if (typeof userIds === "string") {
+      userIds = [userIds];
+    }
+  
+   return await Promise.all(
+      userIds.map(userId => this.notificationQueueService.send(userId, message,notificationType))
+    );
+  };
+  
 
   savenotification = async (notificationData, customer, type) => {
     try {
@@ -126,12 +150,15 @@ class FirebasePushNotificationService extends BaseService {
         message: notificationData.body,
         type,
         customerId: customer ? customer._id : null,
-      };
+      };  
+      // Send socket.io notification
+      await this.sendSocketioNotification(notificationData,type);
 
       return await this.handleRepositoryCall(
         this.notificationRepository.saveNotification,
         notification
       );
+
     } catch (error) {
       this.log(`Error saving notification: ${error}`, "error");
     }
@@ -167,8 +194,6 @@ class FirebasePushNotificationService extends BaseService {
   
   updateAllSeenStatus = async (ids) =>
     await this.handleRepositoryCall(this.notificationRepository.updateAllSeenStatus, ids);
-
- 
   
 }
 

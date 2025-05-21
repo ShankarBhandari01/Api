@@ -38,4 +38,10 @@ router.get("/getAllReservations", async (req, res, next) => {
   }
 });
 
+router.post("/test/notify", async (req, res) => {
+  const controller = req.scope.resolve("reservationController");
+  await controller.sendNotification();
+  res.json({ status: "Notification sent" });
+});
+
 export default router;

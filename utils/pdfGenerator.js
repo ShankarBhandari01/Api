@@ -5,46 +5,53 @@ class PDFGenerator {
     this.fontSize = fontSize;
   }
 
-  async generateKitchenOrderPDF(data) {
+  async generateKitchenOrderPDF(data, hight = 300, width = 600) {
     this.data = data;
-    this.pdfDoc = await PDFDocument.create();
-    this.font = await this.pdfDoc.embedFont(StandardFonts.Helvetica);
-    return this.drawKot();
+    this.hight = hight;
+    this.width = width;
+    await this.createPdfDoc();
+    return this.drawPDF();
   }
 
-  async drawKot() {
-    const page = this.pdfDoc.addPage([300, 600]); // Small receipt-style page
+  async createPdfDoc() {
+    this.pdfDoc = await PDFDocument.create();
+    this.font = await this.pdfDoc.embedFont(StandardFonts.Helvetica);
+  }
 
-    const drawText = (text, x, y) => {
-      page.drawText(text, {
-        x,
-        y,
-        size: this.fontSize,
-        font: this.font,
-        color: rgb(0, 0, 0),
-      });
-    };
+  writeText(page, text, x, y) {
+    page.drawText(text, {
+      x,
+      y,
+      size: this.fontSize,
+      font: this.font,
+      color: rgb(0, 0, 0),
+    });
+  }
+
+  async drawPDF() {
+    const page = this.pdfDoc.addPage([this.hight, this.width]);
+    const writeText = this.writeText.bind(this, page); // Bind page to writeText
 
     let y = 570;
-    drawText("🍽️ KITCHEN ORDER TICKET", 50, y);
+    writeText("🍽️ KITCHEN ORDER TICKET", 50, y);
     y -= 20;
-    drawText(`Table No: ${this.data.table_number}`, 20, y);
+    writeText(`Table No: ${this.data.table_number}`, 20, y);
     y -= 15;
-    drawText(`Order No: ${this.data.order_number}`, 20, y);
+    writeText(`Order No: ${this.data.order_number}`, 20, y);
     y -= 15;
-    drawText(`Order Time: ${this.data.order_time}`, 20, y);
+    writeText(`Order Time: ${this.data.order_time}`, 20, y);
     y -= 15;
-    drawText(`Waiter: ${this.data.waiter_name}`, 20, y);
+    writeText(`Waiter: ${this.data.waiter_name}`, 20, y);
     y -= 25;
 
-    drawText("Items:", 20, y);
+    writeText("Items:", 20, y);
     y -= 15;
 
     for (const item of this.data.items) {
-      drawText(`• ${item.name} x${item.quantity}`, 30, y);
+      writeText(`• ${item.name} x${item.quantity}`, 30, y);
       y -= 15;
       if (item.notes) {
-        drawText(`  (${item.notes})`, 40, y);
+        writeText(`  (${item.notes})`, 40, y);
         y -= 15;
       }
     }

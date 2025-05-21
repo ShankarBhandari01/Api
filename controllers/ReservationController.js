@@ -69,6 +69,15 @@ class ReservationController extends BaseController {
       this.sendError(error);
     }
   };
+
+  // Send Socket.io Notification
+  sendNotification = async () => {
+    await this.firebasePushNotificationService.sendSocketioNotification(
+      this.req.body,
+      "abc123",
+      "orderStatusUpdate"
+    );
+  };
 }
 
 export default ReservationController;

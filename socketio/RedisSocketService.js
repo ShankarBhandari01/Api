@@ -1,48 +1,70 @@
 // socketio/RedisSocketService.js
 import { Server } from "socket.io";
-import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
+import sharedSession from "express-socket.io-session";
 import registerNotificationGateway from "./notification.gateway.js";
-import config from "../config/appconfig.js";
 
 class SocketService {
-  constructor({ logger }) {
+  constructor({ logger, redisClientManager }) {
     this.logger = logger;
+    this.EVICTION_CHANNEL = "cache-eviction";
+    this.redisClientManager = redisClientManager;
   }
+
   io = null;
   pubClient = null;
   subClient = null;
   cacheClient = null;
 
-  async init(server, options = {}) {
+  async init(server, session, corsOrigin = "*") {
     this.io = new Server(server, {
       cors: {
-        origin: options.corsOrigin || "*",
+        origin: corsOrigin,
+        methods: ["GET", "POST"],
+        credentials: true,
       },
     });
-    var redisUrl;
-    if (process.env.NODE_ENV == "test") {
-      redisUrl = "redis://localhost:6380";
-    } else {
-      redisUrl =
-        options.redisUrl || config.redis.host || "redis://localhost:6379";
-    }
+
+    this.io.use(
+      sharedSession(session, {
+        autoSave: true,
+      })
+    );
+
+    const { pubClient, subClient, cacheClient } =
+      this.redisClientManager.getClients();
 
     // Redis for pub/sub and caching
-    this.pubClient = createClient({ url: redisUrl });
-    this.subClient = this.pubClient.duplicate();
-    this.cacheClient = this.pubClient.duplicate();
-
-    await Promise.all([
-      this.pubClient.connect(),
-      this.subClient.connect(),
-      this.cacheClient.connect(),
-    ]);
+    this.pubClient = pubClient;
+    this.subClient = subClient;
+    this.cacheClient = cacheClient;
 
     this.io.adapter(createAdapter(this.pubClient, this.subClient));
 
     // Register event gateway
     registerNotificationGateway(this.io);
+
+    // Subscribe to eviction channel
+    await this.subClient.subscribe(this.EVICTION_CHANNEL, async (message) => {
+      try {
+        const { key, pattern } = JSON.parse(message);
+        if (key) {
+          await this.cacheClient.unlink(key);
+          this.logger.log(`[RedisSocketService] Evicted key: ${key}`, "info");
+        } else if (pattern) {
+          this.logger.log(
+            `[RedisSocketService] Evicting keys by pattern: ${pattern}`,
+            "info"
+          );
+          await this.delCacheKey(pattern, false); // false = don't republish again
+        }
+      } catch (err) {
+        this.logger.log(
+          `[RedisSocketService] Error handling eviction message: ${err}`,
+          "error"
+        );
+      }
+    });
 
     this.logger.log(
       "[RedisSocketService] initialized with Redis Pub/Sub + Cache",
@@ -50,14 +72,31 @@ class SocketService {
     );
   }
 
+  getRedisClient = async () => {
+    if (!this.pubClient) {
+      this.logger.log(
+        "[RedisSocketService] Redis client not initialized",
+        "error"
+      );
+    }
+    return this.pubClient;
+  };
+
   getIO() {
-    if (!this.io) throw new Error("Socket.IO not initialized");
+    if (!this.io)
+      this.logger.log(
+        "[RedisSocketService] Socket.IO not initialized",
+        "error"
+      );
     return this.io;
   }
 
   getCache() {
     if (!this.cacheClient)
-      throw new Error("Redis Cache client not initialized");
+      throw this.logger.log(
+        "[RedisSocketService] Redis Cache client not initialized",
+        "error"
+      );
     return this.cacheClient;
   }
 
@@ -70,7 +109,8 @@ class SocketService {
     await this.cacheClient.setEx(key, ttl, JSON.stringify(data));
   }
 
-  async delCacheKey(pattern) {
+  // Add `broadcast = true` so we avoid re-publishing when this was already triggered via subscription
+  async delCacheKey(pattern, broadcast = true) {
     try {
       let cursor = "0";
       let totalDeleted = 0;
@@ -93,14 +133,14 @@ class SocketService {
           batchSize += keys.length;
 
           if (batchSize >= MAX_BATCH) {
-            try {
-              await pipeline.exec();
-            } catch (err) {
-              this.logger.log(
-                `[RedisSocketService] Error unlinking batch keys: ${err}`,
-                "error"
+            await pipeline
+              .exec()
+              .catch((err) =>
+                this.logger.log(
+                  `[RedisSocketService] Error unlinking batch keys: ${err}`,
+                  "error"
+                )
               );
-            }
             pipeline = this.cacheClient.multi();
             batchSize = 0;
           }
@@ -110,14 +150,21 @@ class SocketService {
       } while (cursor !== "0");
 
       if (batchSize > 0) {
-        try {
-          await pipeline.exec();
-        } catch (err) {
-          this.logger.log(
-            `[RedisSocketService] Error unlinking remaining keys: ${err}`,
-            "error"
+        await pipeline
+          .exec()
+          .catch((err) =>
+            this.logger.log(
+              `[RedisSocketService] Error unlinking remaining keys: ${err}`,
+              "error"
+            )
           );
-        }
+      }
+
+      if (broadcast) {
+        await this.pubClient.publish(
+          this.EVICTION_CHANNEL,
+          JSON.stringify({ pattern })
+        );
       }
 
       this.logger.log(
@@ -127,6 +174,24 @@ class SocketService {
     } catch (err) {
       this.logger.log(
         `[RedisSocketService] Unexpected error in delCacheKey: ${err}`,
+        "error"
+      );
+    }
+  }
+
+  async delSingleCacheKey(key, broadcast = true) {
+    try {
+      await this.cacheClient.unlink(key);
+      this.logger.log(`[RedisSocketService] Unlinked key: ${key}`, "info");
+      if (broadcast) {
+        await this.pubClient.publish(
+          this.EVICTION_CHANNEL,
+          JSON.stringify({ key })
+        );
+      }
+    } catch (err) {
+      this.logger.log(
+        `[RedisSocketService] Failed to unlink key "${key}": ${err}`,
         "error"
       );
     }
