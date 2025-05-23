@@ -31,11 +31,11 @@ const userlogSchema = new Schema({
   timestamp: {
     type: Date,
     default: Date.now,
+    expires: 60 * 60 * 24 * 4, // 4 days
   },
 });
 
 userlogSchema.index({ email: 1 });
 userlogSchema.index({ timestamp: -1 });
 // the models of the UserLoginLog scheme
-export default (connection) =>
-  connection.model("UserLoginLog", userlogSchema);
+export default (connection) => connection.model("UserLoginLog", userlogSchema);
