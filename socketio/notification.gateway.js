@@ -5,7 +5,7 @@ export default function registerNotificationGateway(io) {
   io.on("connection", (socket) => {
     logger.log(`[Socket.IO] User connected: ${socket.id}`, "info");
 
-    // Session auth example, if user is logged in
+    // Session auth, if user is logged in
     const session = socket.handshake.session;
     if (session?.user?._id) {
       const userRoom = `user:${session.user._id}`;
