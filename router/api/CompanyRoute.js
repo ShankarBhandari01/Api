@@ -15,10 +15,18 @@ router.get("/getCompanyInfo", async (req, res, next) => {
   }
 });
 // PUT company info
-router.put("/updateClosedDates", async (req, res, next) => {
+router.put("/updateClosedDates", isAuthenticated, async (req, res, next) => {
   try {
     const controller = req.scope.resolve("companyController");
     await controller.updateClosedDates();
+  } catch (e) {
+    next(e);
+  }
+});
+router.delete("/deleteClosedDates", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("companyController");
+    await controller.deleteClosedDates();
   } catch (e) {
     next(e);
   }

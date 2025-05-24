@@ -160,6 +160,12 @@ class CompanyService extends BaseService {
       closedates
     );
 
+  deleteClosedDates = async (closedates) =>
+    await this.handleRepositoryCall(
+      this.companyRepository.deleteClosedDates,
+      closedates
+    );
+
   getCompanyInfo = async (lang) =>
     await this.handleRepositoryCall(this.companyRepository.getCompanyInfo);
 

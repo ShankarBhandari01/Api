@@ -140,6 +140,15 @@ class CompanyController extends BaseController {
       "Closed dates updated successfully"
     );
   }
+
+  deleteClosedDates = async () => {
+    const closedDates = this.req.body;
+    await this.runServiceMethod(
+      this.companyService,
+      (service) => service.deleteClosedDates(closedDates),
+      "Closed date deleted successfully"
+    );
+  };
 }
 
 export default CompanyController;
