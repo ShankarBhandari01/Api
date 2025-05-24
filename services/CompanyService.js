@@ -154,6 +154,12 @@ class CompanyService extends BaseService {
     return results;
   };
 
+  updateClosedDates = async (closedates) =>
+    await this.handleRepositoryCall(
+      this.companyRepository.updateClosedDates,
+      closedates
+    );
+
   getCompanyInfo = async (lang) =>
     await this.handleRepositoryCall(this.companyRepository.getCompanyInfo);
 

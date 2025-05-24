@@ -131,6 +131,15 @@ class CompanyController extends BaseController {
       "Notifications updated successfully"
     );
   }
+
+  updateClosedDates() {
+    const { closedDates } = this.req.body;
+    return this.runServiceMethod(
+      this.companyService,
+      (service) => service.updateClosedDates(closedDates),
+      "Closed dates updated successfully"
+    );
+  }
 }
 
 export default CompanyController;
