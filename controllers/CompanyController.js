@@ -133,7 +133,7 @@ class CompanyController extends BaseController {
   }
 
   async updateClosedDates() {
-    const { closedDates } = this.req.body;
+    const closedDates = this.req.body;
     await this.runServiceMethod(
       this.companyService,
       (service) => service.updateClosedDates(closedDates),
