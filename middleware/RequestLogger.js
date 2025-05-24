@@ -1,12 +1,11 @@
-import uuidPkg from 'uuid';
-const { v4: uuid } = uuidPkg;
+import { v4 as uuidv4 } from 'uuid';
 import Logger from "../utils/logger.js";
 import pkg from 'lodash';
 const { omit } = pkg;
 const logger = new Logger();
 const requestLogger = (req, res, next) => {
   // Generate a unique identifier for each request
-  req.identifier = uuid();
+  req.identifier = uuidv4();
 
   // Start measuring the request processing time
   const start = Date.now();
