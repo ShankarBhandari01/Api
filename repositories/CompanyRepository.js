@@ -109,6 +109,28 @@ class CompanyRepository extends BaseRepo {
       this.logAndThrowError("Error adding table", err);
     }
   };
+
+  // Update closed dates for the company
+  updateClosedDates = async (closedDates) => {
+    try {
+      const existingCompany = await this.getCompanyInfo();
+      if (!existingCompany) {
+        throw new Error("Company info not found");
+      }
+
+      existingCompany.openingHours.closedDates = closedDates;
+      existingCompany.updated_at = new Date();
+
+      return await this.company
+        .findByIdAndUpdate(existingCompany._id, existingCompany, {
+          new: true,
+        })
+        .populate("logo")
+        .lean();
+    } catch (err) {
+      this.logAndThrowError("Error updating closed dates", err);
+    }
+  };
 }
 
 export default CompanyRepository;

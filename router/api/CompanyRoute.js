@@ -15,6 +15,15 @@ router.get("/getCompanyInfo", async (req, res, next) => {
   }
 });
 
+router.put("/updateClosedDates", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("companyController");
+    await controller.updateClosedDates();
+  } catch (e) {
+    next(e);
+  }
+});
+
 // POST company info
 router.post(
   "/addCompanyInfo",
