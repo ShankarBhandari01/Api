@@ -8,7 +8,8 @@ const corsOptions = {
   origin: function (origin, callback) {
     if (
       process.env.NODE_ENV === "test" ||
-      process.env.NODE_ENV === "development"
+      process.env.NODE_ENV === "development" ||
+      process.env.NODE_ENV === "production"
     ) {
       callback(null, true); // Allow all origins in test environment
     } else {
