@@ -113,16 +113,22 @@ class CompanyRepository extends BaseRepo {
   // Update closed dates for the company
   updateClosedDates = async (closedDates) => {
     try {
+      if (!Array.isArray(closedDates)) {
+        throw new Error("Invalid closedDates: expected an array");
+      }
+
       const existingCompany = await this.getCompanyInfo();
       if (!existingCompany) {
         throw new Error("Company info not found");
       }
 
-      existingCompany.openingHours.closedDates = closedDates;
-      existingCompany.updated_at = new Date();
+      const update = {
+        "openingHours.closedDates": closedDates,
+        updated_at: new Date(),
+      };
 
       return await this.company
-        .findByIdAndUpdate(existingCompany._id, existingCompany, {
+        .findByIdAndUpdate(existingCompany._id, update, {
           new: true,
         })
         .populate("logo")
