@@ -137,6 +137,36 @@ class CompanyRepository extends BaseRepo {
       this.logAndThrowError("Error updating closed dates", err);
     }
   };
+
+  deleteClosedDates = async (closedDates) => {
+    try {
+      if (!Array.isArray(closedDates)) {
+        throw new Error("Invalid closedDates: expected an array");
+      }
+
+      const existingCompany = await this.getCompanyInfo();
+      if (!existingCompany) {
+        throw new Error("Company info not found");
+      }
+
+      const update = {
+        $pull: { "openingHours.closedDates": { $in: closedDates } },
+        $set: { updated_at: new Date() },
+      };
+
+      return await this.company
+        .findByIdAndUpdate(existingCompany._id, update, {
+          new: true,
+        })
+        .populate("logo")
+        .lean();
+    } catch (err) {
+      this.logAndThrowError("Error deleting closed dates", {
+        originalError: err,
+        closedDates,
+      });
+    }
+  };
 }
 
 export default CompanyRepository;
