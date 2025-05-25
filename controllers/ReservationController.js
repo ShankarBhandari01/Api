@@ -50,13 +50,24 @@ class ReservationController extends BaseController {
       const limit = parseInt(this.req.query.limit) || 10;
       const searchText = this.req.query.search || "";
       let isTodayReservations = this.req.query.isTodayReservations === "true";
+      let filterPast = this.req.query.isPastReservations === "true";
+      let filterUpcoming = this.req.query.isFutureReservations === "true";
+      let date_range = this.req.query.dateRange;
 
       // Validate limit to prevent excessive data retrieval
       if (limit >= 100) {
         throw { message: "Limit must be less than 100" };
       }
 
-      const searchFilters = { searchText, page, limit, isTodayReservations };
+      const searchFilters = {
+        searchText,
+        page,
+        limit,
+        isTodayReservations,
+        filterUpcoming,
+        filterPast,
+        date_range,
+      };
 
       await this.runServiceMethod(
         this.reservationService,

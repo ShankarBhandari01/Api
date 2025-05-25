@@ -58,7 +58,8 @@ class ReservationRepository extends BaseRepo {
     limit = 10,
     isTodayReservations = false,
     filterUpcoming = false,
-    filterPast = false
+    filterPast = false,
+    date_range = null
   ) => {
     try {
       const now = new Date();
@@ -78,6 +79,13 @@ class ReservationRepository extends BaseRepo {
       } else if (filterPast) {
         query = {
           reservation_date: { $lt: startOfDay },
+        };
+      } else if (date_range) {
+        query = {
+          reservation_date: {
+            $gte: new Date(date_range.startDate),
+            $lt: new Date(date_range.endDate),
+          },
         };
       }
 
