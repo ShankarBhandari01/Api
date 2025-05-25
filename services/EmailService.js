@@ -186,7 +186,7 @@ class EmailService extends BaseService {
   };
 
   // Send booking email (confirmation or rejection)
-  async sendBookingEmail(reservationData) {
+  async sendBookingConfirmation(reservationData) {
     const {
       lang = "fi",
       customer_email,
