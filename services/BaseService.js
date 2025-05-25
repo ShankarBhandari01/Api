@@ -11,13 +11,6 @@ const { sign } = jsonweb;
 class BaseService extends BaseRepo {
   constructor(connection) {
     super(connection);
-    this.options = {
-      expiresIn: appconfig.auth.jwt_expiresin,
-      algorithm: "HS256",
-      issuer: "restaurant-pos-api",
-      subject: "access token",
-      audience: "user",
-    };
   }
 
   getFcmToken = async () => {
@@ -29,12 +22,32 @@ class BaseService extends BaseRepo {
   };
 
   // Helper function to create JWT token
-  generateToken(sessionUser, secret, options) {
-    return sign(
-      { sanitizedSession: omit(sessionUser, ["profile"]) },
-      secret,
-      options
-    );
+  generateToken(user, type = "access") {
+    const payload = { sanitizedSession: omit(user, ["profile"]) };
+
+    const options =
+      type === "refresh"
+        ? {
+            expiresIn: appconfig.jwtConfig.refreshTokenExpiresIn,
+            algorithm: appconfig.jwtConfig.algorithms[0],
+            issuer: appconfig.jwtConfig.issuer,
+            subject: "refresh token",
+            audience: appconfig.jwtConfig.audience,
+          }
+        : {
+            expiresIn: appconfig.jwtConfig.expiresIn,
+            algorithm: appconfig.jwtConfig.algorithms[0],
+            issuer: appconfig.jwtConfig.issuer,
+            subject: appconfig.jwtConfig.subject,
+            audience: appconfig.jwtConfig.audience,
+          };
+
+    const secret =
+      type === "refresh"
+        ? appconfig.jwtConfig.refreshTokenSecret
+        : appconfig.jwtConfig.secret;
+
+    return sign(payload, secret, options);
   }
 
   // Helper function to generate tokens
@@ -43,19 +56,10 @@ class BaseService extends BaseRepo {
       const user = session.user;
       const { profilePic, profileBase64, ...updatedUser } = user;
       // Generate tokens
-      const token = this.generateToken(
-        updatedUser,
-        appconfig.auth.jwt_secret,
-        this.options
-      );
-      const refreshToken = this.generateToken(
-        updatedUser,
-        appconfig.auth.refresh_token_secret,
-        {
-          expiresIn: appconfig.auth.refresh_token_expiresin,
-        }
-      );
-
+      const token = this.generateToken(updatedUser, "access");
+      // Generate refresh token
+      const refreshToken = this.generateToken(updatedUser, "refresh");
+      // Log token generation
       const tokens = { token, refreshToken };
       // save access token
       await super.saveTokens(tokens, session.user);
