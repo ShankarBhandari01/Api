@@ -12,6 +12,24 @@ const app = {
   env: process.env.NODE_ENV || "development",
   corsPolicies: process.env.CORS_WHITELIST,
 };
+
+const jwtVerifyOptions = {
+  algorithms: [process.env.JWT_ALGORITHM],
+  issuer: process.env.JWT_ISSUER,
+  subject: process.env.JWT_SUBJECT,
+  audience: process.env.JWT_AUDIENCE,
+};
+const jwtConfig = {
+  secret: process.env.JWT_SECRET,
+  expiresIn: process.env.JWT_EXPIRES_IN || "1d", // 1 day
+  refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
+  refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || "2d", // 2 days
+  saltRounds: process.env.SALT_ROUND || 10,
+  algorithms: [process.env.JWT_ALGORITHM],
+  issuer: process.env.JWT_ISSUER,
+  subject: process.env.JWT_SUBJECT,
+  audience: process.env.JWT_AUDIENCE,
+};
 const agenda = {
   CAMPAIGN_EMAIL_SCHEDULE: process.env.CAMPAIGN_EMAIL_SCHEDULE || "1 day",
   EXPIRE_CAMPAIGN_SCHEDULE: process.env.EXPIRE_CAMPAIGN_SCHEDULE || "0 0 * * *",
@@ -31,13 +49,6 @@ const redis = {
 const winiston = {
   logpath: "/myapp/logs/",
 };
-const auth = {
-  jwt_secret: process.env.JWT_SECRET,
-  jwt_expiresin: process.env.JWT_EXPIRES_IN || "1d",
-  saltRounds: process.env.SALT_ROUND || 10,
-  refresh_token_secret: process.env.REFRESH_TOKEN_SECRET,
-  refresh_token_expiresin: process.env.REFRESH_TOKEN_EXPIRES_IN || "2d", // 2 days
-};
 const sendgrid = {
   api_key: process.env.SEND_GRID_API_KEY,
   api_user: process.env.USERNAME,
@@ -52,4 +63,14 @@ const file = {
 };
 
 // Export the entire config as a default export
-export default { app, agenda, db, winiston, auth, sendgrid, file, redis };
+export default {
+  app,
+  agenda,
+  db,
+  winiston,
+  sendgrid,
+  file,
+  redis,
+  jwtConfig,
+  jwtVerifyOptions,
+};

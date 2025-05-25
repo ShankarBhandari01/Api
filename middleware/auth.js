@@ -56,13 +56,23 @@ async function verifyTokenInDatabase(req, token) {
 }
 
 function verifyJwtToken(token, secret, req, res, next) {
-  verify(token, secret, (err, decoded) => {
+  verify(token, secret, appconfig.jwtVerifyOptions, (err, decoded) => {
     if (err) {
       return requestHandler.throwError(
         res,
         401,
         "Unauthorized",
-        "Please provide a valid token, your token might be expired"
+        "Invalid or expired token"
+      )(); // This throws,
+    }
+
+    // Sanity check if sanitizedSession exists
+    if (!decoded?.sanitizedSession) {
+      return requestHandler.throwError(
+        res,
+        403,
+        "Forbidden",
+        "Session data missing in token"
       )();
     }
 
@@ -85,7 +95,7 @@ async function verifyAuthToken(req, res, next) {
       return res.status(401).json({ message });
     }
     // Verifies the token's secret and expiration
-    verifyJwtToken(token, appconfig.auth.jwt_secret, req, res, next);
+    verifyJwtToken(token, appconfig.jwtConfig.secret, req, res, next);
   } catch (err) {
     requestHandler.sendError(req, res, err);
   }
@@ -115,7 +125,13 @@ async function verifyRefreshToken(req, res, next) {
         .json({ code: 401, message: "Refresh token expired" });
     }
     // Verifies the refresh token's secret and expiration
-    verifyJwtToken(token, appconfig.auth.refresh_token_secret, req, res, next);
+    verifyJwtToken(
+      token,
+      appconfig.jwtConfig.refreshTokenSecret,
+      req,
+      res,
+      next
+    );
   } catch (err) {
     requestHandler.sendError(req, res, err);
   }
