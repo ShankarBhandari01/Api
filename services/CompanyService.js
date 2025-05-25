@@ -154,11 +154,12 @@ class CompanyService extends BaseService {
     return results;
   };
 
-  updateClosedDates = async (closedates) =>
+  updateClosedDates = async (closedates) => {
     await this.handleRepositoryCall(
       this.companyRepository.updateClosedDates,
       closedates
     );
+  };
 
   deleteClosedDates = async (closedates) =>
     await this.handleRepositoryCall(
