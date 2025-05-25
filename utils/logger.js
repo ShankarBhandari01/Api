@@ -6,7 +6,7 @@ import appconfig from "../config/appconfig.js";
 
 const { env } = appconfig.app;
 const logDir = "log";
-const isDev = env === "development" || env === "test";
+const isDev = env === "development" || env === "test" || env === "production";
 const logInstance = process.env.LOG_INSTANCE === "true";
 const instanceId = process.env.NODE_APP_INSTANCE || "0";
 
