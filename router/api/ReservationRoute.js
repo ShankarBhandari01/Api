@@ -19,6 +19,7 @@ router.post(
 // PUT // api/reservation update
 router.put(
   "/updateReservationStatus/:reservationId",
+  isAuthenticated,
   async (req, res, next) => {
     try {
       const controller = req.scope.resolve("reservationController");
@@ -29,7 +30,7 @@ router.put(
   }
 );
 // GET // api/reservations
-router.get("/getAllReservations", async (req, res, next) => {
+router.get("/getAllReservations", isAuthenticated, async (req, res, next) => {
   try {
     const controller = req.scope.resolve("reservationController");
     await controller.getReservations();
