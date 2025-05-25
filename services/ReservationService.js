@@ -43,7 +43,7 @@ class ReservationService extends BaseService {
       throw { message: error.message, stack: error.stack };
     }
   };
-  
+
   // update reservation status
   updareReservationStatus = async (reservationId, status) => {
     try {
@@ -79,20 +79,31 @@ class ReservationService extends BaseService {
         limit = 10,
         searchText = "", // (currently unused, preserved for future use)
         isTodayReservations = false,
+        filterUpcoming = false,
+        filterPast = false,
+        date_range = null,
       } = filters;
 
       const skip = this.getSkipNumber(page, limit);
-      const cacheKey = `reservation:all:page:${page}:limit:${limit}:today:${isTodayReservations}`;
+      const cacheKey = `reservation:all:page:${page}:limit:${limit}:today:${isTodayReservations}:filterUpcoming:${filterUpcoming}:filterPast:${filterPast}:date_range:${date_range}`;
 
       //  Check cache
       const cached = await this.redisSocketService.getCacheValue(cacheKey);
-      if (cached) return cached;
+      if (cached) {
+        const sortedDesc = cached.sort(
+          (a, b) => new Date(b.reservation_date) - new Date(a.reservation_date)
+        );
+        return sortedDesc;
+      }
 
       const [reservations, totalCount] = await Promise.all([
         this.reservationRepository.getReservations(
           skip,
           limit,
-          isTodayReservations
+          isTodayReservations,
+          filterUpcoming,
+          filterPast,
+          date_range
         ),
         this.reservationRepository.getReservationCount(),
       ]);
