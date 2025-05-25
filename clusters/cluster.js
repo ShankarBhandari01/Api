@@ -7,10 +7,9 @@ import { startServer } from "../bin/www.js";
 const logger = new Logger();
 
 // Determine optimal number of workers (default to half CPUs for memory savings)
-const numCPUs = Math.max(1, Math.floor(os.cpus().length / 2));
+const numCPUs = Math.max(1, Math.floor(os.cpus().length / 1));
 const WORKER_RESTART_LIMIT = 5;
 const WORKER_RESTART_WINDOW_MS = 60000;
-
 
 if (cluster.isPrimary) {
   logger.log(`[Master] Master process running. PID: ${process.pid}`);
