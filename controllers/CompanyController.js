@@ -133,22 +133,26 @@ class CompanyController extends BaseController {
   }
 
   async updateClosedDates() {
-    const closedDates = this.req.body;
-    await this.runServiceMethod(
-      this.companyService,
-      (service) => service.updateClosedDates(closedDates),
-      "Closed dates updated successfully"
-    );
+    const { mode, dates } = this.req.body;
+    if (mode === "new") {
+      await this.runServiceMethod(
+        this.companyService,
+        (service) => service.updateClosedDates(dates),
+        "Closed dates updated successfully"
+      );
+    } else if (mode === "delete") {
+      await this.runServiceMethod(
+        this.companyService,
+        (service) => service.deleteClosedDates(dates),
+        "Closed date deleted successfully"
+      );
+    } else {
+      return this.res.status(400).json({
+        status: "error",
+        message: "Invalid mode. Use 'new' or 'delete'.",
+      });
+    }
   }
-
-  deleteClosedDates = async () => {
-    const closedDates = this.req.body;
-    await this.runServiceMethod(
-      this.companyService,
-      (service) => service.deleteClosedDates(closedDates),
-      "Closed date deleted successfully"
-    );
-  };
 }
 
 export default CompanyController;
