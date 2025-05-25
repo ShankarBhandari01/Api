@@ -195,7 +195,7 @@ class EmailService extends BaseService {
       reservation_code,
       number_of_guests,
       special_requests,
-      status = "confirmed", // "confirmed" or "rejected"
+      status = "Confirmed", // "confirmed" or "rejected"
     } = reservationData;
 
     const dateObj = new Date(reservation_date);
@@ -217,18 +217,18 @@ class EmailService extends BaseService {
     // Define email subject per language and status
     const subjects = {
       fi: {
-        confirmed: "Varausvahvistus: Pöytävaraus",
-        rejected: "Valitettavasti emme voi vahvistaa varaustasi",
+        Confirmed: "Varausvahvistus: Pöytävaraus",
+        Cancelled: "Valitettavasti emme voi vahvistaa varaustasi",
       },
       en: {
-        confirmed: "Booking Confirmation: Table Reservation",
-        rejected: "Unfortunately, we cannot confirm your reservation",
+        Confirmed: "Booking Confirmation: Table Reservation",
+        Cancelled: "Unfortunately, we cannot confirm your reservation",
       },
     };
 
     const subject = subjects[lang]?.[status] || subjects["fi"][status];
     const templateKey =
-      status === "confirmed" ? "bookingConfirmation" : "bookingRejection";
+      status === "Confirmed" ? "bookingConfirmation" : "bookingRejection";
 
     await this.sendEmailNotification({
       customer_email,
