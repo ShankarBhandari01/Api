@@ -1,20 +1,24 @@
-// utils/createScopedDependency.js
 import { asValue } from "awilix";
+
 export default async function createScopedDependency(
   container,
   dbName,
   dependencyName
 ) {
+  const { logger, mongoConnectionManager } = container.cradle;
+
+  if (!mongoConnectionManager) {
+    logger.log("mongoConnectionManager not registered in container", "error");
+    return { error: "mongoConnectionManager not registered in container" };
+  }
+
   try {
-    const mongoConnectionManager = container.resolve("mongoConnectionManager");
-
-    if (!mongoConnectionManager) {
-      throw new Error("mongoConnectionManager not registered in container");
-    }
-
     const connection = await mongoConnectionManager.getConnection(dbName);
+
     if (!connection) {
-      throw new Error(`No MongoDB connection found for db: ${dbName}`);
+      const msg = `No MongoDB connection found for db: ${dbName}`;
+      logger.log(msg, "error");
+      return { error: msg };
     }
 
     const scope = container.createScope();
@@ -23,10 +27,11 @@ export default async function createScopedDependency(
     });
 
     const dependency = scope.resolve(dependencyName);
+
     return { scope, dependency };
   } catch (err) {
-    throw new Error(
-      `Failed to create scoped dependency '${dependencyName}': ${err.message}`
-    );
+    const msg = `Failed to create scoped dependency '${dependencyName}': ${err.message}`;
+    logger.log(msg, "error");
+    return { error: msg };
   }
 }

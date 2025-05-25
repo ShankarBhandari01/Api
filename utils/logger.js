@@ -1,3 +1,4 @@
+// utils/logger.js
 import { createLogger, format, transports } from "winston";
 import { existsSync, mkdirSync } from "fs";
 import DailyRotate from "winston-daily-rotate-file";
@@ -5,132 +6,94 @@ import appconfig from "../config/appconfig.js";
 
 const { env } = appconfig.app;
 const logDir = "log";
+const isDev = env === "development" || env === "test";
+const logInstance = process.env.LOG_INSTANCE === "true";
+const instanceId = process.env.NODE_APP_INSTANCE || "0";
 
-let infoLogger;
-let errorLogger;
-let warnLogger;
-let allLogger;
+if (!existsSync(logDir)) {
+  mkdirSync(logDir);
+}
 
-class Logger {
-  constructor() {
-    if (!existsSync(logDir)) {
-      mkdirSync(logDir);
-    }
+// Append instance ID to metadata if enabled
+const appendInstanceFormat = format((info) => {
+  if (logInstance) {
+    info.instance = instanceId;
+  }
+  return info;
+});
 
-    const commonDailyRotateOptions = {
-      datePattern: "YYYY-MM-DD",
-      maxFiles: "4d", 
-      zippedArchive: true,
-    };
+// JSON file format
+const jsonFormat = format.combine(
+  appendInstanceFormat(),
+  format.timestamp(),
+  format.errors({ stack: true }),
+  format.json()
+);
 
-    infoLogger = createLogger({
-      level: env === "development" ? "info" : "debug",
-      format: format.combine(
-        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.printf(
-          (info) => `${info.timestamp} ${info.level}: ${info.message}`
-        )
-      ),
-      transports: [
-        new transports.Console({
-          level: "info",
-          format: format.combine(
-            format.colorize(),
-            format.printf(
-              (info) => `${info.timestamp} ${info.level}: ${info.message}`
-            )
-          ),
-        }),
-        new DailyRotate({
-          filename: `${logDir}/%DATE%-info-results.log`,
-          ...commonDailyRotateOptions,
-        }),
-      ],
-      exitOnError: false,
-    });
+// Pretty console format
+const prettyFormat = format.combine(
+  appendInstanceFormat(),
+  format.colorize(),
+  format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  format.printf(({ timestamp, level, message, instance, ...meta }) => {
+    const extra = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : "";
+    const tag = instance ? `[instance:${instance}]` : "";
+    return `${timestamp} ${level}: ${tag} ${message} ${extra}`;
+  })
+);
 
-    errorLogger = createLogger({
-      level: env === "development" ? "info" : "debug",
-      format: format.combine(
-        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.printf(
-          (error) => `${error.timestamp} ${error.level}: ${error.message}`
-        )
-      ),
-      transports: [
-        new transports.Console({
-          level: "error",
-          format: format.combine(
-            format.colorize(),
-            format.printf(
-              (error) => `${error.timestamp} ${error.level}: ${error.message}`
-            )
-          ),
-        }),
-        new DailyRotate({
-          filename: `${logDir}/%DATE%-errors-results.log`,
-          ...commonDailyRotateOptions,
-        }),
-      ],
-      exitOnError: false,
-    });
+// File transport factory
+const createDailyRotateTransport = (name) =>
+  new DailyRotate({
+    filename: `${logDir}/%DATE%-${name}.log`,
+    datePattern: "YYYY-MM-DD",
+    maxFiles: "4d",
+    zippedArchive: true,
+    format: jsonFormat,
+  });
 
-    warnLogger = createLogger({
-      level: env === "development" ? "info" : "debug",
-      format: format.combine(
-        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.printf(
-          (warn) => `${warn.timestamp} ${warn.level}: ${warn.message}`
-        )
-      ),
-      transports: [
-        new transports.Console({
-          level: "warn",
-          format: format.combine(
-            format.colorize(),
-            format.printf(
-              (warn) => `${warn.timestamp} ${warn.level}: ${warn.message}`
-            )
-          ),
-        }),
-        new DailyRotate({
-          filename: `${logDir}/%DATE%-warnings-results.log`,
-          ...commonDailyRotateOptions,
-        }),
-      ],
-      exitOnError: false,
-    });
+// Build logger
+const buildLogger = (level, fileLabel) => {
+  const transportList = [createDailyRotateTransport(fileLabel)];
 
-    allLogger = createLogger({
-      level: env === "development" ? "info" : "debug",
-      format: format.combine(
-        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.printf((log) => `${log.timestamp} ${log.level}: ${log.message}`)
-      ),
-      transports: [
-        new DailyRotate({
-          filename: `${logDir}/%DATE%-results.log`,
-          ...commonDailyRotateOptions,
-        }),
-      ],
-      exitOnError: false,
-    });
+  if (isDev) {
+    transportList.unshift(
+      new transports.Console({ level, format: prettyFormat })
+    );
   }
 
+  return createLogger({
+    level,
+    transports: transportList,
+    exitOnError: false,
+  });
+};
+
+// Create individual loggers
+const infoLogger = buildLogger("info", "info-results");
+const warnLogger = buildLogger("warn", "warnings-results");
+const errorLogger = buildLogger("error", "errors-results");
+const allLogger = buildLogger("debug", "all-results");
+
+// Logger class
+class Logger {
   log(message, severity = "info", data = {}) {
-    if (severity === "info") {
-      infoLogger.log(severity, message, data);
-      allLogger.log(severity, message, data);
-    } else if (severity === "error") {
-      errorLogger.log(severity, message, data);
-      allLogger.log(severity, message, data);
-    } else if (severity === "warn") {
-      warnLogger.log(severity, message, data);
-      allLogger.log(severity, message, data);
-    } else {
-      infoLogger.log("info", message, data);
-      allLogger.log("info", message, data);
+    const meta = typeof data === "object" ? data : { data };
+
+    switch (severity) {
+      case "error":
+        errorLogger.error(message, meta);
+        break;
+      case "warn":
+        warnLogger.warn(message, meta);
+        break;
+      case "info":
+      default:
+        infoLogger.info(message, meta);
+        break;
     }
+
+    allLogger.log(severity, message, meta);
   }
 }
 
