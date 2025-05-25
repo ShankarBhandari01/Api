@@ -80,7 +80,7 @@ if (cluster.isPrimary) {
       (w) => w.process.pid
     );
     logger.log(`[Master] Active workers: ${activeWorkers.join(", ")}`, "info");
-  }, 30000);
+  }, 50000);
 
   // Global error listener
   process.on("uncaughtException", (err) => {
