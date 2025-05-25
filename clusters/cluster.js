@@ -8,12 +8,16 @@ import { startServer } from "../bin/www.js";
 const logger = new Logger();
 
 // Use half of CPUs to save memory (minimum 1)
-const numCPUs = Math.max(1, Math.floor(os.cpus().length / 1));
+const numCPUs =
+  process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development"
+    ? Math.max(1, Math.floor(os.cpus().length / 2))
+    : Math.max(1, Math.floor(os.cpus().length / 1));
 
 const WORKER_RESTART_LIMIT = 5;
 const WORKER_RESTART_WINDOW_MS = 60000;
 
 if (cluster.isPrimary) {
+  logger.log(`[Master] Starting cluster with ${numCPUs} workers`, "info");
   logger.log(`[Master] Master process running. PID: ${process.pid}`);
 
   const workerRestartTimestamps = [];
