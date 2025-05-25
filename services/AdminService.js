@@ -69,6 +69,37 @@ class AdminService extends BaseService {
       this.logAndThrowError("updateCorsWhitelist error", err);
     }
   };
+
+  uploadVideoLinks = async (links) => {
+    return await this.handleRepositoryCall(
+      this.adminRepository.uploadVideoLinks,
+      links
+    );
+  };
+
+  updateVideoLinks = async (id, links) => {
+    const databaseLink = await this.adminRepository.getVideoById(id);
+    if (!databaseLink) {
+      throw new Error(`Video link not found: ${id}`);
+    }
+
+    return await this.handleRepositoryCall(
+      this.adminRepository.updateVideoLinks,
+      id,
+      links
+    );
+  };
+
+  deleteVideo = async (id) => {
+    return await this.handleRepositoryCall(
+      this.adminRepository.deleteVidoLinks,
+      id
+    );
+  };
+
+  getVideoLinks = async () => {
+    return await this.handleRepositoryCall(this.adminRepository.getVideoLinks);
+  };
 }
 
 export default AdminService;
