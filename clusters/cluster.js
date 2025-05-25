@@ -10,7 +10,7 @@ const logger = new Logger();
 // Use half of CPUs to save memory (minimum 1)
 const numCPUs =
   process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development"
-    ? Math.max(1, Math.floor(os.cpus().length / 2))
+    ? 1
     : Math.max(1, Math.floor(os.cpus().length / 1));
 
 const WORKER_RESTART_LIMIT = 5;
