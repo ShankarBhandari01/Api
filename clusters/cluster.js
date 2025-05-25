@@ -94,12 +94,10 @@ if (cluster.isPrimary) {
   // Worker process
   process.on("uncaughtException", (err) => {
     logger.log(`[Worker] Uncaught Exception: ${err.message}`, "error");
-    process.exit(1);
   });
 
   process.on("unhandledRejection", (reason) => {
     logger.log(`[Worker] Unhandled Rejection: ${reason}`, "error");
-    process.exit(1);
   });
 
   startServer()
