@@ -9,6 +9,7 @@ import StockRepository from "../repositories/stockRepo.js";
 import SubscriberRepository from "../repositories/SubscriberRepository.js";
 import UserRepository from "../repositories/UserRepository.js";
 import SettingRepository from "../repositories/SettingRepository.js";
+import AdminRepository from "../repositories/AdminRespository.js";
 
 export default function registerRepositories(container) {
   container.register({
@@ -22,5 +23,6 @@ export default function registerRepositories(container) {
     orderRepository: asClass(OrderRespository).scoped(),
     reservationRepository: asClass(ReservationRepository).scoped(),
     stockRepository: asClass(StockRepository).scoped(),
+    adminRepository: asClass(AdminRepository).scoped(),
   });
 }

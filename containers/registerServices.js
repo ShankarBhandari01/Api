@@ -10,6 +10,7 @@ import StockService from "../services/stockService.js";
 import SubscriberService from "../services/SubscriberService.js";
 import UserService from "../services/userService.js";
 import SettingService from "../services/SettingService.js";
+import AdminService from "../services/AdminService.js";
 
 export default function registerServices(container) {
   container.register({
@@ -26,5 +27,6 @@ export default function registerServices(container) {
     firebasePushNotificationService: asClass(
       FirebasePushNotificationService
     ).scoped(),
+    adminService: asClass(AdminService).scoped(),
   });
 }

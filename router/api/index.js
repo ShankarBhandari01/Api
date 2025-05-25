@@ -9,6 +9,7 @@ import orderRoute from "./OrderRoute.js";
 import menuRoute from "./MenuRoute.js";
 import apiHealthRoute from "./apihealtRoute.js";
 import predictionRoute from "./prediction.routes.js";
+import admin from "./admin.js";
 
 const router = Router();
 // binding of route
@@ -22,5 +23,6 @@ router.use(orderRoute);
 router.use(menuRoute);
 router.use(apiHealthRoute);
 router.use(predictionRoute);
+router.use(admin);
 
 export default router;

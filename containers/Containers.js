@@ -18,6 +18,7 @@ import PredictionService from "../services/prediction.service.js";
 import NotificationQueueService from "../jobs/NotificationQueueService.js";
 import createLanguageMiddleware from "../middleware/languageMiddleware.js";
 import RedisClientManager from "../redis/RedisClientManager.js";
+import dynamicCors from "../middleware/CorsMiddleware.js";
 
 const container = createContainer();
 
@@ -43,6 +44,7 @@ container.register({
   predictionService: asClass(PredictionService).singleton(),
   notificationQueueService: asClass(NotificationQueueService).singleton(),
   redisClientManager: asClass(RedisClientManager).singleton(),
+  corsMiddleware: asFunction(dynamicCors).singleton(),
 });
 
 // Modular per-request scoped registrations

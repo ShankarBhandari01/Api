@@ -5,7 +5,6 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import config from "../config/appconfig.js";
 import indexRoutes from "../router/index.js";
-import corsMiddleware from "../middleware/CorsMiddleware.js";
 import requestLogger from "../middleware/RequestLogger.js";
 import { loggingMiddleware } from "../middleware/LogMiddleware.js";
 import { apiLimiter } from "../middleware/RequestRateLimiter.js";
@@ -30,6 +29,7 @@ const {
   notificationQueueService,
   logger,
   languageMiddleware,
+  corsMiddleware,
 } = container.cradle;
 
 // === System Settings ===
@@ -47,18 +47,19 @@ if (process.env.NODE_ENV === "production") {
 /**
  * Redis client for session store
  */
+
 redisClientManager.connect();
 const { pubClient } = redisClientManager.getClients();
 const userSession = createSessionMiddleware(pubClient);
 app.use(userSession);
+app.use(languageMiddleware);
+app.use(createTenantScope(container));
 app.use(compression());
 app.use(methodOverride());
 app.use(corsMiddleware);
 app.use(json());
 app.use(urlencoded({ extended: true }));
-app.use(languageMiddleware);
 app.use(requestLogger);
-app.use(createTenantScope(container));
 app.use(loggingMiddleware);
 app.use(apiLimiter);
 //app.use(metricsMiddleware);

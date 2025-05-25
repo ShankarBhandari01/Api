@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 
 class RedisClientManager {
-  constructor({ redisUrl,logger }) {
+  constructor({ redisUrl, logger }) {
     this.redisUrl = redisUrl;
     this.pubClient = null;
     this.subClient = null;
@@ -14,7 +14,15 @@ class RedisClientManager {
       throw new Error("Redis URL is required");
     }
 
-    this.pubClient = createClient({ url: this.redisUrl });
+    this.pubClient = createClient({
+      url: this.redisUrl,
+      socket: {
+        reconnectStrategy: (retries) => {
+          if (retries > 5) return new Error("Too many retries");
+          return 1000 * retries; // Exponential backoff
+        },
+      },
+    });
     this.subClient = this.pubClient.duplicate();
     this.cacheClient = this.pubClient.duplicate();
 
@@ -57,11 +65,23 @@ class RedisClientManager {
   }
 
   async disconnect() {
-    await Promise.all([
-      this.pubClient?.quit(),
-      this.subClient?.quit(),
-      this.cacheClient?.quit(),
-    ]);
+    try {
+      this.logger.log("[RedisClientManager] Disconnecting clients...", "info");
+      await Promise.all([
+        this.pubClient?.quit(),
+        this.subClient?.quit(),
+        this.cacheClient?.quit(),
+      ]);
+      this.logger.log(
+        "[RedisClientManager] All Redis clients disconnected",
+        "info"
+      );
+    } catch (err) {
+      this.logger.log(
+        `[RedisClientManager] Error during disconnect: ${err.message}`,
+        "error"
+      );
+    }
   }
 }
 

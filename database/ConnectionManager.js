@@ -34,7 +34,7 @@ class MongoConnectionManager extends logger {
   async retryConnection(uri, options, retries = 3, delay = 2000) {
     for (let i = 0; i < retries; i++) {
       try {
-        return createConnection(uri, options);
+        return createConnection(uri, options).asPromise();
       } catch (err) {
         this.log(`[Mongo] Retry ${i + 1} failed: ${err.message}`, "warn");
         if (i < retries - 1) {
@@ -46,6 +46,9 @@ class MongoConnectionManager extends logger {
   }
 
   async getConnection(dbName) {
+    if (!dbName) {
+      throw new Error("Database name is required to get a connection.");
+    }
     if (this.connections[dbName] && this.connections[dbName].readyState === 1) {
       return this.connections[dbName];
     }
