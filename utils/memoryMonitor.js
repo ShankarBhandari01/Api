@@ -13,7 +13,7 @@ export function monitorMemory(thresholds = { rss: 250, heapUsed: 100 }) {
     external: Number(MB(usage.external)),
   };
   // Log the memory report
-  console.log(
+  logger.log(
     `
       [Memory Report] 
       ==== Memory Usage ===
