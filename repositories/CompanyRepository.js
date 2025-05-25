@@ -110,8 +110,8 @@ class CompanyRepository extends BaseRepo {
     }
   };
 
-  // Update closed dates for the company
-  updateClosedDates = async (closedDates) => {
+  // Add closed dates to the company
+  addClosedDates = async (closedDates) => {
     try {
       if (!Array.isArray(closedDates)) {
         throw new Error("Invalid closedDates: expected an array");
@@ -123,8 +123,10 @@ class CompanyRepository extends BaseRepo {
       }
 
       const update = {
-        "openingHours.closedDates": closedDates,
-        updated_at: new Date(),
+        $addToSet: {
+          "openingHours.closedDates": { $each: closedDates },
+        },
+        $set: { updated_at: new Date() },
       };
 
       return await this.company
@@ -149,8 +151,14 @@ class CompanyRepository extends BaseRepo {
         throw new Error("Company info not found");
       }
 
+      const datesOnly = closedDates.map((d) => new Date(d.date));
+
       const update = {
-        $pull: { "openingHours.closedDates": { $in: closedDates } },
+        $pull: {
+          "openingHours.closedDates": {
+            date: { $in: datesOnly },
+          },
+        },
         $set: { updated_at: new Date() },
       };
 
