@@ -15,7 +15,7 @@ class RequestHandler extends Logger {
       this.log(`error in validating request : ${errorMessage}`, "warn");
     }
     return !isNull(err)
-      ? this.throwError(status, errorType, errorMessage)()
+      ? this.throwError(res,status, errorType, errorMessage)()
       : "";
   }
 
