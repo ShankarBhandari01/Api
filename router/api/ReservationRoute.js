@@ -31,7 +31,7 @@ router.put(
 );
 // GET // api/reservations
 router.get("/getAllReservations", 
-// isAuthenticated,
+ isAuthenticated,
    async (req, res, next) => {
   try {
     const controller = req.scope.resolve("reservationController");

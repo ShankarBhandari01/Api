@@ -61,7 +61,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=production nodemon clusters/cluster.js",
-    "start:dev": "NODE_ENV=development nodemon clusters/cluster.js",
+    "start:dev": "NODE_ENV=development nodemon --inspect clusters/cluster.js",
     "start:test": "NODE_ENV=test nodemon clusters/cluster.js",
     "start:single": "NODE_ENV=development node bin/www.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest"
