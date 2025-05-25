@@ -60,7 +60,7 @@ class BaseService extends BaseRepo {
       // save access token
       await super.saveTokens(tokens, session.user);
       // save fcm token
-      if (session.firebaseToken !== "") {
+      if (session.firebaseToken != undefined && session.firebaseToken !== "") {
         await this.saveFcmToken(session);
       }
 
