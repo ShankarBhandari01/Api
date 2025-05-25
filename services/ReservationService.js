@@ -90,10 +90,7 @@ class ReservationService extends BaseService {
       //  Check cache
       const cached = await this.redisSocketService.getCacheValue(cacheKey);
       if (cached) {
-        const sortedDesc = cached.data.sort(
-          (a, b) => new Date(b.reservation_date) - new Date(a.reservation_date)
-        );
-        return sortedDesc;
+        return cached;
       }
 
       const [reservations, totalCount] = await Promise.all([
