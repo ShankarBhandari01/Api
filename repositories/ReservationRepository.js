@@ -89,7 +89,7 @@ class ReservationRepository extends BaseRepo {
         };
       }
 
-      if (isTodayReservations || filterUpcoming || filterPast) {
+      if (isTodayReservations || filterUpcoming || filterPast || date_range) {
         return await this.reservationModel
           .find(query)
           .populate("table_id")

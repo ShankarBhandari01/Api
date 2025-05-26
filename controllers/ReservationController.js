@@ -52,15 +52,7 @@ class ReservationController extends BaseController {
       let isTodayReservations = this.req.query.isTodayReservations === "true";
       let filterPast = this.req.query.isPastReservations === "true";
       let filterUpcoming = this.req.query.isFutureReservations === "true";
-      let startDate = this.req.query.startDate
-        ? new Date(this.req.query.startDate)
-        : null;
-        
-      let endDate = this.req.query.endDate
-        ? new Date(this.req.query.endDate)
-        : null;
-
-      let date_range = { startDate: startDate, endDate: endDate };
+      let date_range = this.req.query.dateRange;
 
       // Validate limit to prevent excessive data retrieval
       if (limit >= 100) {
