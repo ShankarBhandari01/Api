@@ -102,7 +102,12 @@ class ReservationService extends BaseService {
           filterPast,
           date_range
         ),
-        this.reservationRepository.getReservationCount(),
+        this.reservationRepository.getReservationCount(
+          isTodayReservations,
+          filterUpcoming,
+          filterPast,
+          date_range
+        ),
       ]);
 
       const response = super.prepareResponse(reservations, "reservations");
