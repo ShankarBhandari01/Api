@@ -52,8 +52,16 @@ class ReservationController extends BaseController {
       let isTodayReservations = this.req.query.isTodayReservations === "true";
       let filterPast = this.req.query.isPastReservations === "true";
       let filterUpcoming = this.req.query.isFutureReservations === "true";
-      let date_range =  JSON.parse(this.req.query.dateRange) || null;
 
+      let date_range = null;
+      if (this.req.query.dateRange) {
+        try {
+          const parsed = JSON.parse(this.req.query.dateRange);
+          if (parsed?.startDate && parsed?.endDate) {
+            date_range = parsed;
+          }
+        } catch (err) {}
+      }
       // Validate limit to prevent excessive data retrieval
       if (limit >= 100) {
         throw { message: "Limit must be less than 100" };
