@@ -93,7 +93,7 @@ class ReservationRepository extends BaseRepo {
         return await this.reservationModel
           .find(query)
           .populate("table_id")
-          .sort({ reservation_date: -1 })
+          .sort({ reservation_date: 1 })
           .skip(skip)
           .limit(limit)
           .lean();
