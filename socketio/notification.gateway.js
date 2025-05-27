@@ -68,7 +68,10 @@ export function notifyUser(io, userId, message) {
   const room = `user:${userId}`;
   const payload = typeof message === "string" ? { message } : message;
   io.to(room).emit("notification", payload);
-  logger.log(`[Socket.IO] Notification sent to ${room}, ${payload}`, "info");
+  logger.log(
+    `[Socket.IO] Notification sent to ${room}, ${JSON.stringify(payload)}`,
+    "info"
+  );
 }
 
 // Helper to send notifications to order rooms
