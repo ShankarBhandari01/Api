@@ -62,4 +62,3 @@ export function notifyOrder(io, orderId, message) {
   io.to(room).emit("notification", { message });
   logger.log(`[Socket.IO] Notification sent to order room ${room}`, "info");
 }
-

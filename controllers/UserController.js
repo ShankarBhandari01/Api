@@ -37,7 +37,7 @@ class UserController extends BaseController {
         const response = await service.doLogin(this.req.body, this.req.session);
         this.req.session.user = response.user;
         this.req.session.user._id = response.user._id;
-        return response;// Return the response
+        return response; // Return the response
       },
       "User Logged In"
     );
@@ -74,6 +74,18 @@ class UserController extends BaseController {
         return await service.getUserById(userId);
       },
       "User Fetched"
+    );
+  };
+
+  updateUserPassword = async () => {
+    await this.runServiceMethod(
+      this.userService,
+      async (service) => {
+        const userId = this.req.params.id;
+        const bodyData = this.req.body;
+        return await service.updateUser(bodyData, null, userId);
+      },
+      "User Password Updated"
     );
   };
 
