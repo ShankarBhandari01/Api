@@ -21,13 +21,14 @@ const requestLogger = (req, res, next) => {
   }
 
   const logString = `
-    [${new Date().toISOString()}] 
-    [UUID: ${req.identifier}] 
-    [Method: ${req.method}] 
-    [URL: ${req.url}] 
-    [User-Agent: ${req.headers["user-agent"]}] 
-    [Body: ${bodyLog}]
-  `;
+  [${new Date().toISOString()}] 
+  [UUID: ${req.identifier}] 
+  [Method: ${req.method}] 
+  [URL: ${req.url}] 
+  [User-Agent: ${req.headers["user-agent"]}] 
+  [Cookies: ${JSON.stringify(req.cookies || req.headers.cookie || {})}] 
+  [Body: ${bodyLog}]
+`;
 
   // Log the request details with 'info' level
   logger.log(`\n${logString}`, "info");
