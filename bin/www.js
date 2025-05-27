@@ -8,13 +8,16 @@ const app = index.app;
 
 export async function startServer() {
   const server = createServer(app);
-  const { redisSocketService, logger } = container.cradle;
-
+  const { redisSocketService, logger, notificationQueueService } =
+    container.cradle;
+  // === Redis Socket Service ===
   redisSocketService.init(
     server,
     index.userSession,
     process.env.CORS_WHITELIST
   );
+  // === Bull Queue Processor ===
+  notificationQueueService.init();
 
   function normalizePort(val) {
     const port = parseInt(val, 10);

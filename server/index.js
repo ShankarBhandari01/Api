@@ -77,8 +77,6 @@ app.use((req, res) => {
 });
 // === Email Marketing Job ===
 emailMarketingJobManager.init();
-// === Bull Queue Processor ===
-notificationQueueService.init();
 //=== Memory Monitoring ===
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {

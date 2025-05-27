@@ -73,6 +73,21 @@ router.get("/getUserById/:id", isAuthenticated, async (req, res, next) => {
     next(err);
   }
 });
+
+// PATCH user password
+router.patch(
+  "/updatePassword/:id",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("userController");
+      await controller.updateUserPassword();
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 // update user
 router.put(
   "/updateUser/:id",
