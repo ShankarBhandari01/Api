@@ -163,9 +163,13 @@ class UserService extends BaseService {
 
   logout = async (userId) => {
     try {
+      const userToken = await this.getTokenByUserIdAndDelete(userId);
       // Clear user cache on logout
       await this.redisSocketService.delCacheKey(`user:${userId}`);
-      return await super.logout(userId);
+      await this.redisSocketService.delCacheKey(
+        `auth:token:${userToken.token}`
+      );
+      return super.prepareResponse({ message: "User logged out successfully" });
     } catch (err) {
       throw { message: err.message };
     }

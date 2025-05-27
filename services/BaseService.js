@@ -98,14 +98,13 @@ class BaseService extends BaseRepo {
       return Promise.reject(err);
     }
   }
-
-  async logout(userId) {
+  getTokenByUserIdAndDelete = async (userId) => {
     try {
-      return await super.logout(userId);
+      return await super.getTokenByUserIdAndDelete(userId);
     } catch (err) {
       return Promise.reject(err);
     }
-  }
+  };
 
   getSkipNumber(page, limit) {
     return (page - 1) * limit;
