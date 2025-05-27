@@ -122,7 +122,7 @@ class FirebasePushNotificationService extends BaseService {
   };
 
   // socket io notification channel function 
-  sendSocketioNotification = async (message,userIds = null,notificationType ) => {
+  sendSocketioNotification = async (message,notificationType,userIds = null ) => {
     if (!message) {
       this.log("Message is required to send socket.io notification", "error");
       return;
