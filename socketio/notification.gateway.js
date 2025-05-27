@@ -16,6 +16,21 @@ export default function registerNotificationGateway(io) {
       );
     }
 
+    // Add manual join for user room (for testing or non-session clients)
+    socket.on("joinUserRoom", ({ userId }) => {
+      if (!userId) {
+        logger.log(`[Socket.IO] Missing userId from ${socket.id}`, "warn");
+        return socket.emit("error", "Missing userId");
+      }
+
+      const userRoom = `user:${userId}`;
+      socket.join(userRoom);
+      logger.log(
+        `[Socket.IO] ${socket.id} joined user room ${userRoom}`,
+        "info"
+      );
+      socket.emit("joinedUserRoom", { userId });
+    });
     // For anonymous order tracking
     socket.on("joinOrderRoom", ({ orderId }) => {
       if (!orderId) {
