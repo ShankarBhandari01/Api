@@ -56,7 +56,9 @@ async function verifyTokenInDatabase(req, token) {
 }
 
 function verifyJwtToken(token, secret, req, res, next) {
-  verify(token, secret, appconfig.jwtVerifyOptions, (err, decoded) => {
+  const options = appconfig.jwtVerifyOptions;
+  options.subject = "refresh_token";
+  verify(token, secret, options, (err, decoded) => {
     if (err) {
       return requestHandler.throwError(
         res,
