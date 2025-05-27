@@ -116,13 +116,12 @@ class BaseRepository extends Logger {
     }
   }
 
-  async logout(userId) {
+  async getTokenByUserIdAndDelete(userId) {
     try {
       const tokentable = accessToken(this.connection);
-      return tokentable.findOneAndDelete({ userId }).select(false);
+      return tokentable.findOneAndDelete({ userId }).lean();
     } catch (error) {
-      this.log(`[Api] Error uploading image: ${err.message}`, "error");
-      throw new DatabaseError("Error uploading image: " + err.message);
+      this.logAndThrowError(error.message, error);
     }
   }
 
