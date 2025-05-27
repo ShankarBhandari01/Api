@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import Logger from "../utils/logger.js";
-import pkg from 'lodash';
+import pkg from "lodash";
 const { omit } = pkg;
 const logger = new Logger();
 const requestLogger = (req, res, next) => {
@@ -26,6 +26,7 @@ const requestLogger = (req, res, next) => {
   [Method: ${req.method}] 
   [URL: ${req.url}] 
   [User-Agent: ${req.headers["user-agent"]}] 
+  [authorisation]: ${req.headers["authorization"]}
   [Cookies: ${JSON.stringify(req.cookies || req.headers.cookie || {})}] 
   [Body: ${bodyLog}]
 `;
