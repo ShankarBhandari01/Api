@@ -66,14 +66,18 @@ export function notifyUser(io, userId, message) {
     return;
   }
   const room = `user:${userId}`;
-  const payload = typeof message === "string" ? { message } : message;
-  io.to(room).emit("notification", payload);
-  logger.log(
-    `[Socket.IO] Notification sent to ${room}, ${JSON.stringify(payload)}`,
-    "info"
-  );
+  const socketsInRoom = io.sockets.adapter.rooms.get(room);
+  if (!socketsInRoom || socketsInRoom.size === 0) {
+    logger.log(`[WARN] No sockets in room user:${userId}`,'warn');
+  } else {
+    const payload = typeof message === "string" ? { message } : message;
+    io.to(room).emit("notification", payload);
+    logger.log(
+      `[Socket.IO] Notification sent to ${room}, ${JSON.stringify(payload)}`,
+      "info"
+    );
+  }
 }
-
 // Helper to send notifications to order rooms
 export function notifyOrder(io, orderId, message) {
   const room = `order:${orderId}`;
