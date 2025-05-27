@@ -31,7 +31,7 @@ class BaseService extends BaseRepo {
             expiresIn: appconfig.jwtConfig.refreshTokenExpiresIn,
             algorithm: appconfig.jwtConfig.algorithms[0],
             issuer: appconfig.jwtConfig.issuer,
-            subject: "refresh token",
+            subject: "refresh_token",
             audience: appconfig.jwtConfig.audience,
           }
         : {
