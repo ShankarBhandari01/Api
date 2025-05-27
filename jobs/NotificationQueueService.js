@@ -27,7 +27,7 @@ class NotificationQueueService {
       },
     });
 
-    this.queue.process(5,this.processJob.bind(this));
+    this.queue.process(10, this.processJob.bind(this));
     this._setupShutdownHooks();
 
     this.logger.log(
@@ -85,7 +85,9 @@ class NotificationQueueService {
       }
 
       this.logger.log(
-        `[NotificationQueueService] Notification sent to user ${userId}`,
+        `[NotificationQueueService] Notification sent to user ${userId} with message: ${JSON.stringify(
+          message
+        )}`,
         "info"
       );
     } catch (err) {
@@ -124,7 +126,7 @@ class NotificationQueueService {
       this.logger.log("Closing Bull notification queue...", "info");
       await this.queue.close();
     }
-   // process.exit(0);
+    // process.exit(0);
   }
 
   _setupShutdownHooks() {
