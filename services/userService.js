@@ -156,7 +156,7 @@ class UserService extends BaseService {
     const user = await this.userRepo.getUserById(id);
     if (user) {
       // Cache user data for future use
-      await this.redisSocketService.setCacheValue(cacheKey, user, 3600); // Cache for 1 hour
+      await this.redisSocketService.setCacheValue(cacheKey, user, 900); // Cache for 15m 
     }
     return user;
   };
