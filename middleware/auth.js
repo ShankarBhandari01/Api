@@ -49,8 +49,8 @@ async function verifyTokenInDatabase(req, token) {
     return { isValid: false, message: "Invalid or expired token" };
   }
 
-  // Cache the token data for future use (e.g., 1hr)
-  await redis.setCacheValue(cacheKey, storedToken, 3600);
+  // Cache the token data for future use (e.g., 15m)
+  await redis.setCacheValue(cacheKey, storedToken, 900);
 
   return { isValid: true, DatabaseToken: storedToken };
 }
