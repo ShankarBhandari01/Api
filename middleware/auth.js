@@ -56,39 +56,43 @@ async function verifyTokenInDatabase(req, token) {
 }
 
 function verifyJwtToken(token, secret, options, req, res, next) {
-  verify(token, secret, options, (err, decoded) => {
-    if (err) {
-      return requestHandler.throwError(
-        res,
-        401,
-        "Unauthorized",
-        "Invalid or expired token"
-      )(); // This throws,
-    }
+  try {
+    verify(token, secret, options, (err, decoded) => {
+      if (err) {
+        return requestHandler.throwError(
+          res,
+          401,
+          "Unauthorized",
+          `Invalid or expired token ${err.message}`
+        )(); // This throws,
+      }
 
-    // Sanity check if sanitizedSession exists
-    if (!decoded?.sanitizedSession) {
-      return requestHandler.throwError(
-        res,
-        403,
-        "Forbidden",
-        "Session data missing in token"
-      )();
-    }
+      // Sanity check if sanitizedSession exists
+      if (!decoded?.sanitizedSession) {
+        return requestHandler.throwError(
+          res,
+          403,
+          "Forbidden",
+          "Session data missing in token"
+        )();
+      }
 
-    req.session.user = decoded.sanitizedSession;
-    next();
-  });
+      req.session.user = decoded.sanitizedSession;
+      next();
+    });
+  } catch (error) {
+    requestHandler.sendError(req, res, error);
+  }
 }
 
 async function verifyAuthToken(req, res, next) {
   try {
-   // if (
-   //   process.env.NODE_ENV === "test" ||
-  //    process.env.NODE_ENV === "development"
-  //  ) {
-  //    return next();
-   // }
+    // if (
+    //   process.env.NODE_ENV === "test" ||
+    //    process.env.NODE_ENV === "development"
+    //  ) {
+    //    return next();
+    // }
     const token = getTokenFromHeader(req);
 
     if (!token) {
@@ -100,16 +104,11 @@ async function verifyAuthToken(req, res, next) {
     if (!isValid) {
       return res.status(401).json({ message });
     }
-
+    // change subject to refresh_token
+    const options = appconfig.jwtVerifyOptions;
+    options.subject = "access_token";
     // Verifies the token's secret and expiration
-    verifyJwtToken(
-      token,
-      appconfig.jwtConfig.secret,
-      appconfig.jwtVerifyOptions,
-      req,
-      res,
-      next
-    );
+    verifyJwtToken(token, appconfig.jwtConfig.secret, options, req, res, next);
   } catch (err) {
     requestHandler.sendError(req, res, err);
   }
