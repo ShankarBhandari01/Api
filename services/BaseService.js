@@ -67,7 +67,6 @@ class BaseService extends BaseRepo {
       if (session.firebaseToken != undefined && session.firebaseToken !== "") {
         await this.saveFcmToken(session);
       }
-
       return tokens;
     } catch (err) {
       return Promise.reject(err);

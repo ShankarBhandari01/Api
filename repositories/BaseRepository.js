@@ -22,7 +22,7 @@ class BaseRepository extends Logger {
           {
             token: token,
             refreshToken: refreshToken,
-            refreshExpiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 days expiry
+            refreshExpiresAt: new Date(Date.now() + 1 * 15 * 60 * 60 * 1000), // 15m  expiry
           },
           {
             new: true, // Return the updated document
@@ -34,7 +34,7 @@ class BaseRepository extends Logger {
           userId: user._id,
           token: token,
           refreshToken: refreshToken,
-          refreshExpiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 days expiry
+          refreshExpiresAt: new Date(Date.now() + 1 * 15 * 60 * 60 * 1000), // 15m expiry
         });
       }
       super.log(

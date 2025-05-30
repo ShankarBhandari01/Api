@@ -16,6 +16,12 @@ class UserService extends BaseService {
     this.redisSocketService = redisSocketService;
   }
 
+  refreshToken = async (session) => {
+    try {
+      return this.assignToken(session);
+    } catch (error) {}
+  };
+
   // New helper method to check for duplicate email and role existence
   async validateUser(userModel, userId = null, isupdate = false) {
     // lower case the email
@@ -80,7 +86,7 @@ class UserService extends BaseService {
         if (!user) throw new Error("UserNotFound");
 
         // Cache user data for future use
-        await this.redisSocketService.setCacheValue(cacheKey, user, 3600); // Cache for 1 hour
+        await this.redisSocketService.setCacheValue(cacheKey, user, 900); // Cache for 15 minuties
       }
 
       // Check if user is active
@@ -124,7 +130,7 @@ class UserService extends BaseService {
     const role = await this.companyRepository.findRoleById(roleId);
     if (role) {
       // Cache role data for future use
-      await this.redisSocketService.setCacheValue(cacheKey, role, 3600); // Cache for 1 hour
+      await this.redisSocketService.setCacheValue(cacheKey, role, 900); // Cache for 15 minitues
     }
     return role;
   };
@@ -140,7 +146,7 @@ class UserService extends BaseService {
     const user = await this.userRepo.getUserByUsername(request.email);
     if (user) {
       // Cache user data for future use
-      await this.redisSocketService.setCacheValue(cacheKey, user, 3600); // Cache for 1 hour
+      await this.redisSocketService.setCacheValue(cacheKey, user, 900); // Cache for 15 minitues
     }
     return user;
   };
@@ -156,7 +162,7 @@ class UserService extends BaseService {
     const user = await this.userRepo.getUserById(id);
     if (user) {
       // Cache user data for future use
-      await this.redisSocketService.setCacheValue(cacheKey, user, 900); // Cache for 15m 
+      await this.redisSocketService.setCacheValue(cacheKey, user, 900); // Cache for 15m
     }
     return user;
   };
@@ -180,7 +186,6 @@ class UserService extends BaseService {
       // Validate email and role
       const existinguser = await this.validateUser(userModel, userId, true);
       if (userModel.password !== undefined && userModel.password !== "") {
-        
         // hash the password
         userModel.password = await this.hashedPassword(userModel.password);
       } else {
