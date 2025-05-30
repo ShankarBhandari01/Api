@@ -18,8 +18,12 @@ class UserService extends BaseService {
 
   refreshToken = async (session) => {
     try {
-      return this.assignToken(session);
-    } catch (error) {}
+      const response = await this.assignToken(session);
+      await this.redisSocketService.delCacheKey("auth:token");
+      return response;
+    } catch (error) {
+      throw { message: error.message };
+    }
   };
 
   // New helper method to check for duplicate email and role existence
