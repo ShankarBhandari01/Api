@@ -83,12 +83,12 @@ function verifyJwtToken(token, secret, options, req, res, next) {
 
 async function verifyAuthToken(req, res, next) {
   try {
-    if (
-      process.env.NODE_ENV === "test" ||
-      process.env.NODE_ENV === "development"
-    ) {
-      return next();
-    }
+   // if (
+   //   process.env.NODE_ENV === "test" ||
+  //    process.env.NODE_ENV === "development"
+  //  ) {
+  //    return next();
+   // }
     const token = getTokenFromHeader(req);
 
     if (!token) {

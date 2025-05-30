@@ -19,7 +19,7 @@ class UserService extends BaseService {
   refreshToken = async (session) => {
     try {
       const response = await this.assignToken(session);
-      await this.redisSocketService.delCacheKey("auth:token");
+      await this.redisSocketService.delCacheKey("auth:token:*");
       return response;
     } catch (error) {
       throw { message: error.message };
