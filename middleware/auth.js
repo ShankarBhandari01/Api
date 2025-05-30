@@ -104,11 +104,15 @@ async function verifyAuthToken(req, res, next) {
     if (!isValid) {
       return res.status(401).json({ message });
     }
-    // change subject to refresh_token
-    const options = appconfig.jwtVerifyOptions;
-    options.subject = "access_token";
-    // Verifies the token's secret and expiration
-    verifyJwtToken(token, appconfig.jwtConfig.secret, options, req, res, next);
+    // verify jwt
+    verifyJwtToken(
+      token,
+      appconfig.jwtConfig.secret,
+      appconfig.jwtVerifyOptions,
+      req,
+      res,
+      next
+    );
   } catch (err) {
     requestHandler.sendError(req, res, err);
   }
@@ -138,10 +142,10 @@ async function verifyRefreshToken(req, res, next) {
         .json({ code: 401, message: "Refresh token expired" });
     }
 
-    // change subject to refresh_token
-    const options = appconfig.jwtVerifyOptions;
+    // Clone the original options
+    const options = { ...appconfig.jwtVerifyOptions };
+    // Change the subject to "refresh_token" without affecting
     options.subject = "refresh_token";
-    // Verifies the refresh token's secret and expiration
     verifyJwtToken(
       token,
       appconfig.jwtConfig.refreshTokenSecret,
