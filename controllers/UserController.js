@@ -23,7 +23,7 @@ class UserController extends BaseController {
     await this.runServiceMethod(
       this.userService,
       async (service) => {
-        return await service.assignToken(this.req.session);
+        return await service.refreshToken(this.req.session);
       },
       "Token Refreshed"
     );
