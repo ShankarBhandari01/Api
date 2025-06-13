@@ -13,6 +13,10 @@ class EmailService extends BaseService {
     this.templateCache = {};
     // Centralized template registry
     this.templatePaths = {
+      bokkingNoti: {
+        fi: "./templates/newReservationEn.html",
+      },
+
       bookingRejection: {
         fi: "./templates/reservationRejection.html",
       },
@@ -250,6 +254,18 @@ class EmailService extends BaseService {
       templateKey: "marketing",
       lang: templateData.lang,
       templateData,
+    });
+  }
+
+  // push reservation to admin
+  async pushReservationToAdmin() {
+    const subject = "New Notification";
+
+    await this.sendEmailNotification({
+      customer_email: ["kesharioy@gmail.com", "admin@ravintola14peaks.fi"],
+      subject,
+      templateKey: "bokkingNoti",
+      lang: "fi",
     });
   }
 }

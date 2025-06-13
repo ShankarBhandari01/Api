@@ -21,6 +21,7 @@ class ReservationController extends BaseController {
         await this.firebasePushNotificationService.sendPushNotificationToAll(
           response.data
         );
+        
         return response;
       },
       "Reservation added successfully"
