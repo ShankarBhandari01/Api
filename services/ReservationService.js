@@ -35,6 +35,8 @@ class ReservationService extends BaseService {
 
       // Invalidate Redis cache for reservations
       await this.redisSocketService.delCacheKey("reservation:*");
+      // send email to admins
+      await this.emailService.pushReservationToAdmin();
 
       return super.prepareResponse(result);
     } catch (error) {
