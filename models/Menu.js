@@ -1,13 +1,31 @@
 import { Schema } from "mongoose";
 
+/**
+ * Map of weekdays with Finnish translations and numeric values.
+ */
+const dayMap = {
+  Monday: { fi: "Maanantai", number: 1 },
+  Tuesday: { fi: "Tiistai", number: 2 },
+  Wednesday: { fi: "Keskiviikko", number: 3 },
+  Thursday: { fi: "Torstai", number: 4 },
+  Friday: { fi: "Perjantai", number: 5 },
+  Saturday: { fi: "Lauantai", number: 6 },
+  Sunday: { fi: "Sunnuntai", number: 7 },
+};
+
+/**
+ * Mongoose schema for the daily menu.
+ */
 const menuSchema = new Schema(
   {
-    date: { type: String },
+    date: { type: String }, //  ISO date or string
+
     menuType: {
       type: Schema.Types.ObjectId,
       ref: "MenuType",
       required: true,
     },
+
     weekday: {
       en: {
         type: String,
@@ -19,13 +37,13 @@ const menuSchema = new Schema(
           "Friday",
           "Saturday",
           "Sunday",
-          ""
+          "",
         ],
         required: false,
       },
       fi: {
         type: String,
-        required: false, 
+        required: false,
       },
       number: {
         type: Number,
@@ -34,8 +52,18 @@ const menuSchema = new Schema(
         max: 7,
       },
     },
-    name: { type: String, required: true, trim: true}, // e.g., “Wednesday Special”
-    description: { type: String, trim: true},
+
+    name: {
+      type: String,
+      required: true,
+      trim: true, // e.g., “Wednesday Special”
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
+
     starters: [
       {
         type: Schema.Types.ObjectId,
@@ -66,55 +94,41 @@ const menuSchema = new Schema(
         ref: "Stock",
       },
     ],
+
     isActive: { type: Boolean, default: true },
     amount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-// Pre-save hook to auto-fill `fi` and `number` based on `en` value
+/**
+ * Auto-fill `weekday.fi` and `weekday.number` before saving.
+ */
 menuSchema.pre("save", function (next) {
-  const dayMap = {
-    Monday: { fi: "Maanantai", number: 1 },
-    Tuesday: { fi: "Tiistai", number: 2 },
-    Wednesday: { fi: "Keskiviikko", number: 3 },
-    Thursday: { fi: "Torstai", number: 4 },
-    Friday: { fi: "Perjantai", number: 5 },
-    Saturday: { fi: "Lauantai", number: 6 },
-    Sunday: { fi: "Sunnuntai", number: 7 },
-  };
-
-  // Automatically set `fi` and `number` based on `en`
   if (this.weekday?.en && dayMap[this.weekday.en]) {
-    this.weekday.fi = dayMap[this.weekday.en].fi;
-    this.weekday.number = dayMap[this.weekday.en].number;
+    const { fi, number } = dayMap[this.weekday.en];
+    this.weekday.fi = fi;
+    this.weekday.number = number;
   }
-
   next();
 });
-// Pre-hook for findByIdAndUpdate to auto-fill `fi` and `number` when updating
-menuSchema.pre("findByIdAndUpdate", function (next) {
+
+/**
+ * Auto-fill `weekday.fi` and `weekday.number` on updates.
+ */
+function updateWeekdayHook(next) {
   const update = this.getUpdate();
+  if (!update.$set) update.$set = {};
 
-  if (update?.$set?.weekday?.en) {
-    const dayMap = {
-      Monday: { fi: "Maanantai", number: 1 },
-      Tuesday: { fi: "Tiistai", number: 2 },
-      Wednesday: { fi: "Keskiviikko", number: 3 },
-      Thursday: { fi: "Torstai", number: 4 },
-      Friday: { fi: "Perjantai", number: 5 },
-      Saturday: { fi: "Lauantai", number: 6 },
-      Sunday: { fi: "Sunnuntai", number: 7 },
-    };
-
-    // If the `en` value is provided, we auto-map `fi` and `number`
-    const weekday = update.$set.weekday.en;
-    if (dayMap[weekday]) {
-      update.$set["weekday.fi"] = dayMap[weekday].fi;
-      update.$set["weekday.number"] = dayMap[weekday].number;
-    }
+  const weekday = update.$set?.weekday?.en;
+  if (weekday && dayMap[weekday]) {
+    update.$set["weekday.fi"] = dayMap[weekday].fi;
+    update.$set["weekday.number"] = dayMap[weekday].number;
   }
-
   next();
-});
+}
+
+menuSchema.pre("findByIdAndUpdate", updateWeekdayHook);
+menuSchema.pre("findOneAndUpdate", updateWeekdayHook);
+
 export default (conn) => conn.model("Menu", menuSchema);
