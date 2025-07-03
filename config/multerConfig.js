@@ -2,6 +2,8 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { file as _file } from '../config/appconfig.js'; 
+import { deprecate } from 'util';
+
 
 // this code is not in use follow FileUpload.js class in utils folder
 
@@ -11,7 +13,6 @@ if (!existsSync(_file.uploadDir)) {
 }
 // Store image in memory before saving to DB
 //const storage = multer.memoryStorage(); 
-
 // Multer storage configuration
 const storage = diskStorage({
     destination: (req, file, cb) => {
@@ -23,4 +24,9 @@ const storage = diskStorage({
     }
 });
 
+deprecate(
+storage,
+'Multer storage configuration is deprecated. Use the new file upload utility instead.',
+'DEP0001'
+);
 export default {storage};
