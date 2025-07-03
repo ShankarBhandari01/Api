@@ -12,30 +12,22 @@ class BaseRepository extends Logger {
     this.connection = connection;
   }
   async saveTokens(createdToken, user) {
-    const { token, refreshToken } = createdToken;
     try {
+      // model for access token
       const tokentable = accessToken(this.connection);
+      // Check if a token already exists for the user
       const existingToken = await tokentable.findOne({ userId: user._id });
+      // If a token exists, update it; otherwise, create a new one
+      const tokenData = this.generateTokenDetails(createdToken, user);
+      // If the token already exists, update it
       if (existingToken) {
-        await tokentable.findOneAndUpdate(
-          { userId: user._id },
-          {
-            token: token,
-            refreshToken: refreshToken,
-            refreshExpiresAt: new Date(Date.now() + 1 * 15 * 60 * 60 * 1000), // 15m  expiry
-          },
-          {
-            new: true, // Return the updated document
-          }
-        );
+        await tokentable.findOneAndUpdate({ userId: user._id }, tokenData, {
+          new: true, // Return the updated document,
+          runValidators: true, // Ensure validation rules are applied
+        });
       } else {
         // Create a new document for a new user login
-        await tokentable.create({
-          userId: user._id,
-          token: token,
-          refreshToken: refreshToken,
-          refreshExpiresAt: new Date(Date.now() + 1 * 15 * 60 * 60 * 1000), // 15m expiry
-        });
+        await tokentable.create(tokenData);
       }
       super.log(
         `[Api] Token successfully saved or updated for user: ${user._id}`,
@@ -46,6 +38,23 @@ class BaseRepository extends Logger {
       throw new Error(`Error saving or updating token:${error}`);
     }
   }
+
+  /**
+   * Generate token details
+   * @param {Object} createdToken - { token, refreshToken }
+   * @param {Object} user - user object (must contain _id)
+   * @returns {Object} tokenDetails
+   */
+  generateTokenDetails = (createdToken, user) => {
+    const { token, refreshToken } = createdToken;
+    return {
+      userId: user._id,
+      token: token,
+      refreshToken: refreshToken,
+      refreshExpiresAt: new Date(Date.now() + 1 * 15 * 60 * 60 * 1000), // 15m  expiry
+    };
+  };
+
   getFcmTokenFromDatabase = async () => {
     try {
       const fcmTokenTable = FcmToken(this.connection);
