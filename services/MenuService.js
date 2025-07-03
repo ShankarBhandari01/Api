@@ -22,7 +22,7 @@ class MenuService extends BaseService {
     try {
       const cacheKey = "menuTypes:all";
       const cached = await this.redisSocketService.getCacheValue(cacheKey);
-      if (cached) return cached;
+     // if (cached) return cached;
 
       const result = await this.menuRepository.getMenuTypes();
       const response = super.prepareResponse(result);

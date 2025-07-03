@@ -79,8 +79,9 @@ class MenuRepository extends BaseRepo {
     try {
       const { isActive = true, sort = { name: 1 } } = options;
       const query = isActive !== null ? { isActive } : {};
+      const menuTypes = await this.menuTypes.find(query).sort(sort).lean();
 
-      return await this.menuTypes.find(query).sort(sort).lean();
+      return menuTypes;
     } catch (error) {
       this.logAndThrowError("Error fetching menu types", error);
     }
