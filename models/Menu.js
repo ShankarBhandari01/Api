@@ -120,15 +120,14 @@ function updateWeekdayHook(next) {
   const update = this.getUpdate();
   if (!update.$set) update.$set = {};
 
-  const weekday = update.$set?.weekday?.en;
+  const weekday = update.weekday?.en;
   if (weekday && dayMap[weekday]) {
-    update.$set["weekday.fi"] = dayMap[weekday].fi;
-    update.$set["weekday.number"] = dayMap[weekday].number;
+    update.weekday.fi = dayMap[weekday].fi;
+    update.weekday.number = dayMap[weekday].number;
   }
   next();
 }
 
-menuSchema.pre("findByIdAndUpdate", updateWeekdayHook);
 menuSchema.pre("findOneAndUpdate", updateWeekdayHook);
-
+menuSchema.pre("updateOne", updateWeekdayHook);
 export default (conn) => conn.model("Menu", menuSchema);

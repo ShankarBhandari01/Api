@@ -161,10 +161,14 @@ class MenuRepository extends BaseRepo {
         throw new Error("One or more stock items are invalid or not active");
       }
 
-      const updatedMenu = await this.menu.findByIdAndUpdate(id, menuData, {
-        new: true,
-        runValidators: true,
-      });
+      const updatedMenu = await this.menu.findOneAndUpdate(
+        { _id: id },
+        menuData,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
       if (!updatedMenu) {
         throw new Error("Menu not found");
