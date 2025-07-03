@@ -33,6 +33,7 @@ This is a **modular, scalable, and multilingual Node.js API** built for managing
 
 ## 📂 Project Structure
 
+```
 src/
 │
 ├── models/ # Mongoose schemas (Menu, Stock, Order, etc.)
@@ -46,6 +47,7 @@ src/
 ├── config/ # Redis, Mongo, DI, Cluster setup
 ├── app.js # Express app init
 └── index.js # Cluster-enabled entry point
+```
 
 
 
