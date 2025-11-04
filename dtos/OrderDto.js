@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-
+import { phone } from "phone";
 class OrderDTO {
   constructor({
     customer,
@@ -27,10 +27,9 @@ class OrderDTO {
 
   validate() {
     if (this.customer.phone !== undefined && this.customer.phone !== null) {
-      // check the number length
-      let phone_number = Number(this.customer.phone);
-      if (isNaN(phone_number) || phone_number >= 10) {
-        throw new Error("invalid phone number");
+      const phoneNumber = phone(this.customer.phone, { country: "FIN" });
+      if(phoneNumber.isValid === false) {
+        throw new Error("Invalid customer phone number");
       }
     }
 
