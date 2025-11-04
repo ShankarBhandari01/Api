@@ -26,6 +26,14 @@ class OrderDTO {
   }
 
   validate() {
+    if (this.customer.phone !== undefined && this.customer.phone !== null) {
+      // check the number length
+      let phone_number = Number(this.customer.phone);
+      if (isNaN(phone_number) || phone_number >= 10) {
+        throw new Error("invalid phone number");
+      }
+    }
+
     if (!Array.isArray(this.items) || this.items.length === 0) {
       throw new Error("Order must contain at least one item");
     }
