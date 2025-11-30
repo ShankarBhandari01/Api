@@ -153,6 +153,21 @@ class CompanyController extends BaseController {
       });
     }
   }
+
+
+  async addReview(){
+    await this.runServiceMethod(this.companyService,
+      (service)=> service.addReview(this.req.body,this.lang),
+      "Review added successfully."
+    )
+  }
+
+  async getReviews(){
+    await this.runServiceMethod(this.companyService,
+      (service) => service.getReviews(),
+      "Reviews loaded Successfully"
+    )
+  }
 }
 
 export default CompanyController;

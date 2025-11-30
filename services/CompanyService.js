@@ -178,6 +178,13 @@ class CompanyService extends BaseService {
 
   addTable = async (table, lang) =>
     await this.handleRepositoryCall(this.companyRepository.addTable, table);
+
+  addReview = async (review,lang) =>
+    await this.handleRepositoryCall(this.companyRepository.addReview, review);
+
+  getReviews = async ()=>
+    await this.handleRepositoryCall(this.companyRepository.getReviews);
+    
 }
 
 export default CompanyService;

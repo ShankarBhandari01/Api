@@ -1,4 +1,6 @@
 import mongoose, { Schema as _Schema } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
+
 const { Schema } = mongoose;
 import { randomBytes } from "crypto";
 // Helper function to generate alphanumeric IDs
@@ -111,6 +113,8 @@ export default (connection) => {
         default: "pending",
       },
       orderQuantity: { type: Number, required: true },
+
+      uuid: { type: String, default: uuidv4 }
     },
     { timestamps: { createdAt: "createdDate", updatedAt: "updated_ts" } }
   );
