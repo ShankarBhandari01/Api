@@ -17,7 +17,7 @@ router.get("/getCompanyInfo", async (req, res, next) => {
 // PUT company info
 router.put(
   "/updateClosedDates",
-   isAuthenticated,
+  isAuthenticated,
   async (req, res, next) => {
     try {
       const controller = req.scope.resolve("companyController");
@@ -220,5 +220,24 @@ router.delete("/notification/:id", isAuthenticated, async (req, res, next) => {
     next(e);
   }
 });
+
+router.post("/add/review", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("companyController");
+    await controller.addReview();
+  } catch (e) {
+    next(e)
+  }
+})
+
+router.get("/reviews", isAuthenticated, async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("companyController");
+    await controller.getReviews();
+  } catch (e) {
+    next(e)
+  }
+})
+
 
 export default router;

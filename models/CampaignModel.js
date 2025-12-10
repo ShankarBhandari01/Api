@@ -1,4 +1,5 @@
 import { Schema } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 const CampaingnScheme = new Schema({
   image: {
     type: Schema.Types.ObjectId,
@@ -37,6 +38,7 @@ const CampaingnScheme = new Schema({
     type: Date,
     default: Date.now,
   },
+  uuid: { type: String, default: uuidv4 },
 });
 // Add pre hooks to auto-update `updated_at` before updates
 const autoUpdateTimestamp = function (next) {

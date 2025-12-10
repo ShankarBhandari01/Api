@@ -95,7 +95,7 @@ class ReservationController extends BaseController {
     await this.firebasePushNotificationService.sendSocketioNotification(
       this.req.body,
       "order",
-      "67fe6b73da4745000c2383c3"
+      "67fe7360a335473e0b6e1a4c"
     );
   };
 }

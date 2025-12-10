@@ -1,4 +1,5 @@
 import { Schema } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 let ReservationModel;
 let TableModel;
 
@@ -20,12 +21,14 @@ export default (connection) => {
       reservation_date: { type: Date, required: true },
       number_of_guests: { type: Number, required: true },
       special_requests: { type: String },
+
       status: {
         type: String,
         enum: ["Pending", "Confirmed", "Cancelled"],
         default: "Pending",
       },
       table_id: { type: Schema.Types.ObjectId, ref: "Table", required: true },
+      uuid: { type: String, default: uuidv4 },
     },
     { timestamps: { createdAt: "createdDate", updatedAt: "updated_ts" } }
   );

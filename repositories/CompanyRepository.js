@@ -4,6 +4,7 @@ import CompanyModel from "../models/Company.js";
 import ImageSchema from "../models/Image.js";
 import Menu from "../models/UiMenuRight.js";
 import Role from "../models/Role.js";
+import Feedbacks from "../models/Feedbacks.js";
 
 class CompanyRepository extends BaseRepo {
   constructor({ connection }) {
@@ -13,7 +14,13 @@ class CompanyRepository extends BaseRepo {
     this.imageModel = ImageSchema(connection);
     this.menu = Menu(connection);
     this.role = Role(connection);
+    this.feedback = Feedbacks(connection);
   }
+
+  addReview = async (review) => await this.feedback.create(review)
+
+  getReviews = async () => await this.feedback.find().lean();
+
   deleteRole = async (id) => await this.role.deleteOne({ _id: id });
   updateRoles = async (updateRoles) => updateRoles.save();
   getRoles = async () =>
@@ -175,6 +182,7 @@ class CompanyRepository extends BaseRepo {
       });
     }
   };
+
 }
 
 export default CompanyRepository;
