@@ -65,7 +65,8 @@ class FirebasePushNotificationService extends BaseService {
       }
 
       notification.data = data;
-      await this.savenotification(notification, null, "reservation");
+      notification.type ="reservation"
+      await this.savenotification(notification, null);
 
     } catch (error) {
       this.log(`Error sending notification: ${error}`, "error");
@@ -114,7 +115,8 @@ class FirebasePushNotificationService extends BaseService {
         this.log("No admin FCM tokens found", "warn");
       }
       notification.data = orderData;
-      await this.savenotification(notification, customer, "order");
+      notification.type = "order"
+      await this.savenotification(notification, customer);
       
     } catch (error) {
       this.log(`Error sending order notification: ${error}`, "error");
@@ -122,9 +124,9 @@ class FirebasePushNotificationService extends BaseService {
   };
 
   // socket io notification channel function 
-  sendSocketioNotification = async (message,notificationType,userIds = null ) => {
-    if (!message) {
-      this.log("Message is required to send socket.io notification", "error");
+  sendSocketioNotification = async (notificationData,userIds = null ) => {
+    if (!notificationData) {
+      this.log("notification Data is required to send socket.io notification", "error");
       return;
     }
 
@@ -138,21 +140,22 @@ class FirebasePushNotificationService extends BaseService {
     }
   
    return await Promise.all(
-      userIds.map(userId => this.notificationQueueService.send(userId, message,notificationType))
+     userIds.map(userId => this.notificationQueueService.send(userId, notificationData, notificationData.type))
     );
   };
   
 
-  savenotification = async (notificationData, customer, type) => {
+  savenotification = async (notificationData, customer) => {
     try {
       const notification = {
         title: notificationData.title,
         message: notificationData.body,
-        type,
+        type:notificationData.type,
         customerId: customer ? customer._id : null,
-      };  
+      }; 
+
       // Send socket.io notification
-      await this.sendSocketioNotification(notificationData,type);
+      await this.sendSocketioNotification(notificationData);
 
       return await this.handleRepositoryCall(
         this.notificationRepository.saveNotification,
