@@ -38,6 +38,10 @@ export function loggingMiddleware(req, res, next) {
       const userlogModel = UserloginLog(connection);
 
       const baseService = new BaseService();
+      
+      if(req.body=="undefind" || req.body ==null){
+        req.body = {}
+      }
 
       // Create a new log entry
       const log = new userlogModel({
