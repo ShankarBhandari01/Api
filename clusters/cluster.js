@@ -63,7 +63,7 @@ if (cluster.isPrimary) {
       `[Master] Worker ${worker.process.pid} died. Code: ${code}, Signal: ${signal}`,
       "warn"
     );
-    forkWorker(); // Fork a new one (will be limited by logic above)
+    forkWorker(1); // Fork a new one (will be limited by logic above)
   });
 
   cluster.on("online", (worker) => {
