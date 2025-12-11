@@ -1,3 +1,4 @@
+
 import { mapToCompanyDTO } from "../helper/CompanyDTOHelper.js";
 import BaseController from "./BaseController.js";
 
@@ -7,6 +8,7 @@ class CompanyController extends BaseController {
     this.companyService = companyService;
     this.firebasePushNotificationService = firebasePushNotificationService;
   }
+
   deleteRole = async () => {
     const { id } = this.req.params;
     await this.runServiceMethod(
@@ -155,14 +157,14 @@ class CompanyController extends BaseController {
   }
 
 
-  async addReview(){
+  async addReview() {
     await this.runServiceMethod(this.companyService,
-      (service)=> service.addReview(this.req.body,this.lang),
+      (service) => service.addReview(this.req.body, this.lang),
       "Review added successfully."
     )
   }
 
-  async getReviews(){
+  async getReviews() {
     await this.runServiceMethod(this.companyService,
       (service) => service.getReviews(),
       "Reviews loaded Successfully"

@@ -1,6 +1,7 @@
 import BaseRepo from "./BaseRepository.js";
 import { DatabaseError } from "../utils/errors.js";
 import Reservation from "../models/Reservation.js";
+import { getStartdayEndDay } from "../utils/dateFormatter.js"
 
 class ReservationRepository extends BaseRepo {
   constructor({ connection }) {
@@ -9,6 +10,72 @@ class ReservationRepository extends BaseRepo {
     this.reservationModel = Reservation(connection).ReservationModel;
     this.tableModel = Reservation(connection).TableModel;
   }
+
+  async countAll() {
+    return await this.reservationModel.countDocuments();
+  }
+
+  // this return the count of reservation booked for today
+  async countTodays() {
+    const { start, end } = getStartdayEndDay()
+    return this.reservationModel.countDocuments({
+      reservation_date: { $gte: start, $lte: end },
+    });
+  }
+
+  // this return the count of reservation received today
+  async countRecivedTodays() {
+    const { start, end } = getStartdayEndDay()
+
+    return this.reservationModel.countDocuments({
+      createdDate: { $gte: start, $lte: end },
+    });
+  }
+
+  async countByStatus(status) {
+    return this.reservationModel.countDocuments({ status });
+  }
+
+  async countGroupedByDate(range = "30d") {
+    const days = parseInt(range.replace("d", ""));
+
+    const start = new Date();
+    start.setDate(start.getDate() - days);
+
+    const result = await this.reservationModel.aggregate([
+      { $match: { createdDate: { $gte: start } } },
+
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdDate" },
+            month: { $month: "$createdDate" },
+            day: { $dayOfMonth: "$createdDate" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          date: {
+            $dateFromParts: {
+              year: "$_id.year",
+              month: "$_id.month",
+              day: "$_id.day",
+            },
+          },
+          count: 1,
+        },
+      },
+
+      { $sort: { date: 1 } },
+    ]);
+
+    return result;
+  }
+
 
   /**
    * Adds a reservation to the database and assigns a table to it.
@@ -62,9 +129,10 @@ class ReservationRepository extends BaseRepo {
     date_range = null
   ) => {
     try {
-      const now = new Date();
-      const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+
+      const { start, end } = getStartdayEndDay()
+      const startOfDay = start
+      const endOfDay = end
 
       let query = {};
 
@@ -134,9 +202,10 @@ class ReservationRepository extends BaseRepo {
     filterPast = false,
     date_range = null
   ) => {
-    const now = new Date();
-    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+    const { start, end } = getStartdayEndDay()
+    const startOfDay = start
+    const endOfDay = end
+
 
     let query = {};
 

@@ -9,6 +9,7 @@ import SubscriberController from "../controllers/SubscriberController.js";
 import UserController from "../controllers/UserController.js";
 import PredictionController from "../controllers/prediction.controller.js";
 import AdminController from "../controllers/AdminController.js";
+import ReportingController from "../controllers/ReportingController.js";
 
 export default function registerControllers(container) {
   container.register({
@@ -22,5 +23,6 @@ export default function registerControllers(container) {
     subscriberController: asClass(SubscriberController).scoped(),
     predictionController: asClass(PredictionController).scoped(),
     adminController: asClass(AdminController).scoped(),
+    reportingController: asClass(ReportingController).scoped()
   });
 }
