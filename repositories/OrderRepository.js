@@ -12,6 +12,64 @@ class OrderRespository extends BaseRepo {
     this.category = Products(connection).Category;
   }
 
+  // return total counts of sales 
+  countSales = async () => {
+    return await this.order.countDocuments()
+  }
+  // return amounts
+  sumSales = async () => {
+    const result = await this.order.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalSales: { $sum: "$totalAmount" },
+        },
+      },
+    ]);
+
+    return result[0]?.totalSales || 0;
+  }
+
+  async salesGroupedByDate(range = "30d") {
+    const days = parseInt(range.replace("d", ""));
+
+    const start = new Date();
+    start.setDate(start.getDate() - days);
+
+    const result = await this.order.aggregate([
+      { $match: { createdDate: { $gte: start } } },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdDate" },
+            month: { $month: "$createdDate" },
+            day: { $dayOfMonth: "$createdDate" },
+          },
+          total: { $sum: "$totalAmount" },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          date: {
+            $dateFromParts: {
+              year: "$_id.year",
+              month: "$_id.month",
+              day: "$_id.day",
+            },
+          },
+          total: 1,
+        },
+      },
+
+      { $sort: { date: 1 } },
+    ]);
+
+    return result;
+  }
+
+
   checkCustomerSave = async (InCustomer) => {
     const existingCustomer = await this.customer
       .findOne({ email: InCustomer.email })
@@ -20,10 +78,12 @@ class OrderRespository extends BaseRepo {
       return existingCustomer;
     }
     return await this.customer.create(InCustomer);
-  }; // getCustomer method
+  };
+  // getCustomer method
   getOrderItems = async (itemIds) => {
     return await this.item.find({ _id: { $in: itemIds } }).lean();
   };
+
   getOrderByOrderId = async (order_id, populate = false) => {
     const order = await this.order.findOne({ orderId: order_id });
     if (!order) return null;
@@ -31,6 +91,8 @@ class OrderRespository extends BaseRepo {
       ? await order.populate("customer", "customerId name email phone address")
       : order;
   };
+
+
 
   getOrderOrSearch = async (filters) => {
     const {
@@ -59,12 +121,12 @@ class OrderRespository extends BaseRepo {
 
     const searchMatch = search
       ? {
-          $or: [
-            { "customer.name": { $regex: search, $options: "i" } },
-            { "customer.email": { $regex: search, $options: "i" } },
-            { "customer.phone": { $regex: search, $options: "i" } },
-          ],
-        }
+        $or: [
+          { "customer.name": { $regex: search, $options: "i" } },
+          { "customer.email": { $regex: search, $options: "i" } },
+          { "customer.phone": { $regex: search, $options: "i" } },
+        ],
+      }
       : {};
 
     const sortOrder = sort === "asc" ? 1 : -1;
@@ -117,11 +179,11 @@ class OrderRespository extends BaseRepo {
 
     const searchMatch = search
       ? {
-          $or: [
-            { "customer.name": { $regex: search, $options: "i" } },
-            { "customer.email": { $regex: search, $options: "i" } },
-          ],
-        }
+        $or: [
+          { "customer.name": { $regex: search, $options: "i" } },
+          { "customer.email": { $regex: search, $options: "i" } },
+        ],
+      }
       : {};
 
     // Aggregate to count with $lookup

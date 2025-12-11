@@ -11,6 +11,7 @@ import SubscriberService from "../services/SubscriberService.js";
 import UserService from "../services/userService.js";
 import SettingService from "../services/SettingService.js";
 import AdminService from "../services/AdminService.js";
+import ReportingService from "../services/reportingService.js";
 
 export default function registerServices(container) {
   container.register({
@@ -28,5 +29,6 @@ export default function registerServices(container) {
       FirebasePushNotificationService
     ).scoped(),
     adminService: asClass(AdminService).scoped(),
+    reportingService: asClass(ReportingService).scoped()
   });
 }

@@ -2,7 +2,7 @@ import express, { json, urlencoded, static as expressStatic } from "express";
 import container from "../containers/Containers.js";
 import methodOverride from "method-override";
 import compression from "compression";
-import cookieParser from "cookie-parser";
+//import cookieParser from "cookie-parser";
 import config from "../config/appconfig.js";
 import indexRoutes from "../router/index.js";
 import requestLogger from "../middleware/RequestLogger.js";
@@ -40,7 +40,7 @@ app.set("port", process.env.DEV_APP_PORT);
 app.use(helmet());
 
 // === Middleware ===
-app.use(cookieParser());
+//app.use(cookieParser());
 if (process.env.NODE_ENV === "production") {
   // app.use(csrfProtection);
 }
@@ -68,7 +68,7 @@ serveStaticFiles(app);
 // === Routes ===
 app.use(indexRoutes);
 // CSRF Token Middleware to expose token
-app.use(csrfTokenMiddleware);
+//app.use(csrfTokenMiddleware);
 // === 404 Handler ===
 app.use((req, res) => {
   const message = "The URL you are trying to reach is not hosted on our server";
