@@ -9,14 +9,6 @@ class CompanyController extends BaseController {
     this.firebasePushNotificationService = firebasePushNotificationService;
   }
 
-  analyseReports = async () => {
-    await this.runServiceMethod(
-      this.companyService,
-      (service) => service.analyseReports()
-    ), "Reports generated successfully"
-  }
-
-
   deleteRole = async () => {
     const { id } = this.req.params;
     await this.runServiceMethod(

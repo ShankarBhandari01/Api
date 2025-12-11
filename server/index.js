@@ -42,7 +42,7 @@ app.use(helmet());
 // === Middleware ===
 //app.use(cookieParser());
 if (process.env.NODE_ENV === "production") {
-  // app.use(csrfProtection);
+  app.use(csrfProtection);
 }
 /**
  * Redis client for session store
