@@ -10,7 +10,7 @@ import menuRoute from "./MenuRoute.js";
 import apiHealthRoute from "./apihealtRoute.js";
 import predictionRoute from "./prediction.routes.js";
 import admin from "./admin.js";
-import reportingRoute from "./reportingRoute.js"
+import reportingRoute from  "./ReportingRoute.js"
 
 const router = Router();
 // binding of route
