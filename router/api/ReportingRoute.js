@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { isAuthenticated } from "../../middleware/auth.js";
+import { adminLimiter } from "../../middleware/RequestRateLimiter.js";
 const router = Router();
 
 // GET Company Profromance reports
 router.get("/analyse_reports",
-  isAuthenticated,
+  isAuthenticated, adminLimiter,
   async (req, res, next) => {
     try {
       const controller = req.scope.resolve("reportingController");
