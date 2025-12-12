@@ -48,11 +48,12 @@ class ReservationRepository extends BaseRepo {
       {
         $group: {
           _id: {
-            year: { $year: "$createdDate" },
-            month: { $month: "$createdDate" },
-            day: { $dayOfMonth: "$createdDate" },
+            year: { $year: "$reservation_date" },
+            month: { $month: "$reservation_date" },
+            day: { $dayOfMonth: "$reservation_date" },
           },
           count: { $sum: 1 },
+          totalGuests: { $sum: "$number_of_guests" }
         },
       },
 
@@ -67,6 +68,7 @@ class ReservationRepository extends BaseRepo {
             },
           },
           count: 1,
+          totalGuests: 1
         },
       },
 
