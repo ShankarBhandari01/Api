@@ -66,6 +66,7 @@ class FirebasePushNotificationService extends BaseService {
   sendPushNotificationToAdminsOnNewOrder = async (orderData) => {
     try {
       const { customer, items, totalAmount, createdDate } = orderData;
+      // since createdDate is object type, so need to parsed in iso date string. 
       const toISOstringDateTime= new Date(createdDate).toISOString()
       const { time, date } = formatFinnishDateTime(toISOstringDateTime);
 
