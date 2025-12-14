@@ -23,7 +23,7 @@ const notificationSchema = new Schema(
       type: String,
       enum: ["order", "promotion", "reservation", "reminder", "custom"],
       default: "custom",
-    }, // Optional: classify notifications
+    }, //classify notifications
   },
   { timestamps: true }
 );

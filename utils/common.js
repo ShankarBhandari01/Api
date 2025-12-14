@@ -21,12 +21,10 @@ export const getDateRange = (range = "30d") => {
  */
 
 export function fillMissingDates(data, days, valueKey = "total") {
-  // Map using UTC date keys
   const map = new Map(
-    data.map((d) => [DateTime.fromJSDate(d.date, { zone: "utc" }).toISODate(), d[valueKey]])
+    data.map((d) => [DateTime.fromJSDate(d.date, { zone: "utc" }).toISODate(), d[valueKey]]),
   );
-  
-   // day in 30d
+  // day in 30d
   const indays = parseInt(days.replace(/\D/g, ""), 10) || 30;
   const result = [];
   const today = DateTime.now().setZone("utc").startOf("day");

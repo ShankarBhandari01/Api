@@ -67,8 +67,9 @@ class ReportingService extends BaseService {
       this.reservationChart(range)
     ]);
 
-    const orderFilled = fillMissingDates(orderChart, range)
-    const reservationFillted = fillMissingDates(reservationChart, range, "count")
+    // do data filling park in analysis part in frontend 
+    //const orderFilled = fillMissingDates(orderChart, range)
+    //const reservationFillted = fillMissingDates(reservationChart, range)
 
     const results = {
       countSales,
@@ -78,12 +79,12 @@ class ReportingService extends BaseService {
       countRecevedToday,
       pendingReservations,
       charts: {
-        orders: orderFilled,
-        reservations: reservationFillted
+        orders: orderChart,
+        reservations: reservationChart
       }
     };
 
-    return super.prepareResponse(results)
+    return results
   }
 
 }
