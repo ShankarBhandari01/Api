@@ -37,7 +37,7 @@ class OrderRespository extends BaseRepo {
     start.setDate(start.getDate() - days);
 
     const result = await this.order.aggregate([
-      { $match: { createdDate: { $gte: start } } },
+    //  { $match: { createdDate: { $gte: start } } },
       {
         $group: {
           _id: {

@@ -84,7 +84,7 @@ class ReportingService extends BaseService {
       }
     };
 
-    return super.prepareResponse(results)
+    return results
   }
 
 }

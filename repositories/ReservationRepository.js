@@ -43,7 +43,7 @@ class ReservationRepository extends BaseRepo {
     start.setDate(start.getDate() - days);
 
     const result = await this.reservationModel.aggregate([
-      { $match: { createdDate: { $gte: start } } },
+     // { $match: { createdDate: { $gte: start } } },
 
       {
         $group: {
