@@ -54,6 +54,8 @@ class BaseService extends BaseRepo {
   async assignToken(session) {
     try {
       const user = session.user;
+      const devideInfo = session.firebaseToken.deviceInfo
+      
       const { profilePic, profileBase64, ...updatedUser } = user;
       // Generate tokens
       const token = this.generateToken(updatedUser, "access");
@@ -62,7 +64,7 @@ class BaseService extends BaseRepo {
       // Log token generation
       const tokens = { token, refreshToken };
       // save access token
-      await super.saveTokens(tokens, session.user);
+      await super.saveTokens(tokens, session.user, devideInfo);
       // save fcm token
       if (session.firebaseToken != undefined && session.firebaseToken !== "") {
         await this.saveFcmToken(session);

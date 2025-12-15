@@ -144,8 +144,9 @@ async function verifyRefreshToken(req, res, next) {
 
     // Clone the original options
     const options = { ...appconfig.jwtVerifyOptions };
-    // Change the subject to "refresh_token" without affecting
+    // Change the subject to "refresh_token"
     options.subject = "refresh_token";
+
     verifyJwtToken(
       token,
       appconfig.jwtConfig.refreshTokenSecret,
@@ -154,6 +155,7 @@ async function verifyRefreshToken(req, res, next) {
       res,
       next
     );
+
   } catch (err) {
     requestHandler.sendError(req, res, err);
   }
