@@ -12,6 +12,8 @@ const router = Router();
 // User Signup route
 router.post(
   "/signup",
+  authLimiter,
+  isAuthenticated,
   fileupload.uploadImage,
   validateUser,
   async (req, res, next) => {

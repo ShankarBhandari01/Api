@@ -5,30 +5,48 @@ import Logger from "../utils/logger.js";
 import { DatabaseError } from "../utils/errors.js";
 import FcmToken from "../models/FcmToken.js";
 import imageModel from "../models/Image.js";
+import appconfig from "../config/appconfig.js";
 
 class BaseRepository extends Logger {
   constructor(connection) {
     super();
     this.connection = connection;
   }
-  async saveTokens(createdToken, user) {
+
+  /**
+   * save  token details
+   * @param {Object} createdToken - { token, refreshToken }
+   * @param {Object} user - user object (must contain _id)
+   * @param {Object} deviceInfo - information about the device from which user is trying to  login 
+   */
+  async saveTokens(createdToken, user, deviceInfo) {
     try {
       // model for access token
       const tokentable = accessToken(this.connection);
+      //query to find the existing token 
+      var query = {
+        userId: user._id,
+        "deviceInfo.platform": deviceInfo.platform,
+        "deviceInfo.deviceId": deviceInfo.deviceId
+      }
       // Check if a token already exists for the user
-      const existingToken = await tokentable.findOne({ userId: user._id });
+      // const existingToken = await tokentable.findOne(query);
+
       // If a token exists, update it; otherwise, create a new one
-      const tokenData = this.generateTokenDetails(createdToken, user);
-      // If the token already exists, update it
-      if (existingToken) {
-        await tokentable.findOneAndUpdate({ userId: user._id }, tokenData, {
+      const tokenData = this.generateTokenDetails(createdToken, user, deviceInfo);
+
+      // If the token already exists, update it or insert 
+      await tokentable.findOneAndUpdate(query,
+        {
+          $set: tokenData
+        },
+        {
           new: true, // Return the updated document,
           runValidators: true, // Ensure validation rules are applied
-        });
-      } else {
-        // Create a new document for a new user login
-        await tokentable.create(tokenData);
-      }
+          upsert: true // insert if not 
+        }
+      );
+
       super.log(
         `[Api] Token successfully saved or updated for user: ${user._id}`,
         "info"
@@ -45,13 +63,15 @@ class BaseRepository extends Logger {
    * @param {Object} user - user object (must contain _id)
    * @returns {Object} tokenDetails
    */
-  generateTokenDetails = (createdToken, user) => {
+  generateTokenDetails = (createdToken, user, deviceInfo) => {
     const { token, refreshToken } = createdToken;
+    const expiredIn = parseInt(appconfig.jwtConfig.refreshTokenExpiresIn.split("d")[0], 10)
     return {
       userId: user._id,
       token: token,
       refreshToken: refreshToken,
-      refreshExpiresAt: new Date(Date.now() + 1 * 15 * 60 * 60 * 1000), // 15m  expiry
+      refreshExpiresAt: new Date(Date.now() + expiredIn * 24 * 60 * 60 * 1000),
+      deviceInfo
     };
   };
 
