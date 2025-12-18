@@ -29,7 +29,8 @@ class FirebasePushNotificationService extends BaseService {
   // Send push notification to all tokens
   sendPushNotificationToAll = async (data) => {
     try {
-      const { time, date } = formatFinnishDateTime(data.reservation_date);
+      const toISOstringDateTime = new Date(data.reservation_date).toISOString()
+      const { time, date } = formatFinnishDateTime(toISOstringDateTime);
       const title = `New Reservation from ${data.customer_name}!`;
 
       const body =

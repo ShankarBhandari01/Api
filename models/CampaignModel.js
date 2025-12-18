@@ -41,9 +41,8 @@ const CampaingnScheme = new Schema({
   uuid: { type: String, default: uuidv4 },
 });
 // Add pre hooks to auto-update `updated_at` before updates
-const autoUpdateTimestamp = function (next) {
+const autoUpdateTimestamp = function () {
   this.set({ updated_at: new Date() });
-  next();
 };
 
 CampaingnScheme.pre("findOneAndUpdate", autoUpdateTimestamp);

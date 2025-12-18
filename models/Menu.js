@@ -104,19 +104,18 @@ const menuSchema = new Schema(
 /**
  * Auto-fill `weekday.fi` and `weekday.number` before saving.
  */
-menuSchema.pre("save", function (next) {
+menuSchema.pre("save", function () {
   if (this.weekday?.en && dayMap[this.weekday.en]) {
     const { fi, number } = dayMap[this.weekday.en];
     this.weekday.fi = fi;
     this.weekday.number = number;
   }
-  next();
 });
 
 /**
  * Auto-fill `weekday.fi` and `weekday.number` on updates.
  */
-function updateWeekdayHook(next) {
+function updateWeekdayHook() {
   const update = this.getUpdate();
   if (!update.$set) update.$set = {};
 
@@ -125,7 +124,6 @@ function updateWeekdayHook(next) {
     update.weekday.fi = dayMap[weekday].fi;
     update.weekday.number = dayMap[weekday].number;
   }
-  next();
 }
 
 menuSchema.pre("findOneAndUpdate", updateWeekdayHook);

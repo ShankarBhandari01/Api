@@ -18,8 +18,7 @@ const RoleSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-RoleSchema.pre("save", function (next) {
+RoleSchema.pre("save", function () {
   this.updatedAt = new Date();
-  next();
 });
 export default (conn) => conn.model("Role", RoleSchema);
