@@ -34,20 +34,20 @@ export default (connection) => {
   );
 
   // Pre-save hook for generating reservation_code
-  ReservationSchema.pre("save", async function (next) {
+  ReservationSchema.pre("save", async function () {
     const session = await this.constructor.db.startSession();
     session.startTransaction();
 
     try {
       // Ensure reservation date is in the future
       if (this.reservation_date < new Date()) {
-        return next(new Error("Reservation date cannot be in the past"));
+         throw new Error("Reservation date cannot be in the past");
       }
 
       // Ensure table exists before saving reservation
       const table = await TableModel.findById(this.table_id).session(session);
       if (!table) {
-        return next(new Error("Invalid table ID"));
+        throw new Error("Invalid table ID");
       }
       const lastReservation = await this.constructor
         .findOne()
@@ -66,12 +66,10 @@ export default (connection) => {
       // Commit transaction to ensure atomic operation
       await session.commitTransaction();
       session.endSession();
-
-      next(); // Proceed with saving the reservation
     } catch (error) {
       await session.abortTransaction(); // Abort if there's an error
       session.endSession();
-      next(error);
+      throw error
     }
   });
 
