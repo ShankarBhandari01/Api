@@ -52,13 +52,12 @@ tokenSchema.index(
 );
 
 // Add pre-save hook to handle expiration of the refresh token
-tokenSchema.pre("save", function (next) {
+tokenSchema.pre("save", function () {
   // Automatically set the expiration for the refresh token based
   if (!this.refreshExpiresAt) {
     const expiredIn = parseInt(appconfig.jwtConfig.refreshTokenExpiresIn.split("d")[0], 10)
     this.refreshExpiresAt = new Date(Date.now() + expiredIn * 24 * 60 * 60 * 1000); // Set refresh token expiry
   }
-  next();
 });
 
 export default (connection) => connection.model("Token", tokenSchema);
