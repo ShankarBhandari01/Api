@@ -5,4 +5,4 @@
 /public
 firebase-service-account.json
 memory_status.log
-#/config/config.jso
+/config/config.json
