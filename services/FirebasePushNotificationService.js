@@ -29,8 +29,8 @@ class FirebasePushNotificationService extends BaseService {
   // Send push notification to all tokens
   sendPushNotificationToAll = async (data) => {
     try {
-      const toISOstringDateTime = new Date(data.reservation_date).toISOString()
-      const { time, date } = formatFinnishDateTime(toISOstringDateTime);
+     // const toISOstringDateTime = new Date(data.reservation_date).toISOString()
+      const { time, date } = formatFinnishDateTime(data.reservation_date);
       const title = `New Reservation from ${data.customer_name}!`;
 
       const body =
@@ -67,9 +67,8 @@ class FirebasePushNotificationService extends BaseService {
   sendPushNotificationToAdminsOnNewOrder = async (orderData) => {
     try {
       const { customer, items, totalAmount, createdDate } = orderData;
-      // since createdDate is object type, so need to parsed in iso date string. 
-      const toISOstringDateTime= new Date(createdDate).toISOString()
-      const { time, date } = formatFinnishDateTime(toISOstringDateTime);
+     // const toISOstringDateTime= new Date(createdDate).toISOString()
+      const { time, date } = formatFinnishDateTime(createdDate);
 
       const itemSummary = items
         .map((i) => `${i.name.fi || i.name.en} x${i.quantity}`)

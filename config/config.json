@@ -1,24 +1,24 @@
 {
   "development": {
-    "url": "mongodb://0.0.0.0:27018/Mydatabase",
+    "url": "mongodb://0.0.0.0:27017/Mydatabase",
     "username": "admin",
     "password": "Rabintola2025",
     "database": "Mydatabase",
     "host": "127.0.0.1",
     "retryWrites": "true",
     "appName": "",
-    "port": 27018,
+    "port": 27017,
     "dialect": "mongodb"
   },
   "test": {
-    "url": "mongodb://127.0.0.1:27018/Mydatabase",
+    "url": "mongodb://127.0.0.1:27017/Mydatabase",
     "username": "admin",
     "password": "Rabintola2025",
     "database": "Mydatabase",
     "host": "127.0.0.1",
     "retryWrites": "true",
     "appName": "",
-    "port": 27018,
+    "port": 27017,
     "dialect": "mongodb"
   },
   "production": {
