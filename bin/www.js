@@ -102,7 +102,11 @@ export async function startServer() {
         notificationQueueService,
         redisClientManager,
         mongoConnectionManager,
+        rabbitMQ
       } = container.cradle;
+      
+      // close rabitmq
+      rabbitMQ.close()
 
       if (mongoConnectionManager?.shutdown) {
         await mongoConnectionManager.shutdown();

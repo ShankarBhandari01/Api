@@ -19,6 +19,7 @@ import NotificationQueueService from "../jobs/NotificationQueueService.js";
 import createLanguageMiddleware from "../middleware/languageMiddleware.js";
 import RedisClientManager from "../redis/RedisClientManager.js";
 import dynamicCors from "../middleware/CorsMiddleware.js";
+import RabbitMQ from "../utils/RabbitMQ.js";
 
 const container = createContainer();
 
@@ -31,6 +32,7 @@ container.register({
   ),
   grpcAddress: asValue("localhost:50051"),
 });
+
 
 // Global singleton
 container.register({
@@ -45,6 +47,9 @@ container.register({
   notificationQueueService: asClass(NotificationQueueService).singleton(),
   redisClientManager: asClass(RedisClientManager).singleton(),
   corsMiddleware: asFunction(dynamicCors).singleton(),
+  rabbitMQ: asClass(RabbitMQ)
+    .singleton()
+    .inject(() => ({ url: process.env.RABBITMQ_URL || 'amqp://localhost' })),
 });
 
 // Modular per-request scoped registrations
