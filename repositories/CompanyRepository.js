@@ -5,6 +5,7 @@ import ImageSchema from "../models/Image.js";
 import Menu from "../models/UiMenuRight.js";
 import Role from "../models/Role.js";
 import Feedbacks from "../models/Feedbacks.js";
+import VatRate from "../models/VatRate.js";
 
 class CompanyRepository extends BaseRepo {
   constructor({ connection }) {
@@ -15,7 +16,33 @@ class CompanyRepository extends BaseRepo {
     this.menu = Menu(connection);
     this.role = Role(connection);
     this.feedback = Feedbacks(connection);
+    this.VatRateModel = VatRate(connection);
   }
+  // Check for overlapping VAT rates
+  findOverlappingVatRates = async (country, category, validFrom, validTo) => {
+    return await this.VatRateModel.find({
+      country: country,
+      category: category,
+      $or: [
+        {
+          validFrom: { $lte: validTo },
+          validTo: { $gte: validFrom },
+        },
+        {
+          validFrom: { $lte: validFrom },
+          validTo: { $gte: validFrom },
+        },
+        {
+          validFrom: { $lte: validTo },
+          validTo: { $gte: validTo },
+        },
+      ],
+    });
+  };
+  
+  // Add a new VAT rate
+  addVatRate = async (vatRateData) =>
+    await this.VatRateModel.create(vatRateData);
 
   addReview = async (review) => await this.feedback.create(review)
 

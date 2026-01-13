@@ -5,6 +5,28 @@ class CompanyService extends BaseService {
     super(connection);
     this.companyRepository = companyRepository;
   }
+  addVatRate = async (vatRateData) => {
+    // Validate overlapping VAT rates
+    const overlappingRates = await this.companyRepository.findOverlappingVatRates(
+      vatRateData.country,
+      vatRateData.category,
+      vatRateData.validFrom,
+      vatRateData.validTo
+    );
+
+    if (overlappingRates.length > 0) {
+      throw new Error(
+        "Overlapping VAT rate exists for the given country and category within the specified date range."
+      );
+    }
+
+    // If no overlaps, proceed to add the VAT rate
+    return await this.handleRepositoryCall(
+      this.companyRepository.addVatRate,
+      vatRateData
+    );
+  };
+
   deleteRole = async (id) =>
     await this.handleRepositoryCall(this.companyRepository.deleteRole, id);
 

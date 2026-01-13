@@ -5,6 +5,21 @@ import fileupload from "../../middleware/fileUploadMiddleware.js";
 
 const router = Router();
 
+// Insert Vat Rate route
+router.post(
+  "/addVatRate",
+  isAuthenticated,
+  checkAccess("/addVatRate", "write"),
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.addVatRate();
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
 // GET company info
 router.get("/getCompanyInfo", async (req, res, next) => {
   try {

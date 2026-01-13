@@ -9,6 +9,14 @@ class CompanyController extends BaseController {
     this.firebasePushNotificationService = firebasePushNotificationService;
   }
 
+  addVatRate = async () => {
+    await this.runServiceMethod(
+      this.companyService,
+      (service) => service.addVatRate(this.req.body, this.lang),
+      "VAT Rate added successfully"
+    );
+  };
+
   deleteRole = async () => {
     const { id } = this.req.params;
     await this.runServiceMethod(
