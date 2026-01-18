@@ -6,12 +6,28 @@ import { DatabaseError } from "../utils/errors.js";
 import FcmToken from "../models/FcmToken.js";
 import imageModel from "../models/Image.js";
 import appconfig from "../config/appconfig.js";
+import VatRate from "../models/VatRate.js";
 
 class BaseRepository extends Logger {
   constructor(connection) {
     super();
     this.connection = connection;
   }
+
+  // get active vat rate for a country at a specific date
+  getActiveVatRates = async (country = "FI", atDate = new Date()) => {
+    const vatRateModel = VatRate(this.connection);
+
+    const activeRate = await vatRateModel.findOne({
+      country,
+      validFrom: { $lte: atDate },
+      $or: [
+        { validTo: null },
+        { validTo: { $gte: atDate } }
+      ]
+    }).sort({ validFrom: -1 });
+    return activeRate;
+  };
 
   /**
    * save  token details

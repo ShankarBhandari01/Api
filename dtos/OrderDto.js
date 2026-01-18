@@ -9,7 +9,7 @@ class OrderDTO {
     pareparingTime,
     orderRemarks,
     reason,
-    vatPercent = 14, // 14% VAT INCLUDED in prices
+    vatPercent = 13.5, // 13.5% VAT INCLUDED in prices
   }) {
     this.customer = customer;
     this.items = items || [];
