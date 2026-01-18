@@ -22,8 +22,11 @@ log_memory_usage "Memory before starting app:"
 # Install dependencies
 echo "Installing dependencies..."
 npm ci || {
-  echo "npm install failed"
-  exit 1
+  echo "npm ci failed, running npm install instead..."
+  npm install || {
+    echo "npm install failed too"
+    exit 1
+  }
 }
 
 # Start the app in background and log memory again after a short delay
