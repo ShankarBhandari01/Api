@@ -87,7 +87,7 @@ class CompanyRepository extends BaseRepo {
     } catch (err) {
       await session.abortTransaction();
       session.endSession();
-      throw err;
+      this.logAndThrowError("Error updating vat rate info", err);
     }
     finally { }
   };
