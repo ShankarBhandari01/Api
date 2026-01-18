@@ -1,5 +1,22 @@
 import { Schema } from "mongoose";
 
+const VatCategorySchema = new Schema(
+  {
+    category: {
+      type: String,
+      enum: ["STANDARD", "REDUCED", "ZERO"],
+      required: true
+    },
+
+    rate: {
+      type: Number, // percentage (e.g. 25.5)
+      required: true,
+      min: 0
+    }
+  },
+  { _id: false }
+);
+
 const VatRateSchema = new Schema(
   {
     country: {
@@ -10,17 +27,16 @@ const VatRateSchema = new Schema(
       index: true
     },
 
-    category: {
-      type: String,
+    vatRates: {
+      type: [VatCategorySchema],
       required: true,
-      enum: ["STANDARD", "REDUCED", "ZERO"],
-      index: true
-    },
-
-    rate: {
-      type: Number, // percentage (e.g. 25.5)
-      required: true,
-      min: 0
+      validate: {
+        validator: function (rates) {
+          const categories = rates.map(r => r.category);
+          return categories.length === new Set(categories).size;
+        },
+        message: "Duplicate VAT categories are not allowed"
+      }
     },
 
     validFrom: {
@@ -41,15 +57,14 @@ const VatRateSchema = new Schema(
   }
 );
 
-//  Prevent overlapping VAT rates for same country + category
+// One active VAT config per country per period
 VatRateSchema.index(
-  {
-    country: 1,
-    category: 1,
-    validFrom: 1,
-    validTo: 1
-  },
+  { country: 1, validFrom: 1, validTo: 1 },
   { unique: true }
 );
+
+VatRateSchema.pre("deleteOne", function () {
+  throw new Error("VAT configurations must not be deleted");
+});
 
 export default (conn) => conn.model("VatRate", VatRateSchema);

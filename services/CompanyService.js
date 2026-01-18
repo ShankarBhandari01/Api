@@ -5,13 +5,38 @@ class CompanyService extends BaseService {
     super(connection);
     this.companyRepository = companyRepository;
   }
+
+  getActiveVatRates = async (country= 'FI', atDate = new Date()) =>
+    await this.handleRepositoryCall(
+      this.companyRepository.getActiveVatRates,
+      country,
+      atDate
+    );
+
+  // fetch vat rates history for a country
+  getVatRates = async (country) =>
+    await this.handleRepositoryCall(this.companyRepository.getVatRateHistory, country);
+
+  deleteVatRate = async (id) =>
+    await this.handleRepositoryCall(
+      this.companyRepository.closeVatRate,
+      id
+    );
+
+  updateVatRate = async (id, vatRateData, lang) =>
+    await this.handleRepositoryCall(
+      this.companyRepository.updateVatRate,
+      id,
+      vatRateData
+    );
+
   addVatRate = async (vatRateData) => {
+    const { country, validFrom, validTo } = vatRateData;
     // Validate overlapping VAT rates
     const overlappingRates = await this.companyRepository.findOverlappingVatRates(
-      vatRateData.country,
-      vatRateData.category,
-      vatRateData.validFrom,
-      vatRateData.validTo
+      country,
+      validFrom,
+      validTo
     );
 
     if (overlappingRates.length > 0) {
@@ -19,7 +44,6 @@ class CompanyService extends BaseService {
         "Overlapping VAT rate exists for the given country and category within the specified date range."
       );
     }
-
     // If no overlaps, proceed to add the VAT rate
     return await this.handleRepositoryCall(
       this.companyRepository.addVatRate,

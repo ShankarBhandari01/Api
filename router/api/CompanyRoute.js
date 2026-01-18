@@ -9,7 +9,6 @@ const router = Router();
 router.post(
   "/addVatRate",
   isAuthenticated,
-  checkAccess("/addVatRate", "write"),
   async (req, res, next) => {
     try {
       const controller = req.scope.resolve("companyController");
@@ -19,6 +18,60 @@ router.post(
     }
   }
 );
+
+router.get(
+  "/activeVatRates",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.getActiveVatRates();
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+router.get(
+  "/vatRates",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.getVatRates();
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+router.delete(
+  "/deleteVatRate/:id",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.deleteVatRate();
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+router.put(
+  "/updateVatRate/:id",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const controller = req.scope.resolve("companyController");
+      await controller.updateVatRate();
+    } catch (e) {
+      next(e);
+    }
+  }
+);  
+
+
 
 // GET company info
 router.get("/getCompanyInfo", async (req, res, next) => {
