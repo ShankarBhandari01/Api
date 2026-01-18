@@ -26,6 +26,7 @@ class BaseRepository extends Logger {
         { validTo: { $gte: atDate } }
       ]
     }).sort({ validFrom: -1 });
+    
     return activeRate;
   };
 

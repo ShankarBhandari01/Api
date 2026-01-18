@@ -21,7 +21,6 @@ router.post(
 
 router.get(
   "/activeVatRates",
-  isAuthenticated,
   async (req, res, next) => {
     try {
       const controller = req.scope.resolve("companyController");
@@ -32,6 +31,7 @@ router.get(
   }
 );
 
+// Get Vat Rates history
 router.get(
   "/vatRates",
   isAuthenticated,
