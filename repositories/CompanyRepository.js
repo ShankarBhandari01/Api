@@ -18,7 +18,7 @@ class CompanyRepository extends BaseRepo {
     this.feedback = Feedbacks(connection);
     this.VatRateModel = VatRate(connection);
   }
-  
+
   // get active vat rate for a country at a specific date
   getActiveVatRates = async (country, atDate = new Date()) => {
     return this.VatRateModel.findOne({
@@ -103,7 +103,7 @@ class CompanyRepository extends BaseRepo {
         { validTo: null },
         { validTo: { $gte: validFrom } }
       ]
-    }).lean();
+    });
   };
 
   // Add a new VAT rate
