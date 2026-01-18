@@ -6,12 +6,6 @@ class CompanyService extends BaseService {
     this.companyRepository = companyRepository;
   }
 
-  getActiveVatRates = async (country = 'FI', atDate = new Date()) =>
-    await this.handleRepositoryCall(
-      this.companyRepository.getActiveVatRates,
-      country,
-      atDate
-    );
 
   // fetch vat rates history for a country
   getVatRates = async (country) => {

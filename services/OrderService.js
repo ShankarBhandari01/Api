@@ -6,7 +6,6 @@ class OrderService extends BaseService {
     connection,
     orderRepository,
     redisSocketService,
-    companyRepository,
     emailService,
     rabbitMQ
   }) {
@@ -14,7 +13,6 @@ class OrderService extends BaseService {
     this.connection = connection;
     this.orderRespository = orderRepository;
     this.redisSocketService = redisSocketService;
-    this.companyRepository = companyRepository;
     this.emailService = emailService;
     this.rabbitMQ = rabbitMQ
   }
@@ -29,7 +27,6 @@ class OrderService extends BaseService {
     }
   }
 
-
   // this function handle orders from users 
   saveOrders = async (orders, lang) => {
     try {
@@ -39,6 +36,15 @@ class OrderService extends BaseService {
       // this.validationOpeningHour(openingHours);
 
       const dto = new OrderDTO(orders);
+      // fetch active vat rates
+      const vartRates = await this.getActiveVatRates();
+      if (!vartRates) {
+       // throw new Error("No active VAT rate found");
+        dto.vatPercent = 13.5; // default vat percent
+      }else{
+        // set vat percent from active vat rates for reduced category i.e food items
+        dto.vatPercent = vartRates.vatRates.find(rate => rate.category === 'REDUCED')?.rate || 13.5;
+      }
       dto.validate();
       const { customer, items } = dto;
 
@@ -82,7 +88,7 @@ class OrderService extends BaseService {
       orders.subtotal = dto.getSubtotalExcludingVAT();
       // set vat percent
       orders.vatPercent = dto.vatPercent;
-
+      // round total amount
       orders.totalAmount = parseFloat(orders.totalAmount.toFixed(2));
 
       // total amount including vat

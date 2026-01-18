@@ -6,6 +6,7 @@ import Menu from "../models/UiMenuRight.js";
 import Role from "../models/Role.js";
 import Feedbacks from "../models/Feedbacks.js";
 import VatRate from "../models/VatRate.js";
+import { check } from "express-validator";
 
 class CompanyRepository extends BaseRepo {
   constructor({ connection }) {
@@ -19,17 +20,6 @@ class CompanyRepository extends BaseRepo {
     this.VatRateModel = VatRate(connection);
   }
 
-  // get active vat rate for a country at a specific date
-  getActiveVatRates = async (country, atDate = new Date()) => {
-    return this.VatRateModel.findOne({
-      country,
-      validFrom: { $lte: atDate },
-      $or: [
-        { validTo: null },
-        { validTo: { $gte: atDate } }
-      ]
-    }).lean();
-  };
 
   // get vat rate history for a country
   getVatRateHistory = async (country) => {
@@ -68,17 +58,31 @@ class CompanyRepository extends BaseRepo {
       oldConfig.validTo = newValidFrom;
       await oldConfig.save({ session });
 
-      //Create new VAT configuration
-      const [newConfig] = await this.VatRateModel.create(
-        [{
-          country: oldConfig.country,
-          vatRates: vatRateData.vatRates, 
-          validFrom: newValidFrom,
-          validTo: null
-        }],
-        { session }
+      // Create new VAT configuration object
+      const UpdatedVatsObject = {
+        country: oldConfig.country,
+        vatRates: vatRateData.vatRates,
+        validFrom: newValidFrom,
+        validTo: null
+      };
+
+      // Validate overlapping VAT rates
+      const validatedOverlap = await this.findOverlappingVatRates(
+        UpdatedVatsObject.country,
+        UpdatedVatsObject.validFrom,
+        UpdatedVatsObject.validTo
       );
 
+      if (validatedOverlap.length > 0) {
+        throw new Error(
+          "Overlapping VAT rate exists for the given country and category within the specified date range."
+        );
+      } 
+      //Create new VAT configuration
+      const [newConfig] = await this.VatRateModel.create(
+        [UpdatedVatsObject],
+        { session }
+      );
       await session.commitTransaction();
       session.endSession();
 
@@ -95,13 +99,14 @@ class CompanyRepository extends BaseRepo {
   // Check for overlapping VAT rates
   findOverlappingVatRates = async (country, validFrom, validTo) => {
     const effectiveValidTo = validTo ?? new Date("9999-12-31");
+    const validFromDate = new Date(validFrom);
 
     return this.VatRateModel.find({
       country,
       validFrom: { $lte: effectiveValidTo },
       $or: [
         { validTo: null },
-        { validTo: { $gte: validFrom } }
+        { validTo: { $gte: validFromDate } }
       ]
     });
   };
