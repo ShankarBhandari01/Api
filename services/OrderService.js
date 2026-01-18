@@ -38,15 +38,13 @@ class OrderService extends BaseService {
       const dto = new OrderDTO(orders);
       // fetch active vat rates
       const vartRates = await this.getActiveVatRates();
-
-      if (!vartRates ) {
+      if (!vartRates) {
        // throw new Error("No active VAT rate found");
         dto.vatPercent = 13.5; // default vat percent
+      }else{
+        // set vat percent from active vat rates for reduced category i.e food items
+        dto.vatPercent = vartRates.vatRates.find(rate => rate.category === 'REDUCED')?.rate || 13.5;
       }
-
-      // set vat percent from active vat rates for reduced category i.e food items
-      dto.vatPercent = vartRates.vatRates.find(rate => rate.category === 'REDUCED')?.rate || 13.5;
-
       dto.validate();
       const { customer, items } = dto;
 
