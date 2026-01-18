@@ -8,6 +8,7 @@ class OrderService extends BaseService {
     redisSocketService,
     companyRepository,
     emailService,
+    rabbitMQ
   }) {
     super(connection);
     this.connection = connection;
@@ -15,8 +16,21 @@ class OrderService extends BaseService {
     this.redisSocketService = redisSocketService;
     this.companyRepository = companyRepository;
     this.emailService = emailService;
+    this.rabbitMQ = rabbitMQ
   }
 
+  // testing rabbitmq this will send message to spring boot api
+  testRabitmqOrders = async (orders) => {
+    try {
+      // publish message 
+      await this.rabbitMQ.publish("order_queue", orders)
+    } catch (error) {
+      this.logAndThrowError("rabitmq error saving order", error);
+    }
+  }
+
+
+  // this function handle orders from users 
   saveOrders = async (orders, lang) => {
     try {
       // const companyInfo = await this.companyRepository.getCompanyInfo();
@@ -74,8 +88,7 @@ class OrderService extends BaseService {
       // total amount including vat
       if (orders.totalAmount !== dto.getCalculatedTotal()) {
         throw new Error(
-          `Total amount mismatch (expected: ${dto.getCalculatedTotal()} actual: ${
-            orders.totalAmount
+          `Total amount mismatch (expected: ${dto.getCalculatedTotal()} actual: ${orders.totalAmount
           })`
         );
       }

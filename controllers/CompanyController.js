@@ -9,6 +9,47 @@ class CompanyController extends BaseController {
     this.firebasePushNotificationService = firebasePushNotificationService;
   }
 
+  addVatRate = async () => {
+    await this.runServiceMethod(
+      this.companyService,
+      (service) => service.addVatRate(this.req.body, this.lang),
+      "VAT Rate added successfully"
+    );
+  };
+
+  getActiveVatRates = async () =>
+    await this.runServiceMethod(
+      this.companyService,
+      (service) => service.getActiveVatRates(),
+      "Active VAT Rates fetched successfully"
+    );
+
+  deleteVatRate = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      this.companyService,
+      (service) => service.deleteVatRate(id),
+      "VAT Rate deleted successfully"
+    );
+  };
+
+  updateVatRate = async () => {
+    const { id } = this.req.params;
+    await this.runServiceMethod(
+      this.companyService,
+      (service) => service.updateVatRate(id, this.req.body, this.lang),
+      "VAT Rate updated successfully"
+    );
+  };
+
+  getVatRates = async () =>
+    await this.runServiceMethod(
+      this.companyService,
+      (service) => service.getVatRates(this.lang),
+      "VAT Rates fetched successfully"
+    );
+
+
   deleteRole = async () => {
     const { id } = this.req.params;
     await this.runServiceMethod(

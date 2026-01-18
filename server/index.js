@@ -30,6 +30,7 @@ const {
   logger,
   languageMiddleware,
   corsMiddleware,
+  rabbitMQ
 } = container.cradle;
 
 // === System Settings ===
@@ -44,10 +45,16 @@ app.use(helmet());
 if (process.env.NODE_ENV === "production") {
  //app.use(csrfProtection);
 }
+
+if (process.env.NODE_ENV !=="production"){
+  // connect rabbitmq
+  rabbitMQ.connect()
+}
 /**
  * Redis client for session store
  */
 
+// redis connection 
 redisClientManager.connect();
 const { pubClient } = redisClientManager.getClients();
 const userSession = createSessionMiddleware(pubClient);

@@ -6,6 +6,18 @@ class OrderController extends BaseController {
     this.orderService = orderService;
     this.firebasePushNotificationService = firebasePushNotificationService;
   }
+  
+  // for rabitmq test 
+  testRabitmqOrders = async () => {
+    await this.runServiceMethod(
+      this.orderService,
+      async (service) => {
+        return await service.testRabitmqOrders(this.req.body, this.lang);
+      },
+      "Order place successfully"
+    );
+  }
+
 
   saveOrder = async () => {
     await this.runServiceMethod(

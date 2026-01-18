@@ -5,6 +5,7 @@ import ImageSchema from "../models/Image.js";
 import Menu from "../models/UiMenuRight.js";
 import Role from "../models/Role.js";
 import Feedbacks from "../models/Feedbacks.js";
+import VatRate from "../models/VatRate.js";
 
 class CompanyRepository extends BaseRepo {
   constructor({ connection }) {
@@ -15,7 +16,99 @@ class CompanyRepository extends BaseRepo {
     this.menu = Menu(connection);
     this.role = Role(connection);
     this.feedback = Feedbacks(connection);
+    this.VatRateModel = VatRate(connection);
   }
+  
+  // get active vat rate for a country at a specific date
+  getActiveVatRates = async (country, atDate = new Date()) => {
+    return this.VatRateModel.findOne({
+      country,
+      validFrom: { $lte: atDate },
+      $or: [
+        { validTo: null },
+        { validTo: { $gte: atDate } }
+      ]
+    }).lean();
+  };
+
+  // get vat rate history for a country
+  getVatRateHistory = async (country) => {
+    return this.VatRateModel
+      .find({ country })
+      .sort({ validFrom: -1 })
+      .lean();
+  };
+
+  // delete vat rate (soft delete by setting validTo)
+  closeVatRate = async (id, closedAt = new Date()) => {
+    return this.VatRateModel.findByIdAndUpdate(
+      id,
+      { validTo: closedAt },
+      { new: true }
+    );
+  };
+
+  // update vat rate by creating a new version
+  updateVatRate = async (id, vatRateData) => {
+    const session = await this.VatRateModel.startSession();
+    session.startTransaction();
+
+    try {
+      const oldConfig = await this.VatRateModel
+        .findById(id)
+        .session(session);
+
+      if (!oldConfig) {
+        throw new Error("VAT configuration not found");
+      }
+
+      const newValidFrom = vatRateData.validFrom || new Date();
+
+      //Close old VAT configuration
+      oldConfig.validTo = newValidFrom;
+      await oldConfig.save({ session });
+
+      //Create new VAT configuration
+      const [newConfig] = await this.VatRateModel.create(
+        [{
+          country: oldConfig.country,
+          vatRates: vatRateData.vatRates, 
+          validFrom: newValidFrom,
+          validTo: null
+        }],
+        { session }
+      );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return newConfig;
+
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      throw err;
+    }
+    finally { }
+  };
+
+  // Check for overlapping VAT rates
+  findOverlappingVatRates = async (country, validFrom, validTo) => {
+    const effectiveValidTo = validTo ?? new Date("9999-12-31");
+
+    return this.VatRateModel.findOne({
+      country,
+      validFrom: { $lte: effectiveValidTo },
+      $or: [
+        { validTo: null },
+        { validTo: { $gte: validFrom } }
+      ]
+    }).lean();
+  };
+
+  // Add a new VAT rate
+  addVatRate = async (vatRateData) =>
+    await this.VatRateModel.create(vatRateData);
 
   addReview = async (review) => await this.feedback.create(review)
 

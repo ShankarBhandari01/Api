@@ -3,6 +3,16 @@ import { isAuthenticated } from "../../middleware/auth.js";
 
 const router = Router();
 
+router.post("/testRabitmqOrders", async (req, res, next) => {
+  try {
+    const controller = req.scope.resolve("orderController");
+    await controller.testRabitmqOrders();
+  } catch (error) {
+    next(error);
+  }
+})
+
+
 router.post("/saveOrder", async (req, res, next) => {
   try {
     const controller = req.scope.resolve("orderController");
