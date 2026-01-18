@@ -6,7 +6,7 @@ on:
       - master
 
 permissions:
-  contents: read # just enough to clone the repo
+  contents: read
 
 jobs:
   deploy:
@@ -26,7 +26,19 @@ jobs:
           ssh -o StrictHostKeyChecking=no shankar@82.25.101.68 << 'EOF'
             set -e
             cd /home/shankar/Api
+
+            echo "Pulling latest code..."
             git pull origin master
-            npm ci --omit=dev
+
+            echo "Installing dependencies..."
+            # Try clean install first
+            if ! npm ci --omit=dev; then
+              echo "npm ci failed, lock file mismatch? Falling back to npm install..."
+              npm install --omit=dev || exit 1
+            fi
+
+            echo "Restarting API service..."
             sudo systemctl restart my-api
+
+            echo "Deployment complete."
           EOF

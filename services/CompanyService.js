@@ -14,8 +14,17 @@ class CompanyService extends BaseService {
     );
 
   // fetch vat rates history for a country
-  getVatRates = async (country) =>
-    await this.handleRepositoryCall(this.companyRepository.getVatRateHistory, country = 'FI');
+  getVatRates = async (country) => {
+    const rates = await this.companyRepository.getVatRateHistory(country = 'FI')
+
+    const newRates = rates.map(rate => ({
+      ...rate,
+      validFrom: rate.validFrom.toISOString().split("T")[0],
+      validTo: rate.validTo ? rate.validTo.toISOString().split("T")[0] : null
+    }));
+    return super.prepareResponse(newRates);
+  }
+
 
   deleteVatRate = async (id) =>
     await this.handleRepositoryCall(
@@ -51,7 +60,7 @@ class CompanyService extends BaseService {
         this.companyRepository.addVatRate,
         vatRateData
       );
-      
+
     } catch (error) {
       this.logAndThrowError("addVatRate error ", error);
     }
