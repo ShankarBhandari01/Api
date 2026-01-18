@@ -96,7 +96,7 @@ class CompanyRepository extends BaseRepo {
   findOverlappingVatRates = async (country, validFrom, validTo) => {
     const effectiveValidTo = validTo ?? new Date("9999-12-31");
 
-    return this.VatRateModel.findOne({
+    return this.VatRateModel.find({
       country,
       validFrom: { $lte: effectiveValidTo },
       $or: [
