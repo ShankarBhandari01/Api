@@ -6,7 +6,7 @@ class CompanyService extends BaseService {
     this.companyRepository = companyRepository;
   }
 
-  getActiveVatRates = async (country= 'FI', atDate = new Date()) =>
+  getActiveVatRates = async (country = 'FI', atDate = new Date()) =>
     await this.handleRepositoryCall(
       this.companyRepository.getActiveVatRates,
       country,
@@ -15,7 +15,7 @@ class CompanyService extends BaseService {
 
   // fetch vat rates history for a country
   getVatRates = async (country) =>
-    await this.handleRepositoryCall(this.companyRepository.getVatRateHistory, country);
+    await this.handleRepositoryCall(this.companyRepository.getVatRateHistory, country = 'FI');
 
   deleteVatRate = async (id) =>
     await this.handleRepositoryCall(
@@ -31,24 +31,30 @@ class CompanyService extends BaseService {
     );
 
   addVatRate = async (vatRateData) => {
-    const { country, validFrom, validTo } = vatRateData;
-    // Validate overlapping VAT rates
-    const overlappingRates = await this.companyRepository.findOverlappingVatRates(
-      country,
-      validFrom,
-      validTo
-    );
+    try {
 
-    if (overlappingRates.length > 0) {
-      throw new Error(
-        "Overlapping VAT rate exists for the given country and category within the specified date range."
+      const { country, validFrom, validTo } = vatRateData;
+      // Validate overlapping VAT rates
+      const overlappingRates = await this.companyRepository.findOverlappingVatRates(
+        country,
+        validFrom,
+        validTo
       );
+
+      if (overlappingRates.length > 0) {
+        throw new Error(
+          "Overlapping VAT rate exists for the given country and category within the specified date range."
+        );
+      }
+      // If no overlaps, proceed to add the VAT rate
+      return await this.handleRepositoryCall(
+        this.companyRepository.addVatRate,
+        vatRateData
+      );
+      
+    } catch (error) {
+      this.logAndThrowError("addVatRate error ", error);
     }
-    // If no overlaps, proceed to add the VAT rate
-    return await this.handleRepositoryCall(
-      this.companyRepository.addVatRate,
-      vatRateData
-    );
   };
 
   deleteRole = async (id) =>
